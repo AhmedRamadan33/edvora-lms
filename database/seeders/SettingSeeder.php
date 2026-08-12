@@ -12,7 +12,7 @@ class SettingSeeder extends Seeder
         foreach ([
             'platform_name' => 'Edvora',
             'default_commission' => '20',
-            'currency' => 'USD',
+            'currency' => config('edvora.currency', 'EGP'),
         ] as $key => $value) {
             Setting::query()->updateOrCreate(['key' => $key], ['value' => $value]);
         }

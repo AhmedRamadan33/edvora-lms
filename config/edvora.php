@@ -2,7 +2,8 @@
 
 return [
     'default_commission' => (float) env('EDVORA_DEFAULT_COMMISSION', 20),
-    'currency' => env('EDVORA_CURRENCY', 'USD'),
+    'currency' => env('EDVORA_CURRENCY', 'EGP'),
+    'supported_currencies' => ['EGP', 'USD', 'EUR', 'SAR', 'AED', 'KWD', 'QAR', 'BHD'],
     'supported_locales' => ['en', 'ar'],
     'default_locale' => env('APP_LOCALE', 'en'),
 
@@ -25,7 +26,8 @@ return [
         'integration_id' => env('PAYMOB_INTEGRATION_ID'),
         'iframe_id' => env('PAYMOB_IFRAME_ID'),
         'hmac_secret' => env('PAYMOB_HMAC_SECRET'),
-        'currency' => env('PAYMOB_CURRENCY', 'EGP'),
+        // Kept for reference only. Runtime Paymob charges use the platform currency.
+        'currency' => env('PAYMOB_CURRENCY', env('EDVORA_CURRENCY', 'EGP')),
     ],
 
     'payments' => [

@@ -80,7 +80,7 @@
 
     <div class="col-lg-4">
         <div class="buy-box">
-            <div class="price mb-2">{{ number_format($course->price, 2) }} <small class="fs-6">{{ $course->currency }}</small></div>
+            <div class="price mb-2">{{ money($course->price) }}</div>
             <p class="text-muted small mb-3">{{ __('One-time purchase. Lifetime access to this course.') }}</p>
 
             @auth

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateSettingsRequest extends FormRequest
 {
@@ -11,12 +12,21 @@ class UpdateSettingsRequest extends FormRequest
         return $this->user()?->hasRole('admin') ?? false;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('currency')) {
+            $this->merge([
+                'currency' => strtoupper((string) $this->input('currency')),
+            ]);
+        }
+    }
+
     public function rules(): array
     {
         return [
             'platform_name' => ['required', 'string', 'max:120'],
             'default_commission' => ['required', 'numeric', 'min:0', 'max:100'],
-            'currency' => ['required', 'string', 'size:3'],
+            'currency' => ['required', 'string', 'size:3', Rule::in(config('edvora.supported_currencies', ['EGP', 'USD']))],
             'bunny_library_id' => ['nullable', 'string'],
             'bunny_api_key' => ['nullable', 'string'],
             'bunny_cdn_hostname' => ['nullable', 'string'],

@@ -45,7 +45,7 @@
                         <td>{{ $courses->firstItem() + $loop->index }}</td>
                         <td>
                             <div class="fw-semibold">{{ $course->translation()?->title }}</div>
-                            <div class="small text-muted">{{ number_format($course->price, 2) }} {{ $course->currency }}</div>
+                            <div class="small text-muted">{{ money($course->price) }}</div>
                         </td>
                         <td>{{ $course->category?->translation()?->name ?? '—' }}</td>
                         <td>{{ $course->instructor->name }}</td>

@@ -43,7 +43,8 @@ class PaymobService
 
     protected function currency(): string
     {
-        return strtoupper((string) (config('edvora.paymob.currency') ?: SettingService::get('paymob_currency') ?: 'EGP'));
+        // Single-currency business model: Paymob charges in the platform currency.
+        return SettingService::currency();
     }
 
     public function createPaymentKey(Order $order): array

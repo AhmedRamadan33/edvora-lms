@@ -20,11 +20,11 @@
                     </li>
                 @endforeach
             </ul>
-            <div class="d-flex justify-content-between"><span>{{ __('Subtotal') }}</span><strong>{{ number_format($subtotal, 2) }} {{ $currency }}</strong></div>
-            <div class="d-flex justify-content-between"><span>{{ __('Discount') }}</span><strong>- {{ number_format($discount, 2) }}</strong></div>
+            <div class="d-flex justify-content-between"><span>{{ __('Subtotal') }}</span><strong>{{ money($subtotal, $currency) }}</strong></div>
+            <div class="d-flex justify-content-between"><span>{{ __('Discount') }}</span><strong>- {{ money($discount, $currency) }}</strong></div>
             <div class="d-flex justify-content-between fs-4 mt-3 pt-3 border-top">
                 <span>{{ __('Total') }}</span>
-                <strong>{{ number_format($total, 2) }} {{ $currency }}</strong>
+                <strong>{{ money($total, $currency) }}</strong>
             </div>
         </div>
     </div>

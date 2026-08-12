@@ -46,7 +46,7 @@
                     <tr>
                         <td class="fw-semibold">{{ $order->number }}</td>
                         <td>{{ $order->user->name }}</td>
-                        <td>{{ number_format($order->total, 2) }} {{ $order->currency }}</td>
+                        <td>{{ money($order->total, $order->currency) }}</td>
                         <td><span class="ed-status is-{{ $order->status }}">{{ __status($order->status) }}</span></td>
                     </tr>
                 @empty

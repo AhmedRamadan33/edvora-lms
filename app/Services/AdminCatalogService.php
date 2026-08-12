@@ -15,8 +15,10 @@ use Illuminate\Support\Facades\DB;
 
 class AdminCatalogService
 {
-    public function __construct(private CouponRepository $coupons)
-    {
+    public function __construct(
+        private CouponRepository $coupons,
+        private CurrencyService $currency,
+    ) {
     }
 
     public function paginateCoupons(int $perPage = 20, ?string $search = null)
@@ -39,11 +41,23 @@ class AdminCatalogService
 
     public function updateSettings(array $data): void
     {
+        $previousCurrency = $this->currency->code();
+
         foreach ($data as $key => $value) {
+            if ($key === 'currency') {
+                $value = strtoupper((string) $value);
+            }
+
             SettingService::set($key, $value);
         }
 
-        ActivityLog::record('settings.updated');
+        if (isset($data['currency']) && strtoupper((string) $data['currency']) !== $previousCurrency) {
+            $this->currency->syncCourses(strtoupper((string) $data['currency']));
+        }
+
+        ActivityLog::record('settings.updated', null, [
+            'currency' => SettingService::currency(),
+        ]);
     }
 
     public function approveCourse(Course $course): void

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Services\SettingService;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -22,6 +24,17 @@ class Course extends Model
             'is_featured' => 'boolean',
             'published_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Courses always expose the official platform currency (single-currency model).
+     */
+    protected function currency(): Attribute
+    {
+        return Attribute::make(
+            get: fn (?string $value) => strtoupper((string) SettingService::currency()),
+            set: fn (?string $value) => strtoupper((string) ($value ?: SettingService::currency())),
+        );
     }
 
     public function instructor(): BelongsTo

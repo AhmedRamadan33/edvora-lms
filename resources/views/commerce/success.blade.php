@@ -8,7 +8,7 @@
         <p class="text-muted mb-1">{{ __('Order') }}: <strong>{{ $order->number }}</strong></p>
         <p class="text-muted mb-1">
             {{ __('Amount') }}:
-            <strong>{{ number_format($order->total, 2) }} {{ $order->currency }}</strong>
+            <strong>{{ money($order->total, $order->currency) }}</strong>
         </p>
         @if($order->payment)
             <p class="text-muted mb-4">

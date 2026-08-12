@@ -37,7 +37,7 @@ class SettingService
 
     public static function currency(): string
     {
-        return (string) static::get('currency', config('edvora.currency', 'USD'));
+        return strtoupper((string) static::get('currency', config('edvora.currency', 'USD')));
     }
 
     public static function platformName(): string

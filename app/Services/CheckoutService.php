@@ -83,9 +83,7 @@ class CheckoutService
             }
 
             $discount = $coupon?->discountFor($subtotal) ?? 0;
-            $currency = $provider === 'paymob'
-                ? strtoupper((string) (config('edvora.paymob.currency') ?: 'EGP'))
-                : SettingService::currency();
+            $currency = SettingService::currency();
 
             $order = Order::query()->create([
                 'number' => 'EDV-'.strtoupper(Str::random(10)),

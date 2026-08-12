@@ -25,7 +25,7 @@
                             <div class="fw-semibold">{{ $item->course->translation()?->title }}</div>
                             <div class="small text-muted">{{ $item->course->instructor?->name }}</div>
                         </td>
-                        <td>{{ number_format($item->course->price, 2) }} {{ $item->course->currency }}</td>
+                        <td>{{ money($item->course->price) }}</td>
                         <td class="pe-4 text-end">
                             <form method="POST" action="{{ route('cart.destroy', $item->course) }}">
                                 @csrf

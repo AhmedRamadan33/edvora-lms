@@ -21,7 +21,7 @@
                 <h3 class="h5 mb-2">{{ $course->translation()?->title }}</h3>
                 <p class="text-muted small flex-grow-1">{{ Str::limit($course->translation()?->subtitle, 80) }}</p>
                 <div class="d-flex justify-content-between align-items-center">
-                    <strong>{{ number_format($course->price, 2) }} {{ $course->currency }}</strong>
+                    <strong>{{ money($course->price) }}</strong>
                     <a href="{{ route('instructor.courses.edit', $course) }}" class="btn btn-sm btn-outline-primary">{{ __('Manage') }}</a>
                 </div>
             </div>

@@ -51,6 +51,7 @@ class CourseService
             'level' => $data['level'],
             'language' => $data['language'],
             'price' => $data['price'],
+            'currency' => SettingService::currency(),
         ];
 
         if ($thumbnail) {

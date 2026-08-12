@@ -17,7 +17,7 @@
         <h3 class="course-tile__title">{{ $t?->title }}</h3>
         <p class="course-tile__excerpt">{{ Str::limit($t?->subtitle ?: $t?->description, 78) }}</p>
         <div class="course-tile__footer">
-            <div class="course-tile__price">{{ number_format($course->price, 2) }} {{ $course->currency }}</div>
+            <div class="course-tile__price">{{ money($course->price) }}</div>
             <span class="small text-muted">
                 @if($course->reviews_count)
                     {{ number_format($course->avg_rating, 1) }} ★

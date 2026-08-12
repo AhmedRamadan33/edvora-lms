@@ -30,7 +30,15 @@
         ] as $key => $label)
             <div class="col-md-6">
                 <label class="form-label">{{ __($label) }}</label>
-                <input class="form-control" name="{{ $key }}" value="{{ old($key, $settings[$key] ?? '') }}">
+                <input class="form-control" name="{{ $key }}" value="{{ old($key, $settings[$key] ?? '') }}" @if($key === 'currency') list="edvora-currencies" maxlength="3" style="text-transform:uppercase" @endif>
+                @if($key === 'currency')
+                    <datalist id="edvora-currencies">
+                        @foreach(config('edvora.supported_currencies') as $code)
+                            <option value="{{ $code }}"></option>
+                        @endforeach
+                    </datalist>
+                    <div class="form-text">{{ __('Official platform currency for courses, checkout, Stripe, and Paymob. Changing it updates all courses.') }}</div>
+                @endif
             </div>
         @endforeach
         <div class="col-12">

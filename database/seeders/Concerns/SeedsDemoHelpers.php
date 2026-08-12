@@ -48,7 +48,7 @@ trait SeedsDemoHelpers
                 'level' => $data['level'] ?? 'beginner',
                 'language' => $data['language'] ?? 'en',
                 'price' => $data['price'],
-                'currency' => 'USD',
+                'currency' => \App\Services\SettingService::currency(),
                 'status' => $data['status'] ?? 'published',
                 'is_featured' => $data['featured'] ?? false,
                 'published_at' => ($data['status'] ?? 'published') === 'published'
@@ -222,7 +222,7 @@ trait SeedsDemoHelpers
                 'subtotal' => $subtotal,
                 'discount' => $discount,
                 'total' => $total,
-                'currency' => 'USD',
+                'currency' => \App\Services\SettingService::currency(),
                 'status' => 'paid',
                 'payment_method' => $provider,
             ]
@@ -261,7 +261,7 @@ trait SeedsDemoHelpers
                 'provider' => $provider,
                 'provider_reference' => 'demo_'.$number,
                 'amount' => $total,
-                'currency' => 'USD',
+                'currency' => \App\Services\SettingService::currency(),
                 'status' => 'paid',
                 'payload' => ['demo' => true],
             ]

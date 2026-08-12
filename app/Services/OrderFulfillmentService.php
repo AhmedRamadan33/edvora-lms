@@ -142,14 +142,8 @@ class OrderFulfillmentService
 
         $orderCurrency = strtoupper((string) $order->currency);
         $paidCurrency = strtoupper($currency);
-        $provider = $provider ?: $order->payment_method;
 
         if ($paidCurrency === $orderCurrency) {
-            return true;
-        }
-
-        $paymobCurrency = strtoupper((string) (config('edvora.paymob.currency') ?: 'EGP'));
-        if ($provider === 'paymob' && $paidCurrency === $paymobCurrency) {
             return true;
         }
 
@@ -157,7 +151,7 @@ class OrderFulfillmentService
             'order_id' => $order->id,
             'expected' => $order->currency,
             'paid' => $currency,
-            'provider' => $provider,
+            'provider' => $provider ?: $order->payment_method,
         ]);
 
         return false;

@@ -479,5 +479,6 @@
     "Browse more courses": "تصفح المزيد من الكورسات",
     "Payment webhooks": "روابط Webhooks للدفع",
     "Stripe publishable key": "مفتاح Stripe العام",
-    "Invalid payment method.": "طريقة دفع غير صالحة."
+    "Invalid payment method.": "طريقة دفع غير صالحة.",
+    "Official platform currency for courses, checkout, Stripe, and Paymob. Changing it updates all courses.": "العملة الرسمية للمنصة للكورسات والدفع وStripe وPaymob. تغييرها يحدّث كل الكورسات."
 }
