@@ -480,5 +480,6 @@
     "Payment webhooks": "روابط Webhooks للدفع",
     "Stripe publishable key": "مفتاح Stripe العام",
     "Invalid payment method.": "طريقة دفع غير صالحة.",
-    "Official platform currency for courses, checkout, Stripe, and Paymob. Changing it updates all courses.": "العملة الرسمية للمنصة للكورسات والدفع وStripe وPaymob. تغييرها يحدّث كل الكورسات."
+    "Official platform currency for courses, checkout, Stripe, and Paymob. Changing it updates all courses.": "العملة الرسمية للمنصة للكورسات والدفع وStripe وPaymob. تغييرها يحدّث كل الكورسات.",
+    "Use these URLs in Stripe and Paymob dashboards. APP_URL must match your live domain.": "استخدم الروابط دي في لوحات Stripe وPaymob. لازم APP_URL يطابق الدومين اللايف."
 }

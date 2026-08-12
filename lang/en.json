@@ -468,5 +468,6 @@
     "Payment webhooks": "Payment webhooks",
     "Stripe publishable key": "Stripe publishable key",
     "Invalid payment method.": "Invalid payment method.",
-    "Official platform currency for courses, checkout, Stripe, and Paymob. Changing it updates all courses.": "Official platform currency for courses, checkout, Stripe, and Paymob. Changing it updates all courses."
+    "Official platform currency for courses, checkout, Stripe, and Paymob. Changing it updates all courses.": "Official platform currency for courses, checkout, Stripe, and Paymob. Changing it updates all courses.",
+    "Use these URLs in Stripe and Paymob dashboards. APP_URL must match your live domain.": "Use these URLs in Stripe and Paymob dashboards. APP_URL must match your live domain."
 }

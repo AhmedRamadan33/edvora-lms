@@ -44,9 +44,11 @@
         <div class="col-12">
             <div class="ed-panel p-3 bg-light border-0">
                 <div class="fw-semibold mb-2">{{ __('Payment webhooks') }}</div>
-                <div class="small text-muted mb-1">Stripe: <code>{{ url('/webhooks/stripe') }}</code></div>
-                <div class="small text-muted mb-1">Paymob callback: <code>{{ url('/webhooks/paymob') }}</code></div>
-                <div class="small text-muted">Paymob redirection: <code>{{ url('/checkout/paymob/return') }}</code></div>
+                <div class="small text-muted mb-2">{{ __('Use these URLs in Stripe and Paymob dashboards. APP_URL must match your live domain.') }}</div>
+                <div class="small text-muted mb-1">Stripe webhook: <code>{{ rtrim(config('app.url'), '/') }}/webhooks/stripe</code></div>
+                <div class="small text-muted mb-1">Paymob callback: <code>{{ rtrim(config('app.url'), '/') }}/webhooks/paymob</code></div>
+                <div class="small text-muted mb-1">Paymob redirection: <code>{{ rtrim(config('app.url'), '/') }}/checkout/paymob/return</code></div>
+                <div class="small text-muted mt-2">Live domain example: <code>https://edvora.codeversetechno.com</code></div>
             </div>
         </div>
         <div class="col-12 pt-2">
