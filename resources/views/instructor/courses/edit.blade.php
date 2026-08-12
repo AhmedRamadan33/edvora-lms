@@ -1,0 +1,252 @@
+@extends('layouts.panel')
+@section('heading', __('Edit course'))
+@section('sidebar')@include('instructor.partials.nav')@endsection
+@section('content')
+    @php
+        $en = $course->translations->firstWhere('locale', 'en');
+        $ar = $course->translations->firstWhere('locale', 'ar');
+    @endphp
+
+    <div class="ed-page-head">
+        <div>
+            <h2>{{ $course->translation()?->title ?: __('Edit course') }}</h2>
+            <p>
+                <span class="ed-status is-{{ $course->status }}">{{ __status($course->status) }}</span>
+                @if ($course->rejection_reason)
+                    <span class="text-danger small ms-2">{{ $course->rejection_reason }}</span>
+                @endif
+            </p>
+        </div>
+        <form method="POST" action="{{ route('instructor.courses.submit', $course) }}">
+            @csrf
+            <button class="btn btn-success btn-sm">{{ __('Submit for review') }}</button>
+        </form>
+    </div>
+
+    <form method="POST" action="{{ route('instructor.courses.update', $course) }}" enctype="multipart/form-data"
+        class="ed-panel p-4 mb-4">
+        <div class="row g-3">
+            @csrf
+            @method('PUT')
+            <div class="col-md-6">
+                <label class="form-label">{{ __('Title (EN)') }}</label>
+                <input name="title_en" class="form-control" value="{{ $en?->title }}" required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">{{ __('Title (AR)') }}</label>
+                <input name="title_ar" class="form-control" value="{{ $ar?->title }}" required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">{{ __('Subtitle (EN)') }}</label>
+                <input name="subtitle_en" class="form-control" value="{{ $en?->subtitle }}">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">{{ __('Subtitle (AR)') }}</label>
+                <input name="subtitle_ar" class="form-control" value="{{ $ar?->subtitle }}">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">{{ __('Description (EN)') }}</label>
+                <textarea name="description_en" class="form-control" rows="4">{{ $en?->description }}</textarea>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">{{ __('Description (AR)') }}</label>
+                <textarea name="description_ar" class="form-control" rows="4">{{ $ar?->description }}</textarea>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">{{ __('Category') }}</label>
+                <select name="category_id" class="form-select">
+                    <option value="">-</option>
+                    @foreach ($categories as $category)
+                        <option value="{{ $category->id }}" @selected($course->category_id == $category->id)>
+                            {{ $category->translation()?->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">{{ __('Level') }}</label>
+                <select name="level" class="form-select">
+                    @foreach (['beginner', 'intermediate', 'advanced'] as $level)
+                        <option value="{{ $level }}" @selected($course->level === $level)>{{ __($level) }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">{{ __('Language') }}</label>
+                <select name="language" class="form-select">
+                    <option value="en" @selected($course->language === 'en')>{{ __('en') }}</option>
+                    <option value="ar" @selected($course->language === 'ar')>{{ __('ar') }}</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">{{ __('Price') }}</label>
+                <input type="number" step="0.01" name="price" class="form-control" value="{{ $course->price }}">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">{{ __('Thumbnail') }}</label>
+                <input type="file" name="thumbnail" class="form-control">
+            </div>
+            <div class="col-12">
+                <button class="btn btn-primary">{{ __('Save course') }}</button>
+            </div>
+        </div>
+    </form>
+
+    <div class="ed-panel p-4 mb-4">
+        <h2 class="h5 mb-3">{{ __('Add section') }}</h2>
+        <form method="POST" action="{{ route('instructor.sections.store', $course) }}" class="d-flex gap-2">
+            @csrf
+            <input name="title" class="form-control" placeholder="{{ __('Section title') }}" required>
+            <button class="btn btn-outline-primary">{{ __('Add') }}</button>
+        </form>
+    </div>
+
+    @foreach ($course->sections as $section)
+        <div class="ed-panel p-4 mb-3">
+            <h3 class="h5 mb-3">{{ $section->title }}</h3>
+
+            <ul class="list-group mb-4">
+                @forelse($section->lessons as $lesson)
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>
+                            {{ $lesson->title }}
+                            <span class="badge text-bg-light">{{ $lesson->type }}</span>
+                            @if ($lesson->is_preview)
+                                <span class="badge text-bg-info">{{ __('Preview') }}</span>
+                            @endif
+                            @if ($lesson->video)
+                                · {{ __status($lesson->video->status) }}
+                            @endif
+                        </span>
+                        <span class="d-flex gap-1">
+                            @if ($lesson->type === 'video' && $lesson->video)
+                                <form method="POST" action="{{ route('instructor.lessons.ready', [$course, $lesson]) }}">
+                                    @csrf
+                                    <button class="btn btn-sm btn-outline-success">{{ __('Mark ready') }}</button>
+                                </form>
+                            @endif
+                            <form method="POST" action="{{ route('instructor.lessons.destroy', [$course, $lesson]) }}">
+                                @csrf
+                                @method('DELETE')
+                                <button class="btn btn-sm btn-outline-danger">{{ __('Delete') }}</button>
+                            </form>
+                        </span>
+                    </li>
+                @empty
+                    <li class="list-group-item text-muted">{{ __('No lessons yet.') }}</li>
+                @endforelse
+            </ul>
+
+            <form method="POST" action="{{ route('instructor.lessons.store', [$course, $section]) }}"
+                enctype="multipart/form-data" class="lesson-form border rounded-3 p-3 bg-light" data-lesson-form>
+                @csrf
+                <h4 class="h6 mb-3">{{ __('Add lesson') }}</h4>
+
+                <div class="row g-3">
+                    <div class="col-md-5">
+                        <label class="form-label">{{ __('Lesson title') }}</label>
+                        <input name="title" class="form-control" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">{{ __('Lesson type') }}</label>
+                        <select name="type" class="form-select" data-lesson-type>
+                            <option value="video">{{ __('Video') }}</option>
+                            <option value="article">{{ __('Article') }}</option>
+                            <option value="file">{{ __('File') }}</option>
+                            <option value="quiz">{{ __('Quiz') }}</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <div class="form-check mb-2">
+                            <input type="checkbox" name="is_preview" value="1" class="form-check-input"
+                                id="preview{{ $section->id }}">
+                            <label class="form-check-label"
+                                for="preview{{ $section->id }}">{{ __('Free preview') }}</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-3" data-panel="video">
+                    <div class="alert alert-secondary mb-0 small">
+                        {{ __('A Bunny video record will be created for this lesson. Upload/process the video in Bunny, then mark it ready.') }}
+                    </div>
+                </div>
+
+                <div class="mt-3 d-none" data-panel="article">
+                    <label class="form-label">{{ __('Article content') }}</label>
+                    <textarea name="content" class="form-control" rows="4" data-article-content
+                        placeholder="{{ __('Write the lesson content...') }}"></textarea>
+                </div>
+
+                <div class="mt-3 d-none" data-panel="file">
+                    <label class="form-label">{{ __('Attachment file') }}</label>
+                    <input type="file" name="attachment" class="form-control" data-file-input>
+                    <div class="form-text">{{ __('PDF, ZIP, images... max 10MB') }}</div>
+                </div>
+
+                <div class="mt-3 d-none" data-panel="quiz">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-8">
+                            <label class="form-label">{{ __('Quiz title') }}</label>
+                            <input name="quiz_title" class="form-control" data-quiz-field>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">{{ __('Pass percent') }}</label>
+                            <input type="number" name="pass_percent" class="form-control" value="70"
+                                min="1" max="100" data-quiz-field>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <strong>{{ __('Questions') }}</strong>
+                        <button type="button" class="btn btn-sm btn-outline-primary" data-add-question>
+                            <i class="bi bi-plus-lg"></i> {{ __('Add question') }}
+                        </button>
+                    </div>
+
+                    <div data-questions-list></div>
+                </div>
+
+                <div class="mt-3">
+                    <button class="btn btn-primary btn-sm">{{ __('Add lesson') }}</button>
+                </div>
+            </form>
+        </div>
+    @endforeach
+
+    <template id="lesson-question-template">
+        <div class="card border mb-3" data-question-item>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <strong data-question-label>{{ __('Question') }}</strong>
+                    <button type="button" class="btn btn-sm btn-outline-danger"
+                        data-remove-question>{{ __('Remove') }}</button>
+                </div>
+                <input type="text" class="form-control mb-2" data-q-text placeholder="{{ __('Question text') }}">
+                <div class="row g-2 mb-2">
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" data-q-option placeholder="{{ __('Option') }} A">
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" data-q-option placeholder="{{ __('Option') }} B">
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" data-q-option
+                            placeholder="{{ __('Option') }} C ({{ __('optional') }})">
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" data-q-option
+                            placeholder="{{ __('Option') }} D ({{ __('optional') }})">
+                    </div>
+                </div>
+                <label class="form-label">{{ __('Correct answer') }}</label>
+                <select class="form-select" data-q-correct>
+                    <option value="0">A</option>
+                    <option value="1">B</option>
+                    <option value="2">C</option>
+                    <option value="3">D</option>
+                </select>
+            </div>
+        </div>
+    </template>
+@endsection

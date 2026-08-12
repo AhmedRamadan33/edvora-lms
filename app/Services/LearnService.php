@@ -1,0 +1,77 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\Course;
+use App\Models\CourseAnswer;
+use App\Models\CourseQuestion;
+use App\Models\Lesson;
+use App\Models\QuizAttempt;
+use App\Models\User;
+
+class LearnService
+{
+    public function __construct(private ProgressService $progress)
+    {
+    }
+
+    public function submitQuiz(User $user, Course $course, Lesson $lesson, array $answers): array
+    {
+        abort_unless($lesson->course_id === $course->id && $lesson->quiz, 404);
+
+        $quiz = $lesson->quiz()->with('questions')->first();
+        $correct = 0;
+
+        foreach ($quiz->questions as $question) {
+            if ((int) ($answers[$question->id] ?? -1) === (int) $question->correct_index) {
+                $correct++;
+            }
+        }
+
+        $total = max($quiz->questions->count(), 1);
+        $score = (int) round(($correct / $total) * 100);
+        $passed = $score >= $quiz->pass_percent;
+
+        QuizAttempt::query()->create([
+            'quiz_id' => $quiz->id,
+            'user_id' => $user->id,
+            'score' => $score,
+            'passed' => $passed,
+            'answers' => $answers,
+        ]);
+
+        if ($passed) {
+            $this->progress->markCompleted($user, $lesson);
+        }
+
+        return [
+            'passed' => $passed,
+            'score' => $score,
+            'message' => $passed
+                ? __('Quiz passed with :score%.', ['score' => $score])
+                : __('Quiz failed with :score%.', ['score' => $score]),
+        ];
+    }
+
+    public function ask(User $user, Course $course, Lesson $lesson, array $data): CourseQuestion
+    {
+        return CourseQuestion::query()->create([
+            'course_id' => $course->id,
+            'lesson_id' => $lesson->id,
+            'user_id' => $user->id,
+            'title' => $data['title'],
+            'body' => $data['body'],
+        ]);
+    }
+
+    public function answer(User $user, Course $course, CourseQuestion $question, array $data): CourseAnswer
+    {
+        abort_unless($question->course_id === $course->id, 404);
+
+        return CourseAnswer::query()->create([
+            'course_question_id' => $question->id,
+            'user_id' => $user->id,
+            'body' => $data['body'],
+        ]);
+    }
+}

@@ -1,0 +1,98 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\Course;
+use App\Models\User;
+use App\Repositories\CourseRepository;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Str;
+
+class CourseService
+{
+    public function __construct(private CourseRepository $courses)
+    {
+    }
+
+    public function paginateForInstructor(User $instructor, int $perPage = 12, ?string $search = null)
+    {
+        return $this->courses->paginateForInstructor($instructor->id, $perPage, $search);
+    }
+
+    public function activeCategories()
+    {
+        return $this->courses->activeCategories();
+    }
+
+    public function create(User $instructor, array $data, ?UploadedFile $thumbnail = null): Course
+    {
+        /** @var Course $course */
+        $course = $this->courses->create([
+            'instructor_id' => $instructor->id,
+            'category_id' => $data['category_id'] ?? null,
+            'slug' => Str::slug($data['title_en']).'-'.Str::lower(Str::random(5)),
+            'thumbnail' => $thumbnail?->store('courses', 'public'),
+            'level' => $data['level'],
+            'language' => $data['language'],
+            'price' => $data['price'],
+            'currency' => SettingService::currency(),
+            'status' => 'draft',
+        ]);
+
+        $this->syncTranslations($course, $data);
+
+        return $course;
+    }
+
+    public function update(Course $course, array $data, ?UploadedFile $thumbnail = null): Course
+    {
+        $payload = [
+            'category_id' => $data['category_id'] ?? null,
+            'level' => $data['level'],
+            'language' => $data['language'],
+            'price' => $data['price'],
+        ];
+
+        if ($thumbnail) {
+            $payload['thumbnail'] = $thumbnail->store('courses', 'public');
+        }
+
+        $this->courses->update($course, $payload);
+        $this->syncTranslations($course, $data);
+
+        return $course->refresh();
+    }
+
+    public function submitForReview(Course $course): array
+    {
+        if ($course->lessons()->count() === 0) {
+            return ['ok' => false, 'message' => __('Add at least one lesson before submitting.')];
+        }
+
+        $this->courses->update($course, [
+            'status' => 'pending_review',
+            'rejection_reason' => null,
+        ]);
+
+        return ['ok' => true, 'message' => __('Course submitted for review.')];
+    }
+
+    public function loadForEdit(Course $course): Course
+    {
+        return $this->courses->loadCurriculum($course);
+    }
+
+    protected function syncTranslations(Course $course, array $data): void
+    {
+        foreach (['en', 'ar'] as $locale) {
+            $course->translations()->updateOrCreate(
+                ['locale' => $locale],
+                [
+                    'title' => $data["title_{$locale}"],
+                    'subtitle' => $data["subtitle_{$locale}"] ?? null,
+                    'description' => $data["description_{$locale}"] ?? null,
+                ]
+            );
+        }
+    }
+}

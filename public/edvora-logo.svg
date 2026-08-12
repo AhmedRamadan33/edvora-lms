@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none" role="img" aria-label="Edvora">
+  <rect width="120" height="120" rx="28" fill="#0C1222"/>
+  <path d="M34 30h52a8 8 0 0 1 8 8v8H42a4 4 0 0 0 0 8h44v12H42a4 4 0 0 0 0 8h52v8a8 8 0 0 1-8 8H34a8 8 0 0 1-8-8V38a8 8 0 0 1 8-8Z" fill="#0F8F85"/>
+  <circle cx="90" cy="38" r="5" fill="#4FD1C5"/>
+  <circle cx="90" cy="82" r="5" fill="#4FD1C5"/>
+</svg>

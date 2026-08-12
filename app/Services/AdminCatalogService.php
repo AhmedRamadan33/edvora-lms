@@ -1,0 +1,149 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\ActivityLog;
+use App\Models\Coupon;
+use App\Models\Course;
+use App\Models\InstructorEarning;
+use App\Models\InstructorProfile;
+use App\Models\PayoutRequest;
+use App\Models\User;
+use App\Notifications\CourseStatusNotification;
+use App\Repositories\CouponRepository;
+use Illuminate\Support\Facades\DB;
+
+class AdminCatalogService
+{
+    public function __construct(private CouponRepository $coupons)
+    {
+    }
+
+    public function paginateCoupons(int $perPage = 20, ?string $search = null)
+    {
+        return $this->coupons->paginateLatest($perPage, $search);
+    }
+
+    public function createCoupon(array $data): Coupon
+    {
+        $data['code'] = strtoupper($data['code']);
+        $data['is_active'] = true;
+
+        return $this->coupons->create($data);
+    }
+
+    public function deleteCoupon(Coupon $coupon): bool
+    {
+        return $this->coupons->delete($coupon);
+    }
+
+    public function updateSettings(array $data): void
+    {
+        foreach ($data as $key => $value) {
+            SettingService::set($key, $value);
+        }
+
+        ActivityLog::record('settings.updated');
+    }
+
+    public function approveCourse(Course $course): void
+    {
+        $course->update([
+            'status' => 'published',
+            'published_at' => now(),
+            'rejection_reason' => null,
+        ]);
+
+        ActivityLog::record('course.approved', $course);
+        $course->instructor->notify(new CourseStatusNotification($course, 'published'));
+    }
+
+    public function rejectCourse(Course $course, string $reason): void
+    {
+        $course->update([
+            'status' => 'rejected',
+            'rejection_reason' => $reason,
+        ]);
+
+        ActivityLog::record('course.rejected', $course);
+        $course->instructor->notify(new CourseStatusNotification($course, 'rejected'));
+    }
+
+    public function approveInstructor(InstructorProfile $profile): void
+    {
+        $profile->update(['status' => 'approved', 'approved_at' => now(), 'rejection_reason' => null]);
+        $profile->user->syncRoles(['instructor']);
+        ActivityLog::record('instructor.approved', $profile);
+    }
+
+    public function rejectInstructor(InstructorProfile $profile, string $reason): void
+    {
+        $profile->update(['status' => 'rejected', 'rejection_reason' => $reason]);
+        ActivityLog::record('instructor.rejected', $profile);
+    }
+
+    public function approvePayout(PayoutRequest $payout, ?string $adminNote = null): array
+    {
+        if ($payout->status !== 'pending') {
+            return ['ok' => false, 'message' => __('Already processed.')];
+        }
+
+        DB::transaction(function () use ($payout, $adminNote) {
+            $payout->update([
+                'status' => 'paid',
+                'admin_note' => $adminNote,
+                'processed_at' => now(),
+            ]);
+
+            InstructorEarning::query()
+                ->where('instructor_id', $payout->instructor_id)
+                ->where('status', 'available')
+                ->orderBy('id')
+                ->limit(1000)
+                ->get()
+                ->reduce(function ($remaining, $earning) {
+                    if ($remaining <= 0) {
+                        return $remaining;
+                    }
+                    $earning->update(['status' => 'paid']);
+
+                    return $remaining - (float) $earning->amount;
+                }, (float) $payout->amount);
+
+            ActivityLog::record('payout.paid', $payout);
+        });
+
+        return ['ok' => true, 'message' => __('Payout marked as paid.')];
+    }
+
+    public function rejectPayout(PayoutRequest $payout, string $adminNote): void
+    {
+        $payout->update([
+            'status' => 'rejected',
+            'admin_note' => $adminNote,
+            'processed_at' => now(),
+        ]);
+    }
+
+    public function requestPayout(User $instructor, array $data): array
+    {
+        $available = InstructorEarning::query()
+            ->where('instructor_id', $instructor->id)
+            ->where('status', 'available')
+            ->sum('amount');
+
+        if ($data['amount'] > $available) {
+            return ['ok' => false, 'message' => __('Amount exceeds available balance.')];
+        }
+
+        PayoutRequest::query()->create([
+            'instructor_id' => $instructor->id,
+            'amount' => $data['amount'],
+            'method' => $data['method'],
+            'account_details' => $data['account_details'],
+            'status' => 'pending',
+        ]);
+
+        return ['ok' => true, 'message' => __('Payout request submitted.')];
+    }
+}

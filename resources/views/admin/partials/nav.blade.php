@@ -1,0 +1,14 @@
+<a class="nav-link @if(request()->routeIs('admin.dashboard')) active @endif" href="{{ route('admin.dashboard') }}"><i class="bi bi-grid-1x2 me-2"></i>{{ __('Dashboard') }}</a>
+<a class="nav-link @if(request()->routeIs('admin.courses.*')) active @endif" href="{{ route('admin.courses.index') }}"><i class="bi bi-collection-play me-2"></i>{{ __('Courses') }}</a>
+<a class="nav-link @if(request()->routeIs('admin.categories.*')) active @endif" href="{{ route('admin.categories.index') }}"><i class="bi bi-tags me-2"></i>{{ __('Categories') }}</a>
+<a class="nav-link @if(request()->routeIs('admin.users.*')) active @endif" href="{{ route('admin.users.index') }}"><i class="bi bi-people me-2"></i>{{ __('Users') }}</a>
+<a class="nav-link @if(request()->routeIs('admin.instructors.*')) active @endif" href="{{ route('admin.instructors.index') }}"><i class="bi bi-person-badge me-2"></i>{{ __('Instructors') }}</a>
+<a class="nav-link @if(request()->routeIs('admin.students.*')) active @endif" href="{{ route('admin.students.index') }}"><i class="bi bi-person-badge me-2"></i>{{ __('Students') }}</a>
+<a class="nav-link @if(request()->routeIs('admin.coupons.*')) active @endif" href="{{ route('admin.coupons.index') }}"><i class="bi bi-ticket-perforated me-2"></i>{{ __('Coupons') }}</a>
+<a class="nav-link @if(request()->routeIs('admin.payouts.*')) active @endif" href="{{ route('admin.payouts.index') }}"><i class="bi bi-wallet2 me-2"></i>{{ __('Payouts') }}</a>
+<a class="nav-link @if(request()->routeIs('admin.reports.*')) active @endif" href="{{ route('admin.reports.index') }}"><i class="bi bi-graph-up-arrow me-2"></i>{{ __('Reports') }}</a>
+<a class="nav-link @if(request()->routeIs('admin.pages.*')) active @endif" href="{{ route('admin.pages.index') }}"><i class="bi bi-file-earmark-text me-2"></i>{{ __('Pages') }}</a>
+<a class="nav-link @if(request()->routeIs('admin.contacts.*')) active @endif" href="{{ route('admin.contacts.index') }}"><i class="bi bi-envelope me-2"></i>{{ __('Contact') }}</a>
+<a class="nav-link @if(request()->routeIs('admin.testimonials.*')) active @endif" href="{{ route('admin.testimonials.index') }}"><i class="bi bi-chat-quote me-2"></i>{{ __('Testimonials') }}</a>
+<a class="nav-link @if(request()->routeIs('admin.activity.*')) active @endif" href="{{ route('admin.activity.index') }}"><i class="bi bi-activity me-2"></i>{{ __('Activity') }}</a>
+<a class="nav-link @if(request()->routeIs('admin.settings.*')) active @endif" href="{{ route('admin.settings.edit') }}"><i class="bi bi-sliders me-2"></i>{{ __('Settings') }}</a>
