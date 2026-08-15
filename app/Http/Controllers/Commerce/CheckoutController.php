@@ -68,7 +68,8 @@ class CheckoutController extends Controller
             $order,
             $request->boolean('demo'),
             $request->get('provider'),
-            $request->get('session_id')
+            $request->get('session_id'),
+            $request->get('id'),
         );
 
         $request->session()->forget('coupon_code');
@@ -135,6 +136,7 @@ class CheckoutController extends Controller
         return redirect()->route('checkout.success', [
             'order' => $order,
             'provider' => 'paymob',
+            'id' => $request->query('id'),
         ]);
     }
 

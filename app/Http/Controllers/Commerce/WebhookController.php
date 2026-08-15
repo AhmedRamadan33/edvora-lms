@@ -30,12 +30,21 @@ class WebhookController extends Controller
     public function paymob(Request $request, PaymobService $paymob): Response
     {
         try {
+            $payload = $request->json()->all();
+            if ($payload === []) {
+                $payload = $request->all();
+            }
+
             $paymob->handleWebhook(
-                $request->all(),
-                $request->query('hmac') ?? $request->input('hmac')
+                $payload,
+                $request->query('hmac') ?? data_get($payload, 'hmac')
             );
         } catch (\Throwable $e) {
-            Log::error('Paymob webhook error', ['message' => $e->getMessage()]);
+            Log::error('Paymob webhook error', [
+                'message' => $e->getMessage(),
+                'query' => $request->query(),
+                'payload' => $request->all(),
+            ]);
 
             return response('invalid', 400);
         }

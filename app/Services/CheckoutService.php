@@ -201,8 +201,14 @@ class CheckoutService
         }
     }
 
-    public function completeSuccess(User $user, Order $order, bool $demo = false, ?string $provider = null, ?string $sessionId = null): Order
-    {
+    public function completeSuccess(
+        User $user,
+        Order $order,
+        bool $demo = false,
+        ?string $provider = null,
+        ?string $sessionId = null,
+        ?string $paymobTransactionId = null,
+    ): Order {
         abort_unless($order->user_id === $user->id, 403);
 
         $order->loadMissing('items.course.translations', 'user', 'coupon', 'payment');
@@ -218,6 +224,10 @@ class CheckoutService
                         'message' => $e->getMessage(),
                     ]);
                 }
+            }
+
+            if ($provider === 'paymob' && $this->paymob->isConfigured()) {
+                $this->paymob->confirmPaymentForOrder($order, $paymobTransactionId);
             }
 
             $order->refresh();

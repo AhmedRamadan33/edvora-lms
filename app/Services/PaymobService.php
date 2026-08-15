@@ -10,6 +10,8 @@ use RuntimeException;
 
 class PaymobService
 {
+    protected string $baseUrl = 'https://accept.paymob.com';
+
     public function __construct(private OrderFulfillmentService $fulfillment)
     {
     }
@@ -43,8 +45,14 @@ class PaymobService
 
     protected function currency(): string
     {
-        // Single-currency business model: Paymob charges in the platform currency.
         return SettingService::currency();
+    }
+
+    protected function authToken(): string
+    {
+        return Http::timeout(30)->post("{$this->baseUrl}/api/auth/tokens", [
+            'api_key' => $this->apiKey(),
+        ])->throw()->json('token');
     }
 
     public function createPaymentKey(Order $order): array
@@ -62,10 +70,7 @@ class PaymobService
 
         $order->loadMissing('items.course.translations', 'user');
 
-        $auth = Http::timeout(30)->post('https://accept.paymob.com/api/auth/tokens', [
-            'api_key' => $this->apiKey(),
-        ])->throw()->json('token');
-
+        $auth = $this->authToken();
         $amountCents = (int) round(((float) $order->total) * 100);
         $currency = $this->currency();
 
@@ -80,7 +85,7 @@ class PaymobService
             ];
         })->values()->all();
 
-        $orderResponse = Http::timeout(30)->post('https://accept.paymob.com/api/ecommerce/orders', [
+        $orderResponse = Http::timeout(30)->post("{$this->baseUrl}/api/ecommerce/orders", [
             'auth_token' => $auth,
             'delivery_needed' => false,
             'amount_cents' => $amountCents,
@@ -91,7 +96,7 @@ class PaymobService
 
         [$firstName, $lastName] = $this->splitName($order->user?->name ?: 'Student');
 
-        $paymentToken = Http::timeout(30)->post('https://accept.paymob.com/api/acceptance/payment_keys', [
+        $paymentToken = Http::timeout(30)->post("{$this->baseUrl}/api/acceptance/payment_keys", [
             'auth_token' => $auth,
             'amount_cents' => $amountCents,
             'expiration' => 3600,
@@ -114,6 +119,7 @@ class PaymobService
             'currency' => $currency,
             'integration_id' => (int) $this->integrationId(),
             'lock_order_when_paid' => true,
+            'redirect_url' => route('checkout.paymob.return'),
             'metadata' => [
                 'order_id' => $order->id,
                 'order_number' => $order->number,
@@ -121,7 +127,8 @@ class PaymobService
         ])->throw()->json('token');
 
         $iframeUrl = sprintf(
-            'https://accept.paymob.com/api/acceptance/iframes/%s?payment_token=%s',
+            '%s/api/acceptance/iframes/%s?payment_token=%s',
+            $this->baseUrl,
             $this->iframeId(),
             $paymentToken
         );
@@ -143,10 +150,10 @@ class PaymobService
 
     public function handleWebhook(array $payload, ?string $hmac = null): void
     {
-        $obj = data_get($payload, 'obj', $payload);
+        $obj = $this->normalizeTransactionPayload(data_get($payload, 'obj', $payload));
 
         if (! $this->verifyHmac($obj, $hmac ?: data_get($payload, 'hmac'))) {
-            Log::warning('Paymob webhook HMAC verification failed');
+            Log::warning('Paymob webhook HMAC verification failed', ['payload_keys' => array_keys($payload)]);
             throw new RuntimeException('Invalid Paymob HMAC.');
         }
 
@@ -155,69 +162,93 @@ class PaymobService
 
     public function handleReturn(Order $order, array $query): bool
     {
-        if (! $this->verifyHmac($query, $query['hmac'] ?? null)) {
-            Log::warning('Paymob return HMAC verification failed', ['order_id' => $order->id]);
-
-            return false;
-        }
-
         $success = filter_var($query['success'] ?? false, FILTER_VALIDATE_BOOLEAN);
         $reference = isset($query['id']) ? (string) $query['id'] : null;
 
         if (! $success) {
-            $this->fulfillment->markFailed($order, 'paymob', $reference, $query);
-
-            return false;
-        }
-
-        $merchantOrderId = (string) ($query['merchant_order_id'] ?? data_get($query, 'order') ?? '');
-        if ($merchantOrderId && $merchantOrderId !== $order->number && (string) $merchantOrderId !== (string) $order->id) {
-            // merchant_order_id should match our order number.
-            $remoteOrder = data_get($query, 'order');
-            if ((string) $remoteOrder !== (string) data_get($order->payment?->payload, 'paymob_order_id')) {
-                Log::warning('Paymob return order mismatch', [
-                    'order_id' => $order->id,
-                    'merchant_order_id' => $merchantOrderId,
-                ]);
-
-                return false;
+            if ($reference !== null || array_key_exists('pending', $query)) {
+                $this->fulfillment->markFailed($order, 'paymob', $reference, $query);
             }
-        }
 
-        if (! $this->fulfillment->amountsMatch($order, $query['amount_cents'] ?? null, $query['currency'] ?? $this->currency(), 'paymob')) {
             return false;
         }
 
-        $this->fulfillment->markPaid(
-            $order->load('items.course', 'user', 'coupon'),
-            'paymob',
-            $reference,
-            $query
-        );
+        if ($this->verifyHmac($query, $query['hmac'] ?? null)) {
+            if ($this->fulfillment->amountsMatch(
+                $order,
+                $query['amount_cents'] ?? null,
+                $query['currency'] ?? $this->currency(),
+                'paymob'
+            )) {
+                $this->fulfillment->markPaid(
+                    $order->load('items.course', 'user', 'coupon'),
+                    'paymob',
+                    $reference,
+                    $query
+                );
 
-        return true;
+                return true;
+            }
+        } else {
+            Log::info('Paymob return HMAC unavailable or invalid, confirming via inquiry API', [
+                'order_id' => $order->id,
+            ]);
+        }
+
+        return $this->confirmPaymentForOrder($order, $reference);
+    }
+
+    /**
+     * Verify a pending order against Paymob's Transaction Inquiry API.
+     */
+    public function confirmPaymentForOrder(Order $order, ?string $transactionId = null): bool
+    {
+        if ($order->status === 'paid') {
+            return true;
+        }
+
+        if (! $this->isConfigured()) {
+            return false;
+        }
+
+        $order->loadMissing('payment');
+
+        $transaction = null;
+
+        if ($transactionId) {
+            $transaction = $this->fetchTransactionById($transactionId);
+        }
+
+        if (! $transaction) {
+            $transaction = $this->fetchTransactionForMerchantOrder($order->number);
+        }
+
+        if (! $transaction && $order->payment?->provider_reference) {
+            $transaction = $this->fetchSuccessfulTransactionForPaymobOrder($order->payment->provider_reference);
+        }
+
+        if (! $transaction) {
+            return false;
+        }
+
+        return $this->applySuccessfulTransaction($order, $transaction);
     }
 
     protected function processTransaction(array $obj, array $rawPayload): void
     {
         $success = filter_var(data_get($obj, 'success', false), FILTER_VALIDATE_BOOLEAN);
-        $merchantOrderId = data_get($obj, 'order.merchant_order_id')
-            ?? data_get($obj, 'merchant_order_id');
-
-        $order = Order::query()
-            ->where('number', $merchantOrderId)
-            ->with(['items.course', 'user', 'coupon'])
-            ->first();
+        $order = $this->resolveOrderFromTransaction($obj);
 
         if (! $order) {
-            Log::warning('Paymob webhook order not found', ['merchant_order_id' => $merchantOrderId]);
+            Log::warning('Paymob webhook order not found', [
+                'merchant_order_id' => data_get($obj, 'order.merchant_order_id'),
+                'paymob_order_id' => data_get($obj, 'order.id'),
+            ]);
 
             return;
         }
 
         $reference = (string) (data_get($obj, 'id') ?? '');
-        $amountCents = data_get($obj, 'amount_cents');
-        $currency = data_get($obj, 'currency', $this->currency());
 
         if (! $success) {
             $this->fulfillment->markFailed($order, 'paymob', $reference, $rawPayload);
@@ -225,11 +256,150 @@ class PaymobService
             return;
         }
 
-        if (! $this->fulfillment->amountsMatch($order, $amountCents, $currency, 'paymob')) {
-            return;
+        $this->applySuccessfulTransaction($order, $obj);
+    }
+
+    protected function applySuccessfulTransaction(Order $order, array $transaction): bool
+    {
+        $success = filter_var(data_get($transaction, 'success', false), FILTER_VALIDATE_BOOLEAN);
+        $pending = filter_var(data_get($transaction, 'pending', true), FILTER_VALIDATE_BOOLEAN);
+
+        if (! $success || $pending) {
+            return false;
         }
 
-        $this->fulfillment->markPaid($order, 'paymob', $reference, $rawPayload);
+        $merchantOrderId = data_get($transaction, 'order.merchant_order_id');
+        if ($merchantOrderId && (string) $merchantOrderId !== (string) $order->number) {
+            Log::warning('Paymob transaction merchant order mismatch', [
+                'order_id' => $order->id,
+                'expected' => $order->number,
+                'received' => $merchantOrderId,
+            ]);
+
+            return false;
+        }
+
+        if (! $this->fulfillment->amountsMatch(
+            $order,
+            data_get($transaction, 'amount_cents'),
+            data_get($transaction, 'currency', $this->currency()),
+            'paymob'
+        )) {
+            return false;
+        }
+
+        $this->fulfillment->markPaid(
+            $order->load('items.course', 'user', 'coupon'),
+            'paymob',
+            (string) data_get($transaction, 'id', ''),
+            $transaction
+        );
+
+        return true;
+    }
+
+    protected function resolveOrderFromTransaction(array $obj): ?Order
+    {
+        $merchantOrderId = data_get($obj, 'order.merchant_order_id')
+            ?? data_get($obj, 'merchant_order_id');
+
+        if ($merchantOrderId) {
+            $order = Order::query()
+                ->where('number', $merchantOrderId)
+                ->with(['items.course', 'user', 'coupon'])
+                ->first();
+
+            if ($order) {
+                return $order;
+            }
+        }
+
+        $paymobOrderId = data_get($obj, 'order.id');
+        if (! $paymobOrderId) {
+            return null;
+        }
+
+        return Order::query()
+            ->whereHas('payment', fn ($query) => $query
+                ->where('provider', 'paymob')
+                ->where('provider_reference', (string) $paymobOrderId))
+            ->with(['items.course', 'user', 'coupon'])
+            ->first();
+    }
+
+    protected function fetchTransactionById(string $transactionId): ?array
+    {
+        try {
+            $response = Http::timeout(30)->get(
+                "{$this->baseUrl}/api/acceptance/transactions/{$transactionId}",
+                ['token' => $this->authToken()]
+            )->throw()->json();
+
+            return is_array($response) ? $response : null;
+        } catch (\Throwable $e) {
+            Log::warning('Paymob transaction inquiry failed', [
+                'transaction_id' => $transactionId,
+                'message' => $e->getMessage(),
+            ]);
+
+            return null;
+        }
+    }
+
+    protected function fetchTransactionForMerchantOrder(string $merchantOrderId): ?array
+    {
+        try {
+            $response = Http::timeout(30)->post("{$this->baseUrl}/api/ecommerce/orders/transaction_inquiry", [
+                'auth_token' => $this->authToken(),
+                'merchant_order_id' => $merchantOrderId,
+            ])->throw()->json();
+
+            return is_array($response) && data_get($response, 'id') ? $response : null;
+        } catch (\Throwable $e) {
+            Log::warning('Paymob merchant order inquiry failed', [
+                'merchant_order_id' => $merchantOrderId,
+                'message' => $e->getMessage(),
+            ]);
+
+            return null;
+        }
+    }
+
+    protected function fetchSuccessfulTransactionForPaymobOrder(string $paymobOrderId): ?array
+    {
+        try {
+            $orderData = Http::timeout(30)->get(
+                "{$this->baseUrl}/api/ecommerce/orders/{$paymobOrderId}",
+                ['token' => $this->authToken()]
+            )->throw()->json();
+
+            $transactions = collect(data_get($orderData, 'transactions', []));
+
+            $successful = $transactions->first(function ($transaction) {
+                return filter_var(data_get($transaction, 'success'), FILTER_VALIDATE_BOOLEAN)
+                    && ! filter_var(data_get($transaction, 'pending', true), FILTER_VALIDATE_BOOLEAN);
+            });
+
+            return is_array($successful) ? $successful : null;
+        } catch (\Throwable $e) {
+            Log::warning('Paymob order inquiry failed', [
+                'paymob_order_id' => $paymobOrderId,
+                'message' => $e->getMessage(),
+            ]);
+
+            return null;
+        }
+    }
+
+    protected function normalizeTransactionPayload(mixed $obj): array
+    {
+        if (is_string($obj)) {
+            $decoded = json_decode($obj, true);
+
+            return is_array($decoded) ? $decoded : [];
+        }
+
+        return is_array($obj) ? $obj : [];
     }
 
     /**
@@ -251,11 +421,9 @@ class PaymobService
             return false;
         }
 
-        // Return/callback style (flat keys).
         if (array_key_exists('amount_cents', $data) || array_key_exists('success', $data)) {
             $concat = $this->concatenateCallbackFields($data);
         } else {
-            // Nested webhook object.
             $concat = $this->concatenateTransactionFields($data);
         }
 
