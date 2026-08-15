@@ -11,12 +11,13 @@ class AdminOrderService
     {
     }
 
-    public function paginateCompleted(array $filters = [], int $perPage = 20): LengthAwarePaginator
+    public function paginate(array $filters = [], int $perPage = 20): LengthAwarePaginator
     {
-        return $this->orders->paginateCompleted(
+        return $this->orders->paginateForAdmin(
             $perPage,
             $filters['search'] ?? null,
             $filters['payment_method'] ?? null,
+            $filters['status'] ?? null,
         );
     }
 }

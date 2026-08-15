@@ -16,6 +16,7 @@ class FilterOrdersRequest extends FormRequest
         $this->merge([
             'search' => $this->filled('search') ? trim((string) $this->input('search')) : null,
             'payment_method' => $this->filled('payment_method') ? $this->input('payment_method') : null,
+            'status' => $this->filled('status') ? $this->input('status') : null,
         ]);
     }
 
@@ -24,6 +25,7 @@ class FilterOrdersRequest extends FormRequest
         return [
             'search' => ['nullable', 'string', 'max:120'],
             'payment_method' => ['nullable', 'in:stripe,paymob'],
+            'status' => ['nullable', 'in:pending,paid,failed,refunded'],
         ];
     }
 }

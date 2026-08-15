@@ -4,12 +4,18 @@
 @section('content')
 <div class="ed-page-head">
     <div>
-        <h2>{{ __('Completed orders') }}</h2>
-        <p>{{ __('View paid orders and how each checkout was completed.') }}</p>
+        <h2>{{ __('Orders') }}</h2>
+        <p>{{ __('View all marketplace orders, payment methods, and statuses.') }}</p>
     </div>
 </div>
 
 <x-table-toolbar :placeholder="__('Search orders')">
+    <select name="status" class="form-select w-auto">
+        <option value="">{{ __('All statuses') }}</option>
+        @foreach (['pending', 'paid', 'failed', 'refunded'] as $status)
+            <option value="{{ $status }}" @selected(request('status') === $status)>{{ __status($status) }}</option>
+        @endforeach
+    </select>
     <select name="payment_method" class="form-select w-auto">
         <option value="">{{ __('All payment methods') }}</option>
         @foreach (['stripe', 'paymob'] as $method)
@@ -29,6 +35,7 @@
                     <th>{{ __('Email') }}</th>
                     <th>{{ __('Amount') }}</th>
                     <th>{{ __('Payment method') }}</th>
+                    <th>{{ __('Status') }}</th>
                     <th>{{ __('Date') }}</th>
                 </tr>
             </thead>
@@ -41,10 +48,11 @@
                         <td>{{ $order->user?->email ?? '—' }}</td>
                         <td>{{ money($order->total, $order->currency) }}</td>
                         <td>{{ __status($order->payment_method ?? $order->payment?->provider ?? '—') }}</td>
+                        <td><span class="ed-status is-{{ $order->status }}">{{ __status($order->status) }}</span></td>
                         <td class="text-muted">{{ $order->created_at?->format('Y-m-d H:i') }}</td>
                     </tr>
                 @empty
-                    <tr><td colspan="7" class="text-muted p-4">{{ __('No orders found.') }}</td></tr>
+                    <tr><td colspan="8" class="text-muted p-4">{{ __('No orders found.') }}</td></tr>
                 @endforelse
             </tbody>
         </table>

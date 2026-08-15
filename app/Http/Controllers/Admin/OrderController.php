@@ -11,7 +11,7 @@ class OrderController extends Controller
 {
     public function index(FilterOrdersRequest $request, AdminOrderService $orders): View
     {
-        $orders = $orders->paginateCompleted($request->validated());
+        $orders = $orders->paginate($request->validated());
 
         return view('admin.orders.index', compact('orders'));
     }

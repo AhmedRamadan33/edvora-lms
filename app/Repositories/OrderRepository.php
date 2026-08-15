@@ -12,14 +12,15 @@ class OrderRepository extends BaseRepository
         parent::__construct($model);
     }
 
-    public function paginateCompleted(
+    public function paginateForAdmin(
         int $perPage = 20,
         ?string $search = null,
         ?string $paymentMethod = null,
+        ?string $status = null,
     ): LengthAwarePaginator {
         return $this->query()
             ->with(['user', 'payment'])
-            ->where('status', 'paid')
+            ->when($status, fn ($query) => $query->where('status', $status))
             ->when($paymentMethod, fn ($query) => $query->where('payment_method', $paymentMethod))
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($orderQuery) use ($search) {
