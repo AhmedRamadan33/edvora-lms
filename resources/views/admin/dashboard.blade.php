@@ -29,7 +29,7 @@
 <div class="ed-table-wrap">
     <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
         <h3 class="h5 mb-0">{{ __('Recent orders') }}</h3>
-        <a href="{{ route('admin.reports.index') }}" class="btn btn-sm btn-outline-primary">{{ __('Reports') }}</a>
+        <a href="{{ route('admin.orders.index') }}" class="btn btn-sm btn-outline-primary">{{ __('Orders') }}</a>
     </div>
     <div class="table-responsive">
         <table class="table align-middle">

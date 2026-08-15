@@ -4,6 +4,7 @@
 <a class="nav-link @if(request()->routeIs('admin.users.*')) active @endif" href="{{ route('admin.users.index') }}"><i class="bi bi-people me-2"></i>{{ __('Users') }}</a>
 <a class="nav-link @if(request()->routeIs('admin.instructors.*')) active @endif" href="{{ route('admin.instructors.index') }}"><i class="bi bi-person-badge me-2"></i>{{ __('Instructors') }}</a>
 <a class="nav-link @if(request()->routeIs('admin.students.*')) active @endif" href="{{ route('admin.students.index') }}"><i class="bi bi-person-badge me-2"></i>{{ __('Students') }}</a>
+<a class="nav-link @if(request()->routeIs('admin.orders.*')) active @endif" href="{{ route('admin.orders.index') }}"><i class="bi bi-receipt me-2"></i>{{ __('Orders') }}</a>
 <a class="nav-link @if(request()->routeIs('admin.coupons.*')) active @endif" href="{{ route('admin.coupons.index') }}"><i class="bi bi-ticket-perforated me-2"></i>{{ __('Coupons') }}</a>
 <a class="nav-link @if(request()->routeIs('admin.payouts.*')) active @endif" href="{{ route('admin.payouts.index') }}"><i class="bi bi-wallet2 me-2"></i>{{ __('Payouts') }}</a>
 <a class="nav-link @if(request()->routeIs('admin.reports.*')) active @endif" href="{{ route('admin.reports.index') }}"><i class="bi bi-graph-up-arrow me-2"></i>{{ __('Reports') }}</a>

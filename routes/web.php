@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\CourseReviewController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\InstructorApprovalController;
+use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\PageController as AdminPageController;
 use App\Http\Controllers\Admin\PayoutController as AdminPayoutController;
 use App\Http\Controllers\Admin\ReportController;
@@ -124,6 +125,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/instructors', [InstructorApprovalController::class, 'index'])->name('instructors.index');
         Route::post('/instructors/{profile}/approve', [InstructorApprovalController::class, 'approve'])->name('instructors.approve');
         Route::post('/instructors/{profile}/reject', [InstructorApprovalController::class, 'reject'])->name('instructors.reject');
+        Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
         Route::get('/coupons', [CouponController::class, 'index'])->name('coupons.index');
         Route::post('/coupons', [CouponController::class, 'store'])->name('coupons.store');
         Route::delete('/coupons/{coupon}', [CouponController::class, 'destroy'])->name('coupons.destroy');

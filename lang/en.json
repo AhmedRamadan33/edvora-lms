@@ -469,5 +469,14 @@
     "Stripe publishable key": "Stripe publishable key",
     "Invalid payment method.": "Invalid payment method.",
     "Official platform currency for courses, checkout, Stripe, and Paymob. Changing it updates all courses.": "Official platform currency for courses, checkout, Stripe, and Paymob. Changing it updates all courses.",
-    "Use these URLs in Stripe and Paymob dashboards. APP_URL must match your live domain.": "Use these URLs in Stripe and Paymob dashboards. APP_URL must match your live domain."
+    "Use these URLs in Stripe and Paymob dashboards. APP_URL must match your live domain.": "Use these URLs in Stripe and Paymob dashboards. APP_URL must match your live domain.",
+    "Orders": "Orders",
+    "Completed orders": "Completed orders",
+    "View paid orders and how each checkout was completed.": "View paid orders and how each checkout was completed.",
+    "Search orders": "Search orders",
+    "All payment methods": "All payment methods",
+    "Order number": "Order number",
+    "Student": "Student",
+    "No orders found.": "No orders found.",
+    "Date": "Date"
 }

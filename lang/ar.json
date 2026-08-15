@@ -481,5 +481,14 @@
     "Stripe publishable key": "مفتاح Stripe العام",
     "Invalid payment method.": "طريقة دفع غير صالحة.",
     "Official platform currency for courses, checkout, Stripe, and Paymob. Changing it updates all courses.": "العملة الرسمية للمنصة للكورسات والدفع وStripe وPaymob. تغييرها يحدّث كل الكورسات.",
-    "Use these URLs in Stripe and Paymob dashboards. APP_URL must match your live domain.": "استخدم الروابط دي في لوحات Stripe وPaymob. لازم APP_URL يطابق الدومين اللايف."
+    "Use these URLs in Stripe and Paymob dashboards. APP_URL must match your live domain.": "استخدم الروابط دي في لوحات Stripe وPaymob. لازم APP_URL يطابق الدومين اللايف.",
+    "Orders": "الطلبات",
+    "Completed orders": "الطلبات المكتملة",
+    "View paid orders and how each checkout was completed.": "عرض الطلبات المدفوعة وطريقة إتمام كل عملية شراء.",
+    "Search orders": "بحث في الطلبات",
+    "All payment methods": "كل طرق الدفع",
+    "Order number": "رقم الطلب",
+    "Student": "الطالب",
+    "No orders found.": "لا توجد طلبات.",
+    "Date": "التاريخ"
 }
