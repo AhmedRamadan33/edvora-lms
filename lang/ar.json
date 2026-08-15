@@ -489,5 +489,8 @@
     "Order number": "رقم الطلب",
     "Student": "الطالب",
     "No orders found.": "لا توجد طلبات.",
-    "Date": "التاريخ"
+    "Date": "التاريخ",
+    "My orders": "طلباتي",
+    "View orders placed for your courses.": "عرض الطلبات الخاصة بكورساتك.",
+    "Your earnings": "أرباحك"
 }

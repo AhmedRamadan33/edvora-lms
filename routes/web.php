@@ -27,6 +27,7 @@ use App\Http\Controllers\Instructor\CourseController as InstructorCourseControll
 use App\Http\Controllers\Instructor\CurriculumController;
 use App\Http\Controllers\Instructor\DashboardController as InstructorDashboardController;
 use App\Http\Controllers\Instructor\EarningController;
+use App\Http\Controllers\Instructor\OrderController as InstructorOrderController;
 use App\Http\Controllers\Instructor\ProfileController as InstructorProfileController;
 use App\Http\Controllers\Instructor\PublicProfileController;
 use App\Http\Controllers\LocaleController;
@@ -108,6 +109,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/courses/{course}/lessons/{lesson}/ready', [CurriculumController::class, 'markVideoReady'])->name('lessons.ready');
         Route::get('/earnings', [EarningController::class, 'index'])->name('earnings.index');
         Route::post('/earnings/payout', [EarningController::class, 'requestPayout'])->name('earnings.payout');
+        Route::get('/orders', [InstructorOrderController::class, 'index'])->name('orders.index');
     });
 
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
