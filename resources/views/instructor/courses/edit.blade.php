@@ -17,10 +17,15 @@
                 @endif
             </p>
         </div>
-        <form method="POST" action="{{ route('instructor.courses.submit', $course) }}">
-            @csrf
-            <button class="btn btn-success btn-sm">{{ __('Submit for review') }}</button>
-        </form>
+        <div class="d-flex gap-2">
+            <a href="{{ route('instructor.question-bank.index', $course) }}" class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-journal-text"></i> {{ __('Question bank') }}
+            </a>
+            <form method="POST" action="{{ route('instructor.courses.submit', $course) }}">
+                @csrf
+                <button class="btn btn-success btn-sm">{{ __('Submit for review') }}</button>
+            </form>
+        </div>
     </div>
 
     <form method="POST" action="{{ route('instructor.courses.update', $course) }}" enctype="multipart/form-data"

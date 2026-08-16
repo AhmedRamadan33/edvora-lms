@@ -67,6 +67,16 @@ class Course extends Model
         return $this->hasMany(Enrollment::class);
     }
 
+    public function bankQuestions(): HasMany
+    {
+        return $this->hasMany(BankQuestion::class)->orderBy('sort_order');
+    }
+
+    public function subjects(): HasMany
+    {
+        return $this->hasMany(Subject::class);
+    }
+
     public function reviews(): HasMany
     {
         return $this->hasMany(Review::class);

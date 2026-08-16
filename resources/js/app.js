@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initDeleteConfirmation();
     initSecurePlayer();
     initLessonForms();
+    initBankQuestionForms();
     initReveal();
 });
 
@@ -231,6 +232,106 @@ function initLessonForms() {
 
         addQuestionBtn?.addEventListener('click', addQuestion);
         typeSelect.addEventListener('change', syncPanels);
+        syncPanels();
+    });
+}
+
+function initBankQuestionForms() {
+    document.querySelectorAll('[data-question-form]').forEach((form) => {
+        const typeSelect = form.querySelector('[data-question-type]');
+        if (!typeSelect) {
+            return;
+        }
+
+        const choicesList = form.querySelector('[data-choices-list]');
+        const matchesList = form.querySelector('[data-matches-list]');
+
+        const reindexChoices = () => {
+            if (!choicesList) return;
+            [...choicesList.children].forEach((row, index) => {
+                const text = row.querySelector('[data-choice-text]');
+                const correct = row.querySelector('[data-choice-correct]');
+                const image = row.querySelector('[data-choice-image]');
+                if (text) text.name = `choices[${index}][text]`;
+                if (correct) correct.name = `choices[${index}][is_correct]`;
+                if (image) image.name = `choices[${index}][image]`;
+            });
+        };
+
+        const reindexMatches = () => {
+            if (!matchesList) return;
+            [...matchesList.children].forEach((row, index) => {
+                const prompt = row.querySelector('[data-match-prompt]');
+                const answer = row.querySelector('[data-match-answer]');
+                if (prompt) prompt.name = `matches[${index}][prompt]`;
+                if (answer) answer.name = `matches[${index}][match]`;
+            });
+        };
+
+        const bindChoiceRow = (row) => {
+            const correct = row.querySelector('[data-choice-correct]');
+            correct?.addEventListener('change', () => {
+                if (!correct.checked) {
+                    return;
+                }
+                choicesList.querySelectorAll('[data-choice-correct]').forEach((other) => {
+                    if (other !== correct) other.checked = false;
+                });
+            });
+            row.querySelector('[data-remove-choice]')?.addEventListener('click', () => {
+                if (choicesList.children.length <= 2) return;
+                row.remove();
+                reindexChoices();
+            });
+        };
+
+        const bindMatchRow = (row) => {
+            row.querySelector('[data-remove-match]')?.addEventListener('click', () => {
+                if (matchesList.children.length <= 2) return;
+                row.remove();
+                reindexMatches();
+            });
+        };
+
+        choicesList?.querySelectorAll('[data-choice-row]').forEach(bindChoiceRow);
+        matchesList?.querySelectorAll('[data-match-row]').forEach(bindMatchRow);
+
+        form.querySelector('[data-add-choice]')?.addEventListener('click', () => {
+            const template = document.getElementById('bank-choice-row-template');
+            if (!template || !choicesList) return;
+            const node = template.content.cloneNode(true);
+            const row = node.querySelector('[data-choice-row]');
+            bindChoiceRow(row);
+            choicesList.appendChild(row);
+            reindexChoices();
+        });
+
+        form.querySelector('[data-add-match]')?.addEventListener('click', () => {
+            const template = document.getElementById('bank-match-row-template');
+            if (!template || !matchesList) return;
+            const node = template.content.cloneNode(true);
+            const row = node.querySelector('[data-match-row]');
+            bindMatchRow(row);
+            matchesList.appendChild(row);
+            reindexMatches();
+        });
+
+        const syncPanels = () => {
+            const type = typeSelect.value;
+            form.querySelectorAll('[data-panel]').forEach((el) => {
+                el.classList.toggle('d-none', el.dataset.panel !== type);
+            });
+
+            const hint = form.querySelector('[data-question-type-hint]');
+            const selectedOption = typeSelect.options[typeSelect.selectedIndex];
+            if (hint && selectedOption) {
+                hint.textContent = selectedOption.dataset.hint || '';
+            }
+        };
+
+        typeSelect.addEventListener('change', syncPanels);
+        reindexChoices();
+        reindexMatches();
         syncPanels();
     });
 }
