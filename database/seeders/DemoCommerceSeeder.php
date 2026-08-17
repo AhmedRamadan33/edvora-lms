@@ -8,6 +8,7 @@ use App\Models\Certificate;
 use App\Models\Course;
 use App\Models\CourseAnswer;
 use App\Models\CourseQuestion;
+use App\Models\CourseTranslation;
 use App\Models\Coupon;
 use App\Models\PayoutRequest;
 use App\Models\QuizAttempt;
@@ -52,6 +53,16 @@ class DemoCommerceSeeder extends Seeder
 
         $this->enroll($omar, $laravel, $order1, 40);
         $this->seedLessonProgress($omar, $laravel, completeFirst: true);
+
+        $mobileSecurity = CourseTranslation::query()->where('title', 'Mobile App Security')->first()?->course;
+
+        if ($mobileSecurity) {
+            $order3 = $this->paidOrder($omar, [
+                ['course' => $mobileSecurity, 'instructor' => $mobileSecurity->instructor, 'price' => (float) $mobileSecurity->price, 'rate' => 15],
+            ], 'stripe', 'EDV-DEMO0003');
+
+            $this->enroll($omar, $mobileSecurity, $order3, 0);
+        }
 
         $order2 = $this->paidOrder($lina, [
             ['course' => $bootstrap, 'instructor' => $bootstrap->instructor, 'price' => (float) $bootstrap->price, 'rate' => 15],

@@ -15,6 +15,8 @@ class DatabaseSeeder extends Seeder
             InstructorProfileSeeder::class,
             CategorySeeder::class,
             CourseSeeder::class,
+            QuestionBankSeeder::class,
+            ExamSeeder::class,
             CouponSeeder::class,
             PageSeeder::class,
             TestimonialSeeder::class,

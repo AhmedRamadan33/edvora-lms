@@ -38,6 +38,7 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Student\CertificateController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
+use App\Http\Controllers\Student\ExamController as StudentExamController;
 use App\Http\Controllers\Student\LearnController;
 use App\Http\Controllers\Student\ReviewController;
 use App\Http\Controllers\Student\WishlistController;
@@ -94,6 +95,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/{course}/lessons/{lesson}/quiz', [LearnController::class, 'submitQuiz'])->name('quiz');
         Route::post('/{course}/lessons/{lesson}/ask', [LearnController::class, 'ask'])->name('ask');
         Route::post('/{course}/questions/{question}/answer', [LearnController::class, 'answer'])->name('answer');
+    });
+
+    Route::prefix('exams')->name('exams.')->group(function () {
+        Route::get('/', [StudentExamController::class, 'index'])->name('index');
+        Route::get('/{exam}', [StudentExamController::class, 'show'])->name('show');
+        Route::post('/{exam}/start', [StudentExamController::class, 'start'])->name('start');
+        Route::get('/{exam}/attempt', [StudentExamController::class, 'attempt'])->name('attempt');
+        Route::post('/{exam}/attempt', [StudentExamController::class, 'submit'])->name('submit');
+        Route::get('/{exam}/result', [StudentExamController::class, 'result'])->name('result');
     });
 
     Route::middleware('role:instructor,admin')->prefix('instructor')->name('instructor.')->group(function () {

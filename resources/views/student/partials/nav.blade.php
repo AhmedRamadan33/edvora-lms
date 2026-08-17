@@ -7,6 +7,9 @@
 <a class="nav-link @if(request()->routeIs('student.certificates.*')) active @endif" href="{{ route('student.certificates.index') }}">
     <i class="bi bi-award me-2"></i>{{ __('Certificates') }}
 </a>
+<a class="nav-link @if(request()->routeIs('exams.*')) active @endif" href="{{ route('exams.index') }}">
+    <i class="bi bi-file-earmark-text me-2"></i>{{ __('Exams') }}
+</a>
 <a class="nav-link @if(request()->routeIs('cart.*')) active @endif" href="{{ route('cart.index') }}">
     <i class="bi bi-bag me-2"></i>{{ __('Cart') }}
 </a>

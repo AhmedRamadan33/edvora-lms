@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initLessonForms();
     initBankQuestionForms();
     initExamRuleForm();
+    initExamAttempt();
     initReveal();
 });
 
@@ -405,4 +406,103 @@ function initExamRuleForm() {
 
         reindexRules();
     });
+}
+
+function initExamAttempt() {
+    const form = document.querySelector('[data-exam-attempt]');
+    if (!form) {
+        return;
+    }
+
+    const panels = [...form.querySelectorAll('[data-question-panel]')];
+    const navButtons = [...form.querySelectorAll('[data-question-nav] [data-nav-to]')];
+    const progressCount = form.querySelector('[data-progress-count]');
+    let current = 0;
+
+    const isAnswered = (index) => {
+        const panel = panels[index];
+        if (!panel) return false;
+        return [...panel.querySelectorAll('[data-answer-input]')].some((field) => {
+            if (field.type === 'radio') {
+                return panel.querySelector(`input[name="${field.name}"]:checked`) !== null;
+            }
+            return field.value.trim() !== '';
+        });
+    };
+
+    const updateProgress = () => {
+        const answeredCount = panels.filter((_, index) => isAnswered(index)).length;
+        if (progressCount) {
+            progressCount.textContent = String(answeredCount);
+        }
+        navButtons.forEach((button, index) => {
+            button.classList.remove('btn-outline-secondary', 'btn-success', 'btn-primary');
+            if (index === current) {
+                button.classList.add('btn-primary');
+            } else if (isAnswered(index)) {
+                button.classList.add('btn-success');
+            } else {
+                button.classList.add('btn-outline-secondary');
+            }
+        });
+    };
+
+    const showQuestion = (index) => {
+        if (index < 0 || index >= panels.length) return;
+        panels[current]?.classList.add('d-none');
+        current = index;
+        panels[current]?.classList.remove('d-none');
+        updateProgress();
+    };
+
+    navButtons.forEach((button, index) => {
+        button.addEventListener('click', () => showQuestion(index));
+    });
+
+    form.querySelector('[data-nav-prev]')?.addEventListener('click', () => showQuestion(current - 1));
+    form.querySelector('[data-nav-next]')?.addEventListener('click', () => showQuestion(current + 1));
+
+    form.querySelectorAll('[data-answer-input]').forEach((field) => {
+        field.addEventListener('change', updateProgress);
+        field.addEventListener('input', updateProgress);
+    });
+
+    window.__confirmExamSubmit = (event) => {
+        if (window.__skipExamConfirm) {
+            return true;
+        }
+        if (!window.confirm(form.dataset.confirmMessage || 'Submit?')) {
+            event.preventDefault();
+            return false;
+        }
+        return true;
+    };
+
+    updateProgress();
+
+    const timerEl = form.querySelector('[data-exam-timer]');
+    const durationMinutes = parseInt(form.dataset.durationMinutes, 10);
+
+    if (timerEl && durationMinutes) {
+        const deadline = new Date(form.dataset.startedAt).getTime() + durationMinutes * 60000;
+
+        const tick = () => {
+            const remainingMs = deadline - Date.now();
+
+            if (remainingMs <= 0) {
+                timerEl.textContent = '00:00';
+                window.__skipExamConfirm = true;
+                form.requestSubmit();
+                return;
+            }
+
+            const totalSeconds = Math.floor(remainingMs / 1000);
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            timerEl.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        };
+
+        tick();
+        setInterval(tick, 1000);
+    }
 }

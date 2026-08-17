@@ -42,4 +42,9 @@ class Exam extends Model
             ->withPivot('sort_order')
             ->orderBy('exam_questions.sort_order');
     }
+
+    public function attempts(): HasMany
+    {
+        return $this->hasMany(ExamAttempt::class);
+    }
 }
