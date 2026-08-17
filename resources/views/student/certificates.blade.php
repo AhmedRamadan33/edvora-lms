@@ -19,7 +19,7 @@
                     <th>{{ __('Course') }}</th>
                     <th>{{ __('Code') }}</th>
                     <th>{{ __('Issued') }}</th>
-                    <th></th>
+                    <th>{{ __('Actions') }}</th>
                 </tr>
             </thead>
             <tbody>

@@ -40,13 +40,16 @@ class LearnService
             'answers' => $answers,
         ]);
 
+        $courseJustCompleted = false;
+
         if ($passed) {
-            $this->progress->markCompleted($user, $lesson);
+            $courseJustCompleted = $this->progress->markCompleted($user, $lesson)['justCompletedCourse'];
         }
 
         return [
             'passed' => $passed,
             'score' => $score,
+            'course_just_completed' => $courseJustCompleted,
             'message' => $passed
                 ? __('Quiz passed with :score%.', ['score' => $score])
                 : __('Quiz failed with :score%.', ['score' => $score]),

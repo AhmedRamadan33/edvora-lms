@@ -21,7 +21,8 @@
                     <th>{{ __('Questions') }}</th>
                     <th>{{ __('Duration (minutes)') }}</th>
                     <th>{{ __('Status') }}</th>
-                    <th class="text-end"></th>
+                    <th class="text-end">{{ __('Actions') }}</th>
+
                 </tr>
             </thead>
             <tbody>

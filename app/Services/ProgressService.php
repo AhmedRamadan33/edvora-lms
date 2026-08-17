@@ -11,7 +11,10 @@ class ProgressService
 {
     public function __construct(private CertificateService $certificates) {}
 
-    public function markCompleted(User $user, Lesson $lesson, int $position = 0): LessonProgress
+    /**
+     * @return array{progress: LessonProgress, justCompletedCourse: bool}
+     */
+    public function markCompleted(User $user, Lesson $lesson, int $position = 0): array
     {
         $progress = LessonProgress::query()->updateOrCreate(
             [
@@ -26,9 +29,9 @@ class ProgressService
             ]
         );
 
-        $this->recalculate($user->id, $lesson->course_id);
+        $justCompletedCourse = $this->recalculate($user->id, $lesson->course_id);
 
-        return $progress;
+        return ['progress' => $progress, 'justCompletedCourse' => $justCompletedCourse];
     }
 
     public function updatePosition(User $user, Lesson $lesson, int $position): LessonProgress
@@ -45,7 +48,7 @@ class ProgressService
         );
     }
 
-    public function recalculate(int $userId, int $courseId): void
+    public function recalculate(int $userId, int $courseId): bool
     {
         $total = Lesson::query()->where('course_id', $courseId)->where('is_published', true)->count();
         $completed = LessonProgress::query()
@@ -62,8 +65,10 @@ class ProgressService
             ->first();
 
         if (! $enrollment) {
-            return;
+            return false;
         }
+
+        $wasCompleted = (bool) $enrollment->completed_at;
 
         $enrollment->update([
             'progress_percent' => $percent,
@@ -73,5 +78,7 @@ class ProgressService
         if ($percent >= 100) {
             $this->certificates->issueIfEligible($enrollment->user, $enrollment->course);
         }
+
+        return ! $wasCompleted && $percent >= 100;
     }
 }

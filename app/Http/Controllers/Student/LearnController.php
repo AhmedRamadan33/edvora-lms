@@ -8,12 +8,14 @@ use App\Http\Requests\Student\AskQuestionRequest;
 use App\Http\Requests\Student\SubmitQuizRequest;
 use App\Models\Course;
 use App\Models\CourseQuestion;
+use App\Models\Enrollment;
 use App\Models\Lesson;
 use App\Models\LessonProgress;
 use App\Services\BunnyStreamService;
 use App\Services\LearnService;
 use App\Services\ProgressService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 class LearnController extends Controller
@@ -23,13 +25,10 @@ class LearnController extends Controller
         $this->ensureEnrolled($course);
 
         $course->load(['translations', 'sections.lessons']);
-        $progress = LessonProgress::query()
-            ->where('user_id', auth()->id())
-            ->where('course_id', $course->id)
-            ->get()
-            ->keyBy('lesson_id');
+        $progress = $this->progressFor($course);
+        $enrollment = $this->enrollmentFor($course);
 
-        return view('learn.course', compact('course', 'progress'));
+        return view('learn.course', compact('course', 'progress', 'enrollment'));
     }
 
     public function lesson(Course $course, Lesson $lesson, BunnyStreamService $bunny): View
@@ -37,6 +36,7 @@ class LearnController extends Controller
         $this->ensureEnrolled($course);
         abort_unless($lesson->course_id === $course->id, 404);
 
+        $course->load(['translations', 'sections.lessons']);
         $lesson->load(['video', 'quiz.questions']);
         $embedUrl = null;
 
@@ -53,12 +53,18 @@ class LearnController extends Controller
             ->latest()
             ->get();
 
+        [$previousLesson, $nextLesson] = $this->neighboringLessons($course, $lesson);
+
         return view('learn.lesson', [
-            'course' => $course->load('translations'),
+            'course' => $course,
             'lesson' => $lesson,
             'embedUrl' => $embedUrl,
             'watermark' => auth()->user()->email.' #'.auth()->id(),
             'questions' => $questions,
+            'progress' => $this->progressFor($course),
+            'enrollment' => $this->enrollmentFor($course),
+            'previousLesson' => $previousLesson,
+            'nextLesson' => $nextLesson,
         ]);
     }
 
@@ -66,9 +72,11 @@ class LearnController extends Controller
     {
         $this->ensureEnrolled($course);
         abort_unless($lesson->course_id === $course->id, 404);
-        $progress->markCompleted(auth()->user(), $lesson);
+        $result = $progress->markCompleted(auth()->user(), $lesson);
 
-        return back()->with('success', __('Lesson completed.'));
+        return back()->with('success', $result['justCompletedCourse']
+            ? __('Course completed successfully! You can download your certificate from the certificates page.')
+            : __('Lesson completed.'));
     }
 
     public function submitQuiz(SubmitQuizRequest $request, Course $course, Lesson $lesson, LearnService $learn): RedirectResponse
@@ -80,6 +88,10 @@ class LearnController extends Controller
             $lesson,
             $request->validated('answers') ?? []
         );
+
+        if ($result['passed'] && $result['course_just_completed']) {
+            return back()->with('success', __('Course completed successfully! You can download your certificate from the certificates page.'));
+        }
 
         return back()->with($result['passed'] ? 'success' : 'error', $result['message']);
     }
@@ -103,5 +115,40 @@ class LearnController extends Controller
     protected function ensureEnrolled(Course $course): void
     {
         abort_unless(auth()->user()->isEnrolledIn($course->id) || auth()->user()->hasRole('admin'), 403);
+    }
+
+    protected function progressFor(Course $course): Collection
+    {
+        return LessonProgress::query()
+            ->where('user_id', auth()->id())
+            ->where('course_id', $course->id)
+            ->get()
+            ->keyBy('lesson_id');
+    }
+
+    protected function enrollmentFor(Course $course): ?Enrollment
+    {
+        return Enrollment::query()
+            ->where('user_id', auth()->id())
+            ->where('course_id', $course->id)
+            ->first();
+    }
+
+    /**
+     * @return array{0: ?Lesson, 1: ?Lesson}
+     */
+    protected function neighboringLessons(Course $course, Lesson $lesson): array
+    {
+        $ordered = $course->sections->flatMap(fn ($section) => $section->lessons)->values();
+        $index = $ordered->search(fn (Lesson $item) => $item->id === $lesson->id);
+
+        if ($index === false) {
+            return [null, null];
+        }
+
+        return [
+            $index > 0 ? $ordered->get($index - 1) : null,
+            $ordered->get($index + 1),
+        ];
     }
 }
