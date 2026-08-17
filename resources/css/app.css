@@ -155,6 +155,10 @@ img {
     padding-block: 0.75rem;
 }
 
+.ed-nav .ed-container {
+    padding-inline: 1rem;
+}
+
 .ed-brand {
     display: inline-flex;
     align-items: center;
