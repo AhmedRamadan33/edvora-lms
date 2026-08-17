@@ -20,6 +20,13 @@ class LearnService
         abort_unless($lesson->course_id === $course->id && $lesson->quiz, 404);
 
         $quiz = $lesson->quiz()->with('questions')->first();
+
+        abort_if(
+            QuizAttempt::query()->where('quiz_id', $quiz->id)->where('user_id', $user->id)->exists(),
+            403,
+            __('You have already attempted this quiz.')
+        );
+
         $correct = 0;
 
         foreach ($quiz->questions as $question) {

@@ -47,23 +47,66 @@
                         <a class="btn btn-outline-primary" href="{{ asset('storage/'.$lesson->attachment) }}">{{ __('Download file') }}</a>
                     </div>
                 @elseif($lesson->type === 'quiz' && $lesson->quiz)
-                    <form method="POST" action="{{ route('learn.quiz', [$course, $lesson]) }}" class="ed-panel p-4 mb-3">
-                        @csrf
-                        <h2 class="h4 mb-1">{{ $lesson->quiz->title }}</h2>
-                        <p class="text-muted mb-4">{{ __('Pass percent') }}: {{ $lesson->quiz->pass_percent }}%</p>
-                        @foreach($lesson->quiz->questions as $question)
-                            <div class="mb-4">
-                                <div class="fw-semibold mb-2">{{ $loop->iteration }}. {{ $question->question }}</div>
-                                @foreach($question->options as $index => $option)
-                                    <label class="quiz-option">
-                                        <input type="radio" name="answers[{{ $question->id }}]" value="{{ $index }}" class="form-check-input me-2" required>
-                                        {{ $option }}
-                                    </label>
+                    @if($quizAttempt)
+                        <div class="ed-panel p-4 mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h2 class="h4 mb-0">{{ $lesson->quiz->title }}</h2>
+                                <span class="badge text-bg-{{ $quizAttempt->passed ? 'success' : 'danger' }} fs-6">
+                                    {{ $quizAttempt->passed ? __('Passed') : __('Failed') }}
+                                </span>
+                            </div>
+                            <p class="text-muted mb-4">{{ __('Your score') }}: {{ $quizAttempt->score }}% ({{ __('Pass percent') }}: {{ $lesson->quiz->pass_percent }}%)</p>
+
+                            <div class="list-group">
+                                @foreach($lesson->quiz->questions as $question)
+                                    @php
+                                        $selectedIndex = $quizAttempt->answers[$question->id] ?? null;
+                                        $isCorrect = $selectedIndex !== null && (int) $selectedIndex === (int) $question->correct_index;
+                                    @endphp
+                                    <div class="list-group-item">
+                                        <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
+                                            <div>{{ $loop->iteration }}. {{ $question->question }}</div>
+                                            <span class="badge text-bg-{{ $isCorrect ? 'success' : 'danger' }} flex-shrink-0">
+                                                {{ $isCorrect ? __('Correct') : __('Incorrect') }}
+                                            </span>
+                                        </div>
+                                        <ul class="list-group">
+                                            @foreach($question->options as $index => $option)
+                                                @php
+                                                    $isRight = $index === (int) $question->correct_index;
+                                                    $wasSelected = $selectedIndex !== null && (int) $selectedIndex === $index;
+                                                @endphp
+                                                <li class="list-group-item {{ $isRight ? 'list-group-item-success' : ($wasSelected ? 'list-group-item-danger' : '') }}">
+                                                    {{ $option }}
+                                                    @if($isRight) <i class="bi bi-check-circle-fill text-success"></i> @endif
+                                                    @if($wasSelected && ! $isRight) <i class="bi bi-x-circle-fill text-danger"></i> @endif
+                                                    @if($wasSelected) <span class="badge text-bg-light ms-1">{{ __('Your answer') }}</span> @endif
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
                                 @endforeach
                             </div>
-                        @endforeach
-                        <button class="btn btn-primary">{{ __('Submit quiz') }}</button>
-                    </form>
+                        </div>
+                    @else
+                        <form method="POST" action="{{ route('learn.quiz', [$course, $lesson]) }}" class="ed-panel p-4 mb-3">
+                            @csrf
+                            <h2 class="h4 mb-1">{{ $lesson->quiz->title }}</h2>
+                            <p class="text-muted mb-4">{{ __('Pass percent') }}: {{ $lesson->quiz->pass_percent }}%</p>
+                            @foreach($lesson->quiz->questions as $question)
+                                <div class="mb-4">
+                                    <div class="fw-semibold mb-2">{{ $loop->iteration }}. {{ $question->question }}</div>
+                                    @foreach($question->options as $index => $option)
+                                        <label class="quiz-option">
+                                            <input type="radio" name="answers[{{ $question->id }}]" value="{{ $index }}" class="form-check-input me-2" required>
+                                            {{ $option }}
+                                        </label>
+                                    @endforeach
+                                </div>
+                            @endforeach
+                            <button class="btn btn-primary">{{ __('Submit quiz') }}</button>
+                        </form>
+                    @endif
                 @endif
 
                 @if($isCompleted)

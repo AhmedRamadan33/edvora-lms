@@ -11,7 +11,6 @@ use App\Models\CourseQuestion;
 use App\Models\CourseTranslation;
 use App\Models\Coupon;
 use App\Models\PayoutRequest;
-use App\Models\QuizAttempt;
 use App\Models\Review;
 use App\Models\User;
 use App\Models\Wishlist;
@@ -113,14 +112,6 @@ class DemoCommerceSeeder extends Seeder
             ['course_question_id' => $question->id, 'user_id' => $sara->id],
             ['body' => 'Commission is calculated on the final item price after discount allocation.']
         );
-
-        $quizLesson = $laravel->lessons()->where('type', 'quiz')->first();
-        if ($quizLesson?->quiz) {
-            QuizAttempt::query()->updateOrCreate(
-                ['quiz_id' => $quizLesson->quiz->id, 'user_id' => $omar->id],
-                ['score' => 100, 'passed' => true, 'answers' => []]
-            );
-        }
 
         PayoutRequest::query()->updateOrCreate(
             ['instructor_id' => $sara->id, 'amount' => 120, 'status' => 'pending'],

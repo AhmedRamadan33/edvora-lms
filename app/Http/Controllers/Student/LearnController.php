@@ -11,6 +11,7 @@ use App\Models\CourseQuestion;
 use App\Models\Enrollment;
 use App\Models\Lesson;
 use App\Models\LessonProgress;
+use App\Models\QuizAttempt;
 use App\Services\BunnyStreamService;
 use App\Services\LearnService;
 use App\Services\ProgressService;
@@ -55,6 +56,14 @@ class LearnController extends Controller
 
         [$previousLesson, $nextLesson] = $this->neighboringLessons($course, $lesson);
 
+        $quizAttempt = $lesson->type === 'quiz' && $lesson->quiz
+            ? QuizAttempt::query()
+                ->where('quiz_id', $lesson->quiz->id)
+                ->where('user_id', auth()->id())
+                ->latest()
+                ->first()
+            : null;
+
         return view('learn.lesson', [
             'course' => $course,
             'lesson' => $lesson,
@@ -65,6 +74,7 @@ class LearnController extends Controller
             'enrollment' => $this->enrollmentFor($course),
             'previousLesson' => $previousLesson,
             'nextLesson' => $nextLesson,
+            'quizAttempt' => $quizAttempt,
         ]);
     }
 
