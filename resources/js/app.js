@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initSecurePlayer();
     initLessonForms();
     initBankQuestionForms();
+    initExamRuleForm();
     initReveal();
 });
 
@@ -333,5 +334,75 @@ function initBankQuestionForms() {
         reindexChoices();
         reindexMatches();
         syncPanels();
+    });
+}
+
+function initExamRuleForm() {
+    document.querySelectorAll('[data-exam-form]').forEach((form) => {
+        const panelsContainer = form.querySelector('[data-subject-panels]');
+        if (!panelsContainer) {
+            return;
+        }
+
+        const reindexRules = () => {
+            let index = 0;
+            panelsContainer.querySelectorAll('[data-type-row]').forEach((row) => {
+                const subject = row.querySelector('[data-rule-subject]');
+                const type = row.querySelector('[data-rule-type]');
+                const count = row.querySelector('[data-rule-count]');
+                if (subject) subject.name = `rules[${index}][subject_id]`;
+                if (type) type.name = `rules[${index}][type]`;
+                if (count) count.name = `rules[${index}][count]`;
+                index++;
+            });
+        };
+
+        const setRowDisabled = (row, disabled) => {
+            row.querySelectorAll('input, select').forEach((field) => {
+                field.disabled = disabled;
+            });
+        };
+
+        const bindTypeRow = (row, panel) => {
+            row.querySelector('[data-remove-type-row]')?.addEventListener('click', () => {
+                const rowsList = panel.querySelector('[data-type-rows-list]');
+                if (rowsList.children.length <= 1) return;
+                row.remove();
+                reindexRules();
+            });
+            setRowDisabled(row, panel.classList.contains('d-none'));
+        };
+
+        panelsContainer.querySelectorAll('[data-subject-panel]').forEach((panel) => {
+            panel.querySelectorAll('[data-type-row]').forEach((row) => bindTypeRow(row, panel));
+
+            panel.querySelector('[data-add-type-row]')?.addEventListener('click', () => {
+                const template = document.getElementById('exam-type-row-template');
+                const rowsList = panel.querySelector('[data-type-rows-list]');
+                if (!template || !rowsList) return;
+
+                const node = template.content.cloneNode(true);
+                const row = node.querySelector('[data-type-row]');
+                const subjectInput = row.querySelector('[data-rule-subject]');
+                if (subjectInput) subjectInput.value = panel.id.replace('subject-panel-', '');
+
+                bindTypeRow(row, panel);
+                rowsList.appendChild(row);
+                reindexRules();
+            });
+        });
+
+        form.querySelectorAll('[data-subject-toggle]').forEach((checkbox) => {
+            const panel = document.getElementById(checkbox.dataset.subjectTarget);
+            if (!panel) return;
+
+            checkbox.addEventListener('change', () => {
+                panel.classList.toggle('d-none', !checkbox.checked);
+                panel.querySelectorAll('[data-type-row]').forEach((row) => setRowDisabled(row, !checkbox.checked));
+                reindexRules();
+            });
+        });
+
+        reindexRules();
     });
 }

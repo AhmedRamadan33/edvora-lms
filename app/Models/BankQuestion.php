@@ -60,4 +60,16 @@ class BankQuestion extends Model
     {
         return ! in_array($this->type, self::MANUALLY_GRADED_TYPES, true);
     }
+
+    public static function typeLabel(string $type): string
+    {
+        return match ($type) {
+            'mcq_single' => __('Multiple choice'),
+            'true_false' => __('True / False'),
+            'matching' => __('Matching'),
+            'fill_blank' => __('Fill in the blank'),
+            'essay' => __('Essay'),
+            default => $type,
+        };
+    }
 }

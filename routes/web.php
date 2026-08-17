@@ -28,6 +28,7 @@ use App\Http\Controllers\Instructor\CourseController as InstructorCourseControll
 use App\Http\Controllers\Instructor\CurriculumController;
 use App\Http\Controllers\Instructor\DashboardController as InstructorDashboardController;
 use App\Http\Controllers\Instructor\EarningController;
+use App\Http\Controllers\Instructor\ExamController;
 use App\Http\Controllers\Instructor\OrderController as InstructorOrderController;
 use App\Http\Controllers\Instructor\ProfileController as InstructorProfileController;
 use App\Http\Controllers\Instructor\PublicProfileController;
@@ -120,6 +121,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/subjects/create', [SubjectController::class, 'create'])->name('subjects.create');
         Route::post('/subjects', [SubjectController::class, 'store'])->name('subjects.store');
         Route::delete('/subjects/{subject}', [SubjectController::class, 'destroy'])->name('subjects.destroy');
+        Route::get('/exams', [ExamController::class, 'index'])->name('exams.index');
+        Route::get('/exams/create', [ExamController::class, 'create'])->name('exams.create');
+        Route::post('/exams', [ExamController::class, 'store'])->name('exams.store');
+        Route::get('/exams/{exam}', [ExamController::class, 'show'])->name('exams.show');
+        Route::get('/exams/{exam}/edit', [ExamController::class, 'edit'])->name('exams.edit');
+        Route::put('/exams/{exam}', [ExamController::class, 'update'])->name('exams.update');
+        Route::delete('/exams/{exam}', [ExamController::class, 'destroy'])->name('exams.destroy');
+        Route::post('/exams/{exam}/status', [ExamController::class, 'toggleStatus'])->name('exams.status');
+        Route::post('/exams/{exam}/questions', [ExamController::class, 'addQuestions'])->name('exams.questions.store');
+        Route::delete('/exams/{exam}/questions/{examQuestion}', [ExamController::class, 'removeQuestion'])->name('exams.questions.destroy');
         Route::get('/earnings', [EarningController::class, 'index'])->name('earnings.index');
         Route::post('/earnings/payout', [EarningController::class, 'requestPayout'])->name('earnings.payout');
         Route::get('/orders', [InstructorOrderController::class, 'index'])->name('orders.index');

@@ -2,6 +2,7 @@
 <a class="nav-link @if(request()->routeIs('instructor.courses.index') || request()->routeIs('instructor.courses.edit')) active @endif" href="{{ route('instructor.courses.index') }}"><i class="bi bi-collection-play me-2"></i>{{ __('My courses') }}</a>
 <a class="nav-link @if(request()->routeIs('instructor.courses.create')) active @endif" href="{{ route('instructor.courses.create') }}"><i class="bi bi-plus-circle me-2"></i>{{ __('Create course') }}</a>
 <a class="nav-link @if(request()->routeIs('instructor.subjects.*')) active @endif" href="{{ route('instructor.subjects.index') }}"><i class="bi bi-bookmarks me-2"></i>{{ __('Subjects') }}</a>
+<a class="nav-link @if(request()->routeIs('instructor.exams.*')) active @endif" href="{{ route('instructor.exams.index') }}"><i class="bi bi-file-earmark-text me-2"></i>{{ __('Exams') }}</a>
 <a class="nav-link @if(request()->routeIs('instructor.earnings.*')) active @endif" href="{{ route('instructor.earnings.index') }}"><i class="bi bi-cash-coin me-2"></i>{{ __('Earnings') }}</a>
 <a class="nav-link @if(request()->routeIs('instructor.orders.*')) active @endif" href="{{ route('instructor.orders.index') }}"><i class="bi bi-receipt me-2"></i>{{ __('My orders') }}</a>
 <a class="nav-link @if(request()->routeIs('instructor.profile.*')) active @endif" href="{{ route('instructor.profile.edit') }}"><i class="bi bi-person-badge me-2"></i>{{ __('Instructor profile') }}</a>
