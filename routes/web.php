@@ -66,12 +66,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-    Route::post('/cart/{course}', [CartController::class, 'store'])->name('cart.store');
+    Route::post('/cart/{course}', [CartController::class, 'store'])->name('cart.store')->middleware('student_only');
     Route::delete('/cart/{course}', [CartController::class, 'destroy'])->name('cart.destroy');
 
-    Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout.show');
-    Route::post('/checkout/coupon', [CheckoutController::class, 'applyCoupon'])->name('checkout.coupon');
-    Route::post('/checkout/pay', [CheckoutController::class, 'pay'])->name('checkout.pay');
+    Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout.show')->middleware('student_only');
+    Route::post('/checkout/coupon', [CheckoutController::class, 'applyCoupon'])->name('checkout.coupon')->middleware('student_only');
+    Route::post('/checkout/pay', [CheckoutController::class, 'pay'])->name('checkout.pay')->middleware('student_only');
     Route::get('/checkout/{order}/success', [CheckoutController::class, 'success'])->name('checkout.success');
     Route::get('/checkout/{order}/cancel', [CheckoutController::class, 'cancel'])->name('checkout.cancel');
     Route::get('/checkout/{order}/paymob-demo', [CheckoutController::class, 'paymobDemo'])->name('checkout.paymob.demo');

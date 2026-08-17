@@ -86,6 +86,8 @@
             @auth
                 @if($enrolled)
                     <a href="{{ route('learn.course', $course) }}" class="btn btn-success w-100 mb-2">{{ __('Continue learning') }}</a>
+                @elseif(auth()->user()->hasRole('admin') || auth()->user()->hasRole('instructor'))
+                    <div class="alert alert-secondary small mb-0">{{ __('Only student accounts can enroll in courses.') }}</div>
                 @else
                     <form method="POST" action="{{ route('cart.store', $course) }}" class="mb-2">
                         @csrf
