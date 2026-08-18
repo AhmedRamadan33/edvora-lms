@@ -488,6 +488,15 @@ function initSelect2() {
             dir,
         });
 
+        const container = select.nextElementSibling;
+        if (container && container.classList.contains('select2-container')) {
+            select.classList.forEach((cls) => {
+                if (/^m[tbsexy]?-(0|1|2|3|4|5|auto)$/.test(cls)) {
+                    container.classList.add(cls);
+                }
+            });
+        }
+
         select.addEventListener('invalid', () => {
             $(select).select2('open');
         });
