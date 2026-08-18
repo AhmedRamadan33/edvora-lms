@@ -15,7 +15,7 @@
         data-started-at="{{ $attempt->started_at->toIso8601String() }}"
         data-duration-minutes="{{ $exam->duration_minutes ?? '' }}"
         data-confirm-message="{{ __('Submit the exam now? You cannot change your answers afterwards.') }}"
-        onsubmit="return window.__confirmExamSubmit ? window.__confirmExamSubmit(event) : true;">
+        data-confirm-label="{{ __('Submit exam') }}">
         @csrf
 
         <div class="ed-panel p-3 mb-3 d-flex flex-wrap align-items-center justify-content-between gap-2" style="position:sticky;top:.5rem;z-index:10;">
@@ -87,7 +87,7 @@
                     <button type="button" class="btn btn-outline-secondary" data-nav-prev>{{ __('Previous') }}</button>
                     <div class="d-flex gap-2">
                         <button type="button" class="btn btn-outline-secondary" data-nav-next>{{ __('Next') }}</button>
-                        <button type="submit" class="btn btn-success">{{ __('Submit exam') }}</button>
+                        <button type="submit" class="btn btn-success d-none" data-exam-submit>{{ __('Submit exam') }}</button>
                     </div>
                 </div>
             </div>

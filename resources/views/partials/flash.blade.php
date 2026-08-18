@@ -38,7 +38,7 @@
 </div>
 
 <div class="toast ed-toast ed-toast--warning ed-confirm-toast"
-    id="ed-delete-confirmation"
+    id="ed-confirm-toast"
     role="alert"
     aria-live="assertive"
     aria-atomic="true"
@@ -49,9 +49,9 @@
         <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="{{ __('Close') }}"></button>
     </div>
     <div class="toast-body">
-        <p class="mb-3">{{ __('This action cannot be undone.') }}</p>
+        <p class="mb-3" data-confirm-body>{{ __('This action cannot be undone.') }}</p>
         <div class="d-flex gap-2">
-            <button type="button" class="btn btn-sm btn-danger" data-confirm-delete>{{ __('Yes, delete it!') }}</button>
+            <button type="button" class="btn btn-sm btn-danger" data-confirm-accept data-generic-label="{{ __('Confirm') }}">{{ __('Yes, delete it!') }}</button>
             <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="toast">{{ __('Cancel') }}</button>
         </div>
     </div>

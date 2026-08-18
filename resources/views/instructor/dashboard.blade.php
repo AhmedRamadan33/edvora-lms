@@ -42,4 +42,25 @@
         @endforelse
     </ul>
 </div>
+
+<div class="ed-panel p-4 mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="h5 mb-0">{{ __('Recent exam activity') }}</h3>
+    </div>
+    <ul class="list-group list-group-flush">
+        @forelse($recentAttempts as $attempt)
+            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                <span>
+                    {{ $attempt->user->name }} — {{ $attempt->exam->title }}
+                    <span class="badge text-bg-{{ $attempt->status === 'graded' ? 'success' : 'warning' }} ms-2">
+                        {{ $attempt->status === 'graded' ? __('Graded') : __('Pending review') }}
+                    </span>
+                </span>
+                <a href="{{ route('instructor.exams.attempts.show', [$attempt->exam, $attempt]) }}" class="btn btn-sm btn-outline-primary">{{ __('Review') }}</a>
+            </li>
+        @empty
+            <li class="list-group-item px-0 text-muted">{{ __('No exam activity yet.') }}</li>
+        @endforelse
+    </ul>
+</div>
 @endsection

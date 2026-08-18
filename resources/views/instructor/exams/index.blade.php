@@ -57,6 +57,7 @@
                         </td>
                         <td class="text-end">
                             <div class="d-flex gap-1 justify-content-end">
+                                <a href="{{ route('instructor.exams.attempts.index', $exam) }}" class="btn btn-sm btn-outline-secondary">{{ __('Results') }}</a>
                                 <a href="{{ route('instructor.exams.edit', $exam) }}" class="btn btn-sm btn-outline-secondary">{{ __('Edit') }}</a>
                                 <form method="POST" action="{{ route('instructor.exams.status', $exam) }}">
                                     @csrf

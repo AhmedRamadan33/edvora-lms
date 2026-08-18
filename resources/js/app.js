@@ -9,7 +9,7 @@ window.bootstrap = bootstrap;
 
 document.addEventListener('DOMContentLoaded', () => {
     initToasts();
-    initDeleteConfirmation();
+    initFormConfirmations();
     initSecurePlayer();
     initLessonForms();
     initBankQuestionForms();
@@ -51,21 +51,26 @@ function initToasts() {
     }, 11000);
 }
 
-function initDeleteConfirmation() {
-    const confirmationElement = document.getElementById('ed-delete-confirmation');
+function initFormConfirmations() {
+    const confirmationElement = document.getElementById('ed-confirm-toast');
     if (!confirmationElement) {
         return;
     }
 
     const confirmationToast = bootstrap.Toast.getOrCreateInstance(confirmationElement, { autohide: false });
-    const confirmButton = confirmationElement.querySelector('[data-confirm-delete]');
+    const acceptButton = confirmationElement.querySelector('[data-confirm-accept]');
+    const bodyElement = confirmationElement.querySelector('[data-confirm-body]');
+    const defaultBody = bodyElement?.textContent ?? '';
+    const defaultLabel = acceptButton?.textContent ?? '';
+    const genericLabel = acceptButton?.dataset.genericLabel || defaultLabel;
     let pendingForm = null;
 
     document.querySelectorAll('form').forEach((form) => {
         const isDeleteForm = form.matches('[data-confirm-delete]')
             || form.querySelector('input[name="_method"][value="DELETE"]');
+        const isMessageForm = form.matches('[data-confirm-message]');
 
-        if (!isDeleteForm) {
+        if (!isDeleteForm && !isMessageForm) {
             return;
         }
 
@@ -76,11 +81,21 @@ function initDeleteConfirmation() {
 
             event.preventDefault();
             pendingForm = form;
+
+            if (bodyElement) {
+                bodyElement.textContent = form.dataset.confirmMessage || defaultBody;
+            }
+            if (acceptButton) {
+                acceptButton.textContent = form.dataset.confirmLabel || (isDeleteForm ? defaultLabel : genericLabel);
+                acceptButton.classList.toggle('btn-danger', isDeleteForm);
+                acceptButton.classList.toggle('btn-primary', !isDeleteForm);
+            }
+
             confirmationToast.show();
         });
     });
 
-    confirmButton?.addEventListener('click', () => {
+    acceptButton?.addEventListener('click', () => {
         if (!pendingForm) {
             return;
         }
@@ -455,6 +470,8 @@ function initExamAttempt() {
     const panels = [...form.querySelectorAll('[data-question-panel]')];
     const navButtons = [...form.querySelectorAll('[data-question-nav] [data-nav-to]')];
     const progressCount = form.querySelector('[data-progress-count]');
+    const nextButton = form.querySelector('[data-nav-next]');
+    const submitButton = form.querySelector('[data-exam-submit]');
     let current = 0;
 
     const isAnswered = (index) => {
@@ -485,12 +502,19 @@ function initExamAttempt() {
         });
     };
 
+    const updateNavButtons = () => {
+        const isLast = current === panels.length - 1;
+        nextButton?.classList.toggle('d-none', isLast);
+        submitButton?.classList.toggle('d-none', !isLast);
+    };
+
     const showQuestion = (index) => {
         if (index < 0 || index >= panels.length) return;
         panels[current]?.classList.add('d-none');
         current = index;
         panels[current]?.classList.remove('d-none');
         updateProgress();
+        updateNavButtons();
     };
 
     navButtons.forEach((button, index) => {
@@ -505,18 +529,8 @@ function initExamAttempt() {
         field.addEventListener('input', updateProgress);
     });
 
-    window.__confirmExamSubmit = (event) => {
-        if (window.__skipExamConfirm) {
-            return true;
-        }
-        if (!window.confirm(form.dataset.confirmMessage || 'Submit?')) {
-            event.preventDefault();
-            return false;
-        }
-        return true;
-    };
-
     updateProgress();
+    updateNavButtons();
 
     const timerEl = form.querySelector('[data-exam-timer]');
     const durationMinutes = parseInt(form.dataset.durationMinutes, 10);
@@ -529,7 +543,7 @@ function initExamAttempt() {
 
             if (remainingMs <= 0) {
                 timerEl.textContent = '00:00';
-                window.__skipExamConfirm = true;
+                form.dataset.confirmed = 'true';
                 form.requestSubmit();
                 return;
             }

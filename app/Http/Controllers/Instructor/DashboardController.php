@@ -5,11 +5,12 @@ namespace App\Http\Controllers\Instructor;
 use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\InstructorEarning;
+use App\Services\ExamGradingService;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
-    public function __invoke(): View
+    public function __invoke(ExamGradingService $grading): View
     {
         $instructorId = auth()->id();
 
@@ -19,6 +20,7 @@ class DashboardController extends Controller
             'students' => Course::query()->where('instructor_id', $instructorId)->sum('students_count'),
             'earnings' => InstructorEarning::query()->where('instructor_id', $instructorId)->sum('amount'),
             'available' => InstructorEarning::query()->where('instructor_id', $instructorId)->where('status', 'available')->sum('amount'),
+            'pending_reviews' => $grading->pendingReviewCount(auth()->user()),
         ];
 
         $courses = Course::query()
@@ -28,6 +30,8 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        return view('instructor.dashboard', compact('stats', 'courses'));
+        $recentAttempts = $grading->recentActivity(auth()->user());
+
+        return view('instructor.dashboard', compact('stats', 'courses', 'recentAttempts'));
     }
 }

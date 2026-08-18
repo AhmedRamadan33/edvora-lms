@@ -50,7 +50,7 @@ class StudentExamService
 
     public function submitAttempt(ExamAttempt $attempt, array $answers): ExamAttempt
     {
-        abort_unless($attempt->status === 'in_progress', 403);
+        abort_unless($attempt->status === ExamAttempt::STATUS_IN_PROGRESS, 403);
 
         return DB::transaction(function () use ($attempt, $answers) {
             $questions = $attempt->exam->questions()->with('choices', 'matches')->get();
@@ -80,7 +80,7 @@ class StudentExamService
 
             $this->attempts->update($attempt, [
                 'submitted_at' => now(),
-                'status' => $hasPending ? 'submitted' : 'graded',
+                'status' => $hasPending ? ExamAttempt::STATUS_SUBMITTED : ExamAttempt::STATUS_GRADED,
                 'auto_score' => $autoScore,
                 'passed' => $passed,
             ]);
