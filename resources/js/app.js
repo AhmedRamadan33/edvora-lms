@@ -1,5 +1,9 @@
 import './bootstrap';
 import * as bootstrap from 'bootstrap';
+import $ from './jquery-global';
+import select2 from 'select2';
+
+select2();
 
 window.bootstrap = bootstrap;
 
@@ -12,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initExamRuleForm();
     initExamAttempt();
     initReveal();
+    initSelect2();
 });
 
 function initToasts() {
@@ -405,6 +410,39 @@ function initExamRuleForm() {
         });
 
         reindexRules();
+    });
+}
+
+function initSelect2() {
+    const dir = document.documentElement.getAttribute('dir') || 'ltr';
+
+    const apply = (select) => {
+        if (select.classList.contains('select2-hidden-accessible') || select.offsetParent === null) {
+            return;
+        }
+
+        $(select).select2({
+            theme: 'bootstrap-5',
+            width: 'element',
+            dir,
+        });
+
+        select.addEventListener('invalid', () => {
+            $(select).select2('open');
+        });
+    };
+
+    document.querySelectorAll('select').forEach(apply);
+
+    const observer = new MutationObserver(() => {
+        document.querySelectorAll('select:not(.select2-hidden-accessible)').forEach(apply);
+    });
+
+    observer.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class'],
+        childList: true,
+        subtree: true,
     });
 }
 
