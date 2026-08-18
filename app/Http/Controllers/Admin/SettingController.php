@@ -5,16 +5,29 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateSettingsRequest;
 use App\Services\AdminCatalogService;
+use App\Services\PaymobService;
+use App\Services\PayPalService;
+use App\Services\PayTabsService;
 use App\Services\SettingService;
+use App\Services\StripeService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class SettingController extends Controller
 {
-    public function edit(): View
+    public function edit(StripeService $stripe, PaymobService $paymob, PayTabsService $paytabs, PayPalService $paypal): View
     {
+        $gateways = [
+            'stripe' => ['configured' => $stripe->isConfigured()],
+            'paymob' => ['configured' => $paymob->isConfigured()],
+            'paytabs' => ['configured' => $paytabs->isConfigured()],
+            'paypal' => ['configured' => $paypal->isConfigured()],
+        ];
+
         $settings = SettingService::many([
             'platform_name' => 'Edvora',
+            'platform_email' => config('mail.from.address', 'support@edvora.test'),
+            'platform_phone' => '+01199676020',
             'default_commission' => config('edvora.default_commission'),
             'currency' => config('edvora.currency'),
             'bunny_library_id' => '',
@@ -35,9 +48,13 @@ class SettingController extends Controller
             'paypal_secret' => '',
             'paypal_webhook_id' => '',
             'paypal_mode' => 'sandbox',
+            'stripe_enabled' => true,
+            'paymob_enabled' => true,
+            'paytabs_enabled' => true,
+            'paypal_enabled' => true,
         ]);
 
-        return view('admin.settings.edit', compact('settings'));
+        return view('admin.settings.edit', compact('settings', 'gateways'));
     }
 
     public function update(UpdateSettingsRequest $request, AdminCatalogService $catalog): RedirectResponse

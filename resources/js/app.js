@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initExamRuleForm();
     initExamAttempt();
     initPayoutForm();
+    initSecretToggles();
     initReveal();
     initSelect2();
 });
@@ -356,6 +357,23 @@ function initBankQuestionForms() {
         reindexChoices();
         reindexMatches();
         syncPanels();
+    });
+}
+
+function initSecretToggles() {
+    document.querySelectorAll('[data-toggle-secret]').forEach((button) => {
+        button.addEventListener('click', () => {
+            const input = button.parentElement.querySelector('[data-secret-input]');
+            const icon = button.querySelector('i');
+            if (!input) {
+                return;
+            }
+
+            const isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+            icon.classList.toggle('bi-eye', !isPassword);
+            icon.classList.toggle('bi-eye-slash', isPassword);
+        });
     });
 }
 

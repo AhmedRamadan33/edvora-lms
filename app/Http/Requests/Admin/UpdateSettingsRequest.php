@@ -25,6 +25,8 @@ class UpdateSettingsRequest extends FormRequest
     {
         return [
             'platform_name' => ['required', 'string', 'max:120'],
+            'platform_email' => ['nullable', 'email', 'max:150'],
+            'platform_phone' => ['nullable', 'string', 'max:30'],
             'default_commission' => ['required', 'numeric', 'min:0', 'max:100'],
             'currency' => ['required', 'string', 'size:3', Rule::in(config('edvora.supported_currencies', ['EGP', 'USD']))],
             'bunny_library_id' => ['nullable', 'string'],
@@ -40,11 +42,15 @@ class UpdateSettingsRequest extends FormRequest
             'paymob_hmac_secret' => ['nullable', 'string'],
             'paytabs_profile_id' => ['nullable', 'string'],
             'paytabs_server_key' => ['nullable', 'string'],
-            'paytabs_region' => ['nullable', 'string'],
+            'paytabs_region' => ['nullable', Rule::in(['egypt', 'uae', 'ksa', 'oman', 'jordan', 'kuwait', 'iraq', 'morocco', 'qatar', 'global'])],
             'paypal_client_id' => ['nullable', 'string'],
             'paypal_secret' => ['nullable', 'string'],
             'paypal_webhook_id' => ['nullable', 'string'],
             'paypal_mode' => ['nullable', Rule::in(['sandbox', 'live'])],
+            'stripe_enabled' => ['nullable', 'in:0,1'],
+            'paymob_enabled' => ['nullable', 'in:0,1'],
+            'paytabs_enabled' => ['nullable', 'in:0,1'],
+            'paypal_enabled' => ['nullable', 'in:0,1'],
         ];
     }
 }

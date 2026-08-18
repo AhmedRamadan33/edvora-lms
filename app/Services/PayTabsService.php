@@ -18,6 +18,11 @@ class PayTabsService
         return filled($this->profileId()) && filled($this->serverKey());
     }
 
+    public function isEnabledByAdmin(): bool
+    {
+        return (bool) SettingService::get('paytabs_enabled', true);
+    }
+
     protected function profileId(): ?string
     {
         return config('edvora.paytabs.profile_id') ?: SettingService::get('paytabs_profile_id');
@@ -41,7 +46,7 @@ class PayTabsService
     protected function baseUrl(): string
     {
         return match ($this->region()) {
-            'ksa', 'sa' => 'https://secure.paytabs.sa',
+            'ksa' => 'https://secure.paytabs.sa',
             'uae' => 'https://secure.paytabs.com',
             'oman' => 'https://secure-oman.paytabs.com',
             'jordan' => 'https://secure-jordan.paytabs.com',

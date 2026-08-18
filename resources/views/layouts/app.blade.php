@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', \App\Services\SettingService::platformName())</title>
+    <link rel="icon" type="image/svg+xml" href="{{ asset('edvora-logo.svg') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <style>
@@ -187,8 +188,8 @@
                 </div>
                 <div class="col-lg-3">
                     <div class="text-white fw-semibold mb-2">{{ __('Contact') }}</div>
-                    <p> +01199676020</p>
-                    <p> support@edvora.test</p>
+                    <p>{{ \App\Services\SettingService::platformPhone() }}</p>
+                    <p>{{ \App\Services\SettingService::platformEmail() }}</p>
                 </div>
             </div>
             <div class="d-flex flex-wrap justify-content-between gap-2 pt-4 mt-4 ed-footer__meta">

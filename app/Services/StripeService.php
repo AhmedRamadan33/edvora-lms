@@ -21,6 +21,11 @@ class StripeService
         return filled($this->secret());
     }
 
+    public function isEnabledByAdmin(): bool
+    {
+        return (bool) SettingService::get('stripe_enabled', true);
+    }
+
     public function publishableKey(): ?string
     {
         return config('edvora.stripe.key') ?: SettingService::get('stripe_key');

@@ -18,6 +18,11 @@ class PayPalService
         return filled($this->clientId()) && filled($this->secret());
     }
 
+    public function isEnabledByAdmin(): bool
+    {
+        return (bool) SettingService::get('paypal_enabled', true);
+    }
+
     protected function clientId(): ?string
     {
         return config('edvora.paypal.client_id') ?: SettingService::get('paypal_client_id');

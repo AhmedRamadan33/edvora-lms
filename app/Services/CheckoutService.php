@@ -39,20 +39,20 @@ class CheckoutService
             'currency' => SettingService::currency(),
             'providers' => [
                 'stripe' => [
-                    'enabled' => $this->stripe->isConfigured() || config('edvora.payments.allow_demo'),
+                    'enabled' => $this->stripe->isEnabledByAdmin() && ($this->stripe->isConfigured() || config('edvora.payments.allow_demo')),
                     'configured' => $this->stripe->isConfigured(),
                     'publishable_key' => $this->stripe->publishableKey(),
                 ],
                 'paymob' => [
-                    'enabled' => $this->paymob->isConfigured() || config('edvora.payments.allow_demo'),
+                    'enabled' => $this->paymob->isEnabledByAdmin() && ($this->paymob->isConfigured() || config('edvora.payments.allow_demo')),
                     'configured' => $this->paymob->isConfigured(),
                 ],
                 'paytabs' => [
-                    'enabled' => $this->paytabs->isConfigured() || config('edvora.payments.allow_demo'),
+                    'enabled' => $this->paytabs->isEnabledByAdmin() && ($this->paytabs->isConfigured() || config('edvora.payments.allow_demo')),
                     'configured' => $this->paytabs->isConfigured(),
                 ],
                 'paypal' => [
-                    'enabled' => $this->paypal->isConfigured() || config('edvora.payments.allow_demo'),
+                    'enabled' => $this->paypal->isEnabledByAdmin() && ($this->paypal->isConfigured() || config('edvora.payments.allow_demo')),
                     'configured' => $this->paypal->isConfigured(),
                 ],
             ],

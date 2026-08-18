@@ -44,4 +44,14 @@ class SettingService
     {
         return (string) static::get('platform_name', config('app.name', 'Edvora'));
     }
+
+    public static function platformEmail(): string
+    {
+        return (string) static::get('platform_email', config('mail.from.address', 'support@edvora.test'));
+    }
+
+    public static function platformPhone(): string
+    {
+        return (string) static::get('platform_phone', '+01199676020');
+    }
 }

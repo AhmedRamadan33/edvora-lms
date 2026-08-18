@@ -23,6 +23,11 @@ class PaymobService
             && filled($this->iframeId());
     }
 
+    public function isEnabledByAdmin(): bool
+    {
+        return (bool) SettingService::get('paymob_enabled', true);
+    }
+
     protected function apiKey(): ?string
     {
         return config('edvora.paymob.api_key') ?: SettingService::get('paymob_api_key');
