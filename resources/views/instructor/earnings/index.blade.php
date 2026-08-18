@@ -20,21 +20,54 @@
     </div>
 </div>
 
-<form method="POST" action="{{ route('instructor.earnings.payout') }}" class="ed-panel p-4 mb-4">
+<form method="POST" action="{{ route('instructor.earnings.payout') }}" class="ed-panel p-4 mb-4" data-payout-form>
     @csrf
     <h3 class="h6 mb-3">{{ __('Request payout') }}</h3>
     <div class="row g-2">
-        <div class="col-md-3">
+        <div class="col-md-4">
+            <label class="form-label">{{ __('Amount') }}</label>
             <input type="number" step="0.01" name="amount" class="form-control" placeholder="{{ __('Amount') }}" required>
         </div>
-        <div class="col-md-3">
-            <input name="method" class="form-control" placeholder="PayPal / Bank" required>
+        <div class="col-md-4">
+            <label class="form-label">{{ __('Payout method') }}</label>
+            <select name="method" class="form-select" data-payout-method required>
+                <option value="">{{ __('Select method') }}</option>
+                <option value="paypal">{{ __('PayPal') }}</option>
+                <option value="bank_transfer">{{ __('Bank transfer') }}</option>
+                <option value="e_wallet">{{ __('E-wallet') }}</option>
+            </select>
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+            <button class="btn btn-primary w-100">{{ __('Request') }}</button>
+        </div>
+    </div>
+
+    <div class="row g-2 mt-1 d-none" data-panel="paypal">
+        <div class="col-md-6">
+            <label class="form-label">{{ __('PayPal email') }}</label>
+            <input type="email" name="paypal_email" class="form-control" placeholder="{{ __('PayPal email') }}">
+        </div>
+    </div>
+
+    <div class="row g-2 mt-1 d-none" data-panel="bank_transfer">
+        <div class="col-md-4">
+            <label class="form-label">{{ __('Bank name') }}</label>
+            <input name="bank_name" class="form-control" placeholder="{{ __('Bank name') }}">
         </div>
         <div class="col-md-4">
-            <input name="account_details" class="form-control" placeholder="{{ __('Account details') }}" required>
+            <label class="form-label">{{ __('Account number') }}</label>
+            <input name="account_number" class="form-control" placeholder="{{ __('Account number') }}">
         </div>
-        <div class="col-md-2">
-            <button class="btn btn-primary w-100">{{ __('Request') }}</button>
+        <div class="col-md-4">
+            <label class="form-label">{{ __('Account holder name') }}</label>
+            <input name="account_holder" class="form-control" placeholder="{{ __('Account holder name') }}">
+        </div>
+    </div>
+
+    <div class="row g-2 mt-1 d-none" data-panel="e_wallet">
+        <div class="col-md-6">
+            <label class="form-label">{{ __('Wallet number') }}</label>
+            <input name="wallet_number" class="form-control" placeholder="{{ __('Wallet number') }}">
         </div>
     </div>
 </form>
@@ -78,7 +111,7 @@
             <ul class="list-group list-group-flush">
                 @forelse($payouts as $payout)
                     <li class="list-group-item d-flex justify-content-between px-0">
-                        <span>{{ number_format($payout->amount, 2) }} · {{ $payout->method }}</span>
+                        <span>{{ number_format($payout->amount, 2) }} · {{ \App\Models\PayoutRequest::methodLabel($payout->method) }}</span>
                         <span class="ed-status is-{{ $payout->status }}">{{ __status($payout->status) }}</span>
                     </li>
                 @empty

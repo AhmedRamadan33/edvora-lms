@@ -96,16 +96,16 @@ class AdminCatalogService
         ActivityLog::record('instructor.rejected', $profile);
     }
 
-    public function approvePayout(PayoutRequest $payout, ?string $adminNote = null): array
+    public function approvePayout(PayoutRequest $payout, string $transactionReference): array
     {
         if ($payout->status !== 'pending') {
             return ['ok' => false, 'message' => __('Already processed.')];
         }
 
-        DB::transaction(function () use ($payout, $adminNote) {
+        DB::transaction(function () use ($payout, $transactionReference) {
             $payout->update([
                 'status' => 'paid',
-                'admin_note' => $adminNote,
+                'transaction_reference' => $transactionReference,
                 'processed_at' => now(),
             ]);
 
@@ -154,10 +154,19 @@ class AdminCatalogService
             'instructor_id' => $instructor->id,
             'amount' => $data['amount'],
             'method' => $data['method'],
-            'account_details' => $data['account_details'],
+            'account_details' => $this->formatPayoutAccountDetails($data),
             'status' => 'pending',
         ]);
 
         return ['ok' => true, 'message' => __('Payout request submitted.')];
+    }
+
+    protected function formatPayoutAccountDetails(array $data): string
+    {
+        return match ($data['method']) {
+            'paypal' => "PayPal: {$data['paypal_email']}",
+            'bank_transfer' => "Bank: {$data['bank_name']} | Account: {$data['account_number']} | Holder: {$data['account_holder']}",
+            'e_wallet' => "Wallet: {$data['wallet_number']}",
+        };
     }
 }

@@ -30,14 +30,20 @@
                         <td class="fw-semibold">{{ $payout->instructor->name }}</td>
                         <td>{{ number_format($payout->amount, 2) }}</td>
                         <td>
-                            <div>{{ $payout->method }}</div>
+                            <div>{{ \App\Models\PayoutRequest::methodLabel($payout->method) }}</div>
                             <div class="small text-muted">{{ $payout->account_details }}</div>
                         </td>
-                        <td><span class="ed-status is-{{ $payout->status }}">{{ __status($payout->status) }}</span></td>
+                        <td>
+                            <span class="ed-status is-{{ $payout->status }}">{{ __status($payout->status) }}</span>
+                            @if($payout->status === 'paid' && $payout->transaction_reference)
+                                <div class="small text-muted mt-1">{{ __('Ref') }}: {{ $payout->transaction_reference }}</div>
+                            @endif
+                        </td>
                         <td class="text-end pe-3">
                             @if($payout->status === 'pending')
-                                <form method="POST" action="{{ route('admin.payouts.approve', $payout) }}" class="d-inline">
+                                <form method="POST" action="{{ route('admin.payouts.approve', $payout) }}" class="d-inline-flex gap-1">
                                     @csrf
+                                    <input name="transaction_reference" class="form-control form-control-sm" required placeholder="{{ __('Transaction reference') }}">
                                     <button class="btn btn-sm btn-success">{{ __('Pay') }}</button>
                                 </form>
                                 <form method="POST" action="{{ route('admin.payouts.reject', $payout) }}" class="d-inline-flex gap-1 mt-1">

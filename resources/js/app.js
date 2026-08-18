@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initBankQuestionForms();
     initExamRuleForm();
     initExamAttempt();
+    initPayoutForm();
     initReveal();
     initSelect2();
 });
@@ -253,7 +254,7 @@ function initLessonForms() {
         };
 
         addQuestionBtn?.addEventListener('click', addQuestion);
-        typeSelect.addEventListener('change', syncPanels);
+        $(typeSelect).on('change', syncPanels);
         syncPanels();
     });
 }
@@ -351,11 +352,38 @@ function initBankQuestionForms() {
             }
         };
 
-        typeSelect.addEventListener('change', syncPanels);
+        $(typeSelect).on('change', syncPanels);
         reindexChoices();
         reindexMatches();
         syncPanels();
     });
+}
+
+function initPayoutForm() {
+    const form = document.querySelector('[data-payout-form]');
+    if (!form) {
+        return;
+    }
+
+    const methodSelect = form.querySelector('[data-payout-method]');
+    if (!methodSelect) {
+        return;
+    }
+
+    const syncPanels = () => {
+        const method = methodSelect.value;
+        form.querySelectorAll('[data-panel]').forEach((panel) => {
+            const isActive = panel.dataset.panel === method;
+            panel.classList.toggle('d-none', !isActive);
+            panel.querySelectorAll('input').forEach((field) => {
+                field.disabled = !isActive;
+                field.required = isActive;
+            });
+        });
+    };
+
+    $(methodSelect).on('change', syncPanels);
+    syncPanels();
 }
 
 function initExamRuleForm() {
@@ -525,8 +553,7 @@ function initExamAttempt() {
     form.querySelector('[data-nav-next]')?.addEventListener('click', () => showQuestion(current + 1));
 
     form.querySelectorAll('[data-answer-input]').forEach((field) => {
-        field.addEventListener('change', updateProgress);
-        field.addEventListener('input', updateProgress);
+        $(field).on('change input', updateProgress);
     });
 
     updateProgress();

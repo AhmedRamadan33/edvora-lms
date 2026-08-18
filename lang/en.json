@@ -665,5 +665,19 @@
     "Back to results": "Back to results",
     "No attempts yet.": "No attempts yet.",
     "Student answer": "Student answer",
-    "Confirm": "Confirm"
+    "Confirm": "Confirm",
+    "Pay": "Pay",
+    "Note": "Note",
+    "Ref": "Ref",
+    "Transaction reference": "Transaction reference",
+    "PayPal": "PayPal",
+    "Bank transfer": "Bank transfer",
+    "E-wallet": "E-wallet",
+    "Payout method": "Payout method",
+    "Select method": "Select method",
+    "PayPal email": "PayPal email",
+    "Bank name": "Bank name",
+    "Account number": "Account number",
+    "Account holder name": "Account holder name",
+    "Wallet number": "Wallet number"
 }

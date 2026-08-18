@@ -8,7 +8,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class PayoutRequest extends Model
 {
     protected $fillable = [
-        'instructor_id', 'amount', 'method', 'account_details', 'status', 'admin_note', 'processed_at',
+        'instructor_id', 'amount', 'method', 'account_details', 'status', 'admin_note',
+        'transaction_reference', 'processed_at',
     ];
 
     protected function casts(): array
@@ -22,5 +23,15 @@ class PayoutRequest extends Model
     public function instructor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'instructor_id');
+    }
+
+    public static function methodLabel(string $method): string
+    {
+        return match ($method) {
+            'paypal' => __('PayPal'),
+            'bank_transfer' => __('Bank transfer'),
+            'e_wallet' => __('E-wallet'),
+            default => $method,
+        };
     }
 }

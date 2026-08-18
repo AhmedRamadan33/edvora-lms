@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\ApprovePayoutRequest;
 use App\Http\Requests\Admin\RejectPayoutRequest;
 use App\Models\PayoutRequest;
 use App\Services\AdminCatalogService;
@@ -30,9 +31,9 @@ class PayoutController extends Controller
         return view('admin.payouts.index', compact('payouts'));
     }
 
-    public function approve(Request $request, PayoutRequest $payout, AdminCatalogService $catalog): RedirectResponse
+    public function approve(ApprovePayoutRequest $request, PayoutRequest $payout, AdminCatalogService $catalog): RedirectResponse
     {
-        $result = $catalog->approvePayout($payout, $request->input('admin_note'));
+        $result = $catalog->approvePayout($payout, $request->validated('transaction_reference'));
 
         return back()->with($result['ok'] ? 'success' : 'error', $result['message']);
     }

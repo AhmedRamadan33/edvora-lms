@@ -674,5 +674,19 @@
     "Back to results": "الرجوع إلى النتائج",
     "No attempts yet.": "لا توجد محاولات حتى الآن.",
     "Student answer": "إجابة الطالب",
-    "Confirm": "تأكيد"
+    "Confirm": "تأكيد",
+    "Pay": "دفع",
+    "Note": "ملاحظة",
+    "Ref": "المرجع",
+    "Transaction reference": "الرقم المرجعي للتحويل",
+    "PayPal": "باي بال",
+    "Bank transfer": "تحويل بنكي",
+    "E-wallet": "محفظة إلكترونية",
+    "Payout method": "طريقة الاستلام",
+    "Select method": "اختر الطريقة",
+    "PayPal email": "بريد باي بال الإلكتروني",
+    "Bank name": "اسم البنك",
+    "Account number": "رقم الحساب",
+    "Account holder name": "اسم صاحب الحساب",
+    "Wallet number": "رقم المحفظة"
 }
