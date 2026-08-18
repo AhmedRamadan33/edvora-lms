@@ -30,6 +30,19 @@ return [
         'currency' => env('PAYMOB_CURRENCY', env('EDVORA_CURRENCY', 'EGP')),
     ],
 
+    'paytabs' => [
+        'profile_id' => env('PAYTABS_PROFILE_ID'),
+        'server_key' => env('PAYTABS_SERVER_KEY'),
+        'region' => env('PAYTABS_REGION', 'egypt'),
+    ],
+
+    'paypal' => [
+        'client_id' => env('PAYPAL_CLIENT_ID'),
+        'secret' => env('PAYPAL_SECRET'),
+        'webhook_id' => env('PAYPAL_WEBHOOK_ID'),
+        'mode' => env('PAYPAL_MODE', 'sandbox'),
+    ],
+
     'payments' => [
         // Demo/local-only completion when gateway keys are missing.
         'allow_demo' => (bool) env('EDVORA_ALLOW_DEMO_PAYMENTS', env('APP_ENV') === 'local'),

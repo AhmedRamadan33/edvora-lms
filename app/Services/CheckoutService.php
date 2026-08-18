@@ -17,6 +17,8 @@ class CheckoutService
         private CommissionService $commission,
         private StripeService $stripe,
         private PaymobService $paymob,
+        private PayTabsService $paytabs,
+        private PayPalService $paypal,
         private OrderFulfillmentService $fulfillment,
     ) {
     }
@@ -45,6 +47,14 @@ class CheckoutService
                     'enabled' => $this->paymob->isConfigured() || config('edvora.payments.allow_demo'),
                     'configured' => $this->paymob->isConfigured(),
                 ],
+                'paytabs' => [
+                    'enabled' => $this->paytabs->isConfigured() || config('edvora.payments.allow_demo'),
+                    'configured' => $this->paytabs->isConfigured(),
+                ],
+                'paypal' => [
+                    'enabled' => $this->paypal->isConfigured() || config('edvora.payments.allow_demo'),
+                    'configured' => $this->paypal->isConfigured(),
+                ],
             ],
             'demo_mode' => (bool) config('edvora.payments.allow_demo'),
         ];
@@ -70,7 +80,7 @@ class CheckoutService
             return ['ok' => false, 'message' => __('Cart is empty.'), 'redirect' => route('cart.index')];
         }
 
-        if (! in_array($provider, ['stripe', 'paymob'], true)) {
+        if (! in_array($provider, ['stripe', 'paymob', 'paytabs', 'paypal'], true)) {
             return ['ok' => false, 'message' => __('Invalid payment method.'), 'redirect' => route('checkout.show')];
         }
 
@@ -129,11 +139,12 @@ class CheckoutService
             ];
         }
 
-        if ($provider === 'stripe') {
-            return $this->startStripe($order);
-        }
-
-        return $this->startPaymob($order);
+        return match ($provider) {
+            'stripe' => $this->startStripe($order),
+            'paytabs' => $this->startPayTabs($order),
+            'paypal' => $this->startPayPal($order),
+            default => $this->startPaymob($order),
+        };
     }
 
     protected function startStripe(Order $order): array
@@ -196,6 +207,54 @@ class CheckoutService
             return [
                 'ok' => false,
                 'message' => __('Unable to start Paymob payment. Please try again.'),
+                'redirect' => route('checkout.show'),
+            ];
+        }
+    }
+
+    protected function startPayTabs(Order $order): array
+    {
+        try {
+            $paytabsSession = $this->paytabs->createPaymentPage($order);
+
+            return ['ok' => true, 'redirect' => $paytabsSession['redirect_url']];
+        } catch (\Throwable $e) {
+            Log::error('PayTabs checkout failed', [
+                'order_id' => $order->id,
+                'message' => $e->getMessage(),
+            ]);
+
+            $this->fulfillment->markFailed($order, 'paytabs', null, [
+                'error' => $e->getMessage(),
+            ]);
+
+            return [
+                'ok' => false,
+                'message' => __('Unable to start PayTabs payment. Please try again.'),
+                'redirect' => route('checkout.show'),
+            ];
+        }
+    }
+
+    protected function startPayPal(Order $order): array
+    {
+        try {
+            $paypalSession = $this->paypal->createOrder($order);
+
+            return ['ok' => true, 'redirect' => $paypalSession['approve_url']];
+        } catch (\Throwable $e) {
+            Log::error('PayPal checkout failed', [
+                'order_id' => $order->id,
+                'message' => $e->getMessage(),
+            ]);
+
+            $this->fulfillment->markFailed($order, 'paypal', null, [
+                'error' => $e->getMessage(),
+            ]);
+
+            return [
+                'ok' => false,
+                'message' => __('Unable to start PayPal payment. Please try again.'),
                 'redirect' => route('checkout.show'),
             ];
         }

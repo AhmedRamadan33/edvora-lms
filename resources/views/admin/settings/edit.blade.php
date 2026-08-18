@@ -27,6 +27,13 @@
             'paymob_integration_id' => 'Paymob integration ID',
             'paymob_iframe_id' => 'Paymob iframe ID',
             'paymob_hmac_secret' => 'Paymob HMAC',
+            'paytabs_profile_id' => 'PayTabs profile ID',
+            'paytabs_server_key' => 'PayTabs server key',
+            'paytabs_region' => 'PayTabs region',
+            'paypal_client_id' => 'PayPal client ID',
+            'paypal_secret' => 'PayPal secret',
+            'paypal_webhook_id' => 'PayPal webhook ID',
+            'paypal_mode' => 'PayPal mode',
         ] as $key => $label)
             <div class="col-md-6">
                 <label class="form-label">{{ __($label) }}</label>
@@ -48,6 +55,9 @@
                 <div class="small text-muted mb-1">Stripe webhook: <code>{{ rtrim(config('app.url'), '/') }}/webhooks/stripe</code></div>
                 <div class="small text-muted mb-1">Paymob callback: <code>{{ rtrim(config('app.url'), '/') }}/webhooks/paymob</code></div>
                 <div class="small text-muted mb-1">Paymob redirection: <code>{{ rtrim(config('app.url'), '/') }}/checkout/paymob/return</code></div>
+                <div class="small text-muted mb-1">PayTabs callback/IPN: <code>{{ rtrim(config('app.url'), '/') }}/webhooks/paytabs</code></div>
+                <div class="small text-muted mb-1">PayTabs return: <code>{{ rtrim(config('app.url'), '/') }}/checkout/paytabs/return</code></div>
+                <div class="small text-muted mb-1">PayPal webhook: <code>{{ rtrim(config('app.url'), '/') }}/webhooks/paypal</code></div>
                 <div class="small text-muted mt-2">Live domain example: <code>https://edvora.codeversetechno.com</code></div>
             </div>
         </div>

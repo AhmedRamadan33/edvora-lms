@@ -28,6 +28,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             'webhooks/stripe',
             'webhooks/paymob',
+            'webhooks/paytabs',
+            'webhooks/paypal',
+            'checkout/paytabs/return',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -38,6 +38,13 @@ class UpdateSettingsRequest extends FormRequest
             'paymob_integration_id' => ['nullable', 'string'],
             'paymob_iframe_id' => ['nullable', 'string'],
             'paymob_hmac_secret' => ['nullable', 'string'],
+            'paytabs_profile_id' => ['nullable', 'string'],
+            'paytabs_server_key' => ['nullable', 'string'],
+            'paytabs_region' => ['nullable', 'string'],
+            'paypal_client_id' => ['nullable', 'string'],
+            'paypal_secret' => ['nullable', 'string'],
+            'paypal_webhook_id' => ['nullable', 'string'],
+            'paypal_mode' => ['nullable', Rule::in(['sandbox', 'live'])],
         ];
     }
 }

@@ -42,10 +42,15 @@
             @csrf
             <label class="form-label">{{ __('Payment method') }}</label>
 
+            @php
+                $defaultProvider = old('provider') ?: collect(['stripe', 'paymob', 'paytabs', 'paypal'])
+                    ->first(fn ($key) => $providers[$key]['enabled']);
+            @endphp
+
             <div class="d-grid gap-2 mb-3">
                 @if($providers['stripe']['enabled'])
                     <label class="ed-panel p-3 mb-0 d-flex align-items-center gap-3" style="cursor:pointer;">
-                        <input type="radio" name="provider" value="stripe" class="form-check-input m-0" @checked(old('provider', 'stripe') === 'stripe') required>
+                        <input type="radio" name="provider" value="stripe" class="form-check-input m-0" @checked($defaultProvider === 'stripe') required>
                         <span class="flex-grow-1">
                             <strong>Stripe</strong>
                             <div class="small text-muted">
@@ -58,7 +63,7 @@
 
                 @if($providers['paymob']['enabled'])
                     <label class="ed-panel p-3 mb-0 d-flex align-items-center gap-3" style="cursor:pointer;">
-                        <input type="radio" name="provider" value="paymob" class="form-check-input m-0" @checked(old('provider') === 'paymob' || ! $providers['stripe']['enabled']) required>
+                        <input type="radio" name="provider" value="paymob" class="form-check-input m-0" @checked($defaultProvider === 'paymob') required>
                         <span class="flex-grow-1">
                             <strong>Paymob</strong>
                             <div class="small text-muted">
@@ -68,12 +73,39 @@
                         <i class="bi bi-wallet2 fs-4 text-primary"></i>
                     </label>
                 @endif
+
+                @if($providers['paytabs']['enabled'])
+                    <label class="ed-panel p-3 mb-0 d-flex align-items-center gap-3" style="cursor:pointer;">
+                        <input type="radio" name="provider" value="paytabs" class="form-check-input m-0" @checked($defaultProvider === 'paytabs') required>
+                        <span class="flex-grow-1">
+                            <strong>PayTabs</strong>
+                            <div class="small text-muted">
+                                {{ $providers['paytabs']['configured'] ? __('Cards via PayTabs') : __('Demo mode (keys missing)') }}
+                            </div>
+                        </span>
+                        <i class="bi bi-credit-card-2-front fs-4 text-primary"></i>
+                    </label>
+                @endif
+
+                @if($providers['paypal']['enabled'])
+                    <label class="ed-panel p-3 mb-0 d-flex align-items-center gap-3" style="cursor:pointer;">
+                        <input type="radio" name="provider" value="paypal" class="form-check-input m-0" @checked($defaultProvider === 'paypal') required>
+                        <span class="flex-grow-1">
+                            <strong>{{ __('PayPal') }}</strong>
+                            <div class="small text-muted">
+                                {{ $providers['paypal']['configured'] ? __('Pay with your PayPal account') : __('Demo mode (keys missing)') }}
+                            </div>
+                        </span>
+                        <i class="bi bi-paypal fs-4 text-primary"></i>
+                    </label>
+                @endif
             </div>
 
-            @if(! $providers['stripe']['enabled'] && ! $providers['paymob']['enabled'])
+            @php($anyProviderEnabled = $providers['stripe']['enabled'] || $providers['paymob']['enabled'] || $providers['paytabs']['enabled'] || $providers['paypal']['enabled'])
+            @if(! $anyProviderEnabled)
                 <div class="alert alert-danger mb-3">{{ __('No payment providers are configured.') }}</div>
             @else
-                <button class="btn btn-primary w-100" @disabled(! $providers['stripe']['enabled'] && ! $providers['paymob']['enabled'])>
+                <button class="btn btn-primary w-100" @disabled(! $anyProviderEnabled)>
                     {{ $total <= 0 ? __('Complete enrollment') : __('Pay now') }}
                 </button>
             @endif

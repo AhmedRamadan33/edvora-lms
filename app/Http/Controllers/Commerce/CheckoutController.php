@@ -9,6 +9,8 @@ use App\Models\Order;
 use App\Services\CheckoutService;
 use App\Services\OrderFulfillmentService;
 use App\Services\PaymobService;
+use App\Services\PayPalService;
+use App\Services\PayTabsService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -155,6 +157,115 @@ class CheckoutController extends Controller
         return redirect()->route('checkout.success', [
             'order' => $order,
             'provider' => 'paymob',
+            'demo' => 1,
+        ]);
+    }
+
+    public function paytabsReturn(Request $request, PayTabsService $paytabs): RedirectResponse
+    {
+        $payload = $request->all();
+        $order = Order::query()->where('number', $request->input('cart_id'))->first();
+
+        if (! $order) {
+            return redirect()
+                ->route('cart.index')
+                ->with('error', __('PayTabs payment could not be matched to an order.'));
+        }
+
+        if (auth()->check() && $order->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $ok = $paytabs->handleReturn($payload, $request->input('signature'));
+
+        if (! $ok) {
+            return redirect()
+                ->route('cart.index')
+                ->with('error', __('PayTabs payment failed or could not be verified.'));
+        }
+
+        if (! auth()->check()) {
+            return redirect()->route('login')->with('success', __('Payment successful. Please sign in to access your courses.'));
+        }
+
+        return redirect()->route('checkout.success', [
+            'order' => $order,
+            'provider' => 'paytabs',
+        ]);
+    }
+
+    public function paytabsDemo(Order $order, OrderFulfillmentService $fulfillment): RedirectResponse
+    {
+        abort_unless($order->user_id === auth()->id(), 403);
+        abort_unless(config('edvora.payments.allow_demo'), 404);
+
+        $fulfillment->markPaid(
+            $order->load('items.course', 'user', 'coupon'),
+            'paytabs',
+            'demo-'.Str::random(8),
+            ['demo' => true]
+        );
+
+        return redirect()->route('checkout.success', [
+            'order' => $order,
+            'provider' => 'paytabs',
+            'demo' => 1,
+        ]);
+    }
+
+    public function paypalReturn(Request $request, PayPalService $paypal): RedirectResponse
+    {
+        $paypalOrderId = (string) $request->query('token', '');
+
+        $order = $paypalOrderId !== ''
+            ? Order::query()
+                ->whereHas('payment', fn ($query) => $query->where('provider', 'paypal')->where('provider_reference', $paypalOrderId))
+                ->first()
+            : null;
+
+        if (! $order) {
+            return redirect()
+                ->route('cart.index')
+                ->with('error', __('PayPal payment could not be matched to an order.'));
+        }
+
+        if (auth()->check() && $order->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $ok = $paypal->captureOrder($order, $paypalOrderId);
+
+        if (! $ok) {
+            return redirect()
+                ->route('cart.index')
+                ->with('error', __('PayPal payment failed or could not be verified.'));
+        }
+
+        if (! auth()->check()) {
+            return redirect()->route('login')->with('success', __('Payment successful. Please sign in to access your courses.'));
+        }
+
+        return redirect()->route('checkout.success', [
+            'order' => $order,
+            'provider' => 'paypal',
+        ]);
+    }
+
+    public function paypalDemo(Order $order, OrderFulfillmentService $fulfillment): RedirectResponse
+    {
+        abort_unless($order->user_id === auth()->id(), 403);
+        abort_unless(config('edvora.payments.allow_demo'), 404);
+
+        $fulfillment->markPaid(
+            $order->load('items.course', 'user', 'coupon'),
+            'paypal',
+            'demo-'.Str::random(8),
+            ['demo' => true]
+        );
+
+        return redirect()->route('checkout.success', [
+            'order' => $order,
+            'provider' => 'paypal',
             'demo' => 1,
         ]);
     }

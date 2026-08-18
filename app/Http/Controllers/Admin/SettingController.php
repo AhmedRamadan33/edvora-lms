@@ -28,6 +28,13 @@ class SettingController extends Controller
             'paymob_integration_id' => '',
             'paymob_iframe_id' => '',
             'paymob_hmac_secret' => '',
+            'paytabs_profile_id' => '',
+            'paytabs_server_key' => '',
+            'paytabs_region' => 'egypt',
+            'paypal_client_id' => '',
+            'paypal_secret' => '',
+            'paypal_webhook_id' => '',
+            'paypal_mode' => 'sandbox',
         ]);
 
         return view('admin.settings.edit', compact('settings'));

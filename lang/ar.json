@@ -688,5 +688,20 @@
     "Bank name": "اسم البنك",
     "Account number": "رقم الحساب",
     "Account holder name": "اسم صاحب الحساب",
-    "Wallet number": "رقم المحفظة"
+    "Wallet number": "رقم المحفظة",
+    "Unable to start PayTabs payment. Please try again.": "تعذر بدء الدفع عبر PayTabs. من فضلك حاول مرة أخرى.",
+    "Unable to start PayPal payment. Please try again.": "تعذر بدء الدفع عبر PayPal. من فضلك حاول مرة أخرى.",
+    "PayTabs payment could not be matched to an order.": "تعذر مطابقة عملية الدفع عبر PayTabs بأي طلب.",
+    "PayTabs payment failed or could not be verified.": "فشلت عملية الدفع عبر PayTabs أو تعذر التحقق منها.",
+    "PayPal payment could not be matched to an order.": "تعذر مطابقة عملية الدفع عبر PayPal بأي طلب.",
+    "PayPal payment failed or could not be verified.": "فشلت عملية الدفع عبر PayPal أو تعذر التحقق منها.",
+    "Cards via PayTabs": "بطاقات عبر PayTabs",
+    "Pay with your PayPal account": "الدفع من خلال حساب PayPal",
+    "PayTabs profile ID": "معرّف حساب PayTabs",
+    "PayTabs server key": "مفتاح خادم PayTabs",
+    "PayTabs region": "منطقة PayTabs",
+    "PayPal client ID": "معرّف عميل PayPal",
+    "PayPal secret": "المفتاح السري لـ PayPal",
+    "PayPal webhook ID": "معرّف Webhook بتاع PayPal",
+    "PayPal mode": "وضع تشغيل PayPal"
 }

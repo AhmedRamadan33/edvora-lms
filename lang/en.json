@@ -679,5 +679,20 @@
     "Bank name": "Bank name",
     "Account number": "Account number",
     "Account holder name": "Account holder name",
-    "Wallet number": "Wallet number"
+    "Wallet number": "Wallet number",
+    "Unable to start PayTabs payment. Please try again.": "Unable to start PayTabs payment. Please try again.",
+    "Unable to start PayPal payment. Please try again.": "Unable to start PayPal payment. Please try again.",
+    "PayTabs payment could not be matched to an order.": "PayTabs payment could not be matched to an order.",
+    "PayTabs payment failed or could not be verified.": "PayTabs payment failed or could not be verified.",
+    "PayPal payment could not be matched to an order.": "PayPal payment could not be matched to an order.",
+    "PayPal payment failed or could not be verified.": "PayPal payment failed or could not be verified.",
+    "Cards via PayTabs": "Cards via PayTabs",
+    "Pay with your PayPal account": "Pay with your PayPal account",
+    "PayTabs profile ID": "PayTabs profile ID",
+    "PayTabs server key": "PayTabs server key",
+    "PayTabs region": "PayTabs region",
+    "PayPal client ID": "PayPal client ID",
+    "PayPal secret": "PayPal secret",
+    "PayPal webhook ID": "PayPal webhook ID",
+    "PayPal mode": "PayPal mode"
 }

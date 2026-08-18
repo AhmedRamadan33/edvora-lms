@@ -57,7 +57,11 @@ Route::get('/testimonials', [TestimonialController::class, 'index'])->name('test
 
 Route::post('/webhooks/stripe', [WebhookController::class, 'stripe'])->name('webhooks.stripe');
 Route::post('/webhooks/paymob', [WebhookController::class, 'paymob'])->name('webhooks.paymob');
+Route::post('/webhooks/paytabs', [WebhookController::class, 'paytabs'])->name('webhooks.paytabs');
+Route::post('/webhooks/paypal', [WebhookController::class, 'paypal'])->name('webhooks.paypal');
 Route::get('/checkout/paymob/return', [CheckoutController::class, 'paymobReturn'])->name('checkout.paymob.return');
+Route::post('/checkout/paytabs/return', [CheckoutController::class, 'paytabsReturn'])->name('checkout.paytabs.return');
+Route::get('/checkout/paypal/return', [CheckoutController::class, 'paypalReturn'])->name('checkout.paypal.return');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
@@ -76,6 +80,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/checkout/{order}/success', [CheckoutController::class, 'success'])->name('checkout.success');
     Route::get('/checkout/{order}/cancel', [CheckoutController::class, 'cancel'])->name('checkout.cancel');
     Route::get('/checkout/{order}/paymob-demo', [CheckoutController::class, 'paymobDemo'])->name('checkout.paymob.demo');
+    Route::get('/checkout/{order}/paytabs-demo', [CheckoutController::class, 'paytabsDemo'])->name('checkout.paytabs.demo');
+    Route::get('/checkout/{order}/paypal-demo', [CheckoutController::class, 'paypalDemo'])->name('checkout.paypal.demo');
 
     Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
     Route::post('/wishlist/{course}', [WishlistController::class, 'store'])->name('wishlist.store');
