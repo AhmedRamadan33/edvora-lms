@@ -122,9 +122,8 @@ class VdoCipherService
     {
         return match ($remoteStatus) {
             'ready' => Video::STATUS_READY,
-            'Queued' => Video::STATUS_PROCESSING,
             'Pre-Upload' => Video::STATUS_PENDING,
-            default => Video::STATUS_FAILED,
+            default => Video::STATUS_PROCESSING,
         };
     }
 }

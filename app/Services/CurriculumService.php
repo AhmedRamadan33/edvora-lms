@@ -70,8 +70,13 @@ class CurriculumService
         abort_unless($lesson->course_id === $course->id && $lesson->video, 404);
 
         $video = $lesson->video;
-        $result = $this->vdocipher->checkStatus($video->vdocipher_video_id);
-        $video->update(['status' => $this->vdocipher->mapRemoteStatus($result['status'] ?? null)]);
+
+        try {
+            $result = $this->vdocipher->checkStatus($video->vdocipher_video_id);
+            $video->update(['status' => $this->vdocipher->mapRemoteStatus($result['status'] ?? null)]);
+        } catch (\Throwable) {
+            return $video;
+        }
 
         return $video->fresh();
     }
