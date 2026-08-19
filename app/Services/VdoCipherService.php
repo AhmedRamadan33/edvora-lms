@@ -39,7 +39,11 @@ class VdoCipherService
         $response = Http::withHeaders([
             'Authorization' => 'Apisecret '.$this->apiSecret(),
             'Accept' => 'application/json',
-        ])->put("{$this->baseUrl}/videos", ['title' => $title])->throw()->json();
+        ])->put("{$this->baseUrl}/videos?".http_build_query(['title' => $title]))->throw()->json();
+
+        if (empty($response['videoId'])) {
+            Log::warning('VdoCipher upload credentials response missing videoId', ['response' => $response]);
+        }
 
         return [
             'demo' => false,

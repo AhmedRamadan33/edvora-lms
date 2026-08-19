@@ -311,6 +311,11 @@ function initVideoUpload() {
             })
                 .then((response) => response.json())
                 .then((credentials) => {
+                    if (!credentials.videoId) {
+                        setStatus(form.dataset.failedLabel || 'Upload failed.');
+                        return;
+                    }
+
                     if (credentials.demo || !credentials.clientPayload) {
                         videoIdField.value = credentials.videoId;
                         setProgress(100);
