@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\TestimonialController;
 use App\Http\Controllers\Catalog\CourseCatalogController;
+use App\Http\Controllers\CertificateVerificationController;
 use App\Http\Controllers\Commerce\CartController;
 use App\Http\Controllers\Commerce\CheckoutController;
 use App\Http\Controllers\Commerce\WebhookController;
@@ -56,6 +57,7 @@ Route::get('/pages/{slug}', [PageController::class, 'show'])->name('pages.show')
 Route::get('/contact', [ContactController::class, 'show'])->name('contact.show');
 Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
 Route::get('/testimonials', [TestimonialController::class, 'index'])->name('testimonials.index');
+Route::get('/certificates/verify/{code}', [CertificateVerificationController::class, 'show'])->name('certificates.verify');
 
 Route::post('/webhooks/stripe', [WebhookController::class, 'stripe'])->name('webhooks.stripe');
 Route::post('/webhooks/paymob', [WebhookController::class, 'paymob'])->name('webhooks.paymob');

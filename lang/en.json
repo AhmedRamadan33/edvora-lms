@@ -739,5 +739,11 @@
     "Video ready.": "Video ready.",
     "Upload complete, processing...": "Upload complete, processing...",
     "Upload failed.": "Upload failed.",
-    "VdoCipher API secret": "VdoCipher API secret"
+    "VdoCipher API secret": "VdoCipher API secret",
+    "Certificate verification": "Certificate verification",
+    "Valid certificate": "Valid certificate",
+    "Issued on": "Issued on",
+    "Certificate ID": "Certificate ID",
+    "Certificate not found": "Certificate not found",
+    "No certificate matches the code :code.": "No certificate matches the code :code."
 }

@@ -32,11 +32,27 @@ class CertificateService
 
     public function download(Certificate $certificate)
     {
+        $certificate->load(['user', 'course.translations', 'course.instructor']);
+
+        $courseTitle = $certificate->course->translation('en')?->title
+            ?: $certificate->course->translation()?->title;
+
         $pdf = Pdf::loadView('certificates.pdf', [
-            'certificate' => $certificate->load(['user', 'course.translations']),
+            'certificate' => $certificate,
             'platform' => SettingService::platformName(),
-        ]);
+            'courseTitle' => $courseTitle,
+            'instructorName' => $certificate->course->instructor?->name ?? SettingService::platformName(),
+            'verificationUrl' => route('certificates.verify', $certificate->code),
+        ])->setPaper('a4', 'landscape');
 
         return $pdf->download('certificate-'.$certificate->code.'.pdf');
+    }
+
+    public function findByCode(string $code): ?Certificate
+    {
+        return Certificate::query()
+            ->where('code', $code)
+            ->with(['user', 'course.translations'])
+            ->first();
     }
 }

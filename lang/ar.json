@@ -747,5 +747,11 @@
     "Video ready.": "الفيديو جاهز.",
     "Upload complete, processing...": "اكتمل الرفع، جاري المعالجة...",
     "Upload failed.": "فشل الرفع.",
-    "VdoCipher API secret": "المفتاح السري لـ VdoCipher"
+    "VdoCipher API secret": "المفتاح السري لـ VdoCipher",
+    "Certificate verification": "التحقق من الشهادة",
+    "Valid certificate": "شهادة صحيحة",
+    "Issued on": "تاريخ الإصدار",
+    "Certificate ID": "رقم الشهادة",
+    "Certificate not found": "الشهادة غير موجودة",
+    "No certificate matches the code :code.": "لا توجد شهادة بالرقم :code."
 }
