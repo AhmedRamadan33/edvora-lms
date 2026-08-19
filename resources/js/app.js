@@ -354,11 +354,13 @@ function initVideoUpload() {
                                 submitButton.disabled = false;
                             }
                         } else {
-                            setStatus(form.dataset.failedLabel || 'Upload failed.');
+                            console.error('VdoCipher upload failed', xhr.status, xhr.responseText);
+                            setStatus(`${form.dataset.failedLabel || 'Upload failed.'} (${xhr.status})`);
                         }
                     });
 
                     xhr.addEventListener('error', () => {
+                        console.error('VdoCipher upload network error', xhr.status, xhr.responseText);
                         setStatus(form.dataset.failedLabel || 'Upload failed.');
                     });
 
