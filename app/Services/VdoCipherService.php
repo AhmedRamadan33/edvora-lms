@@ -76,21 +76,30 @@ class VdoCipherService
             return ['otp' => null, 'playbackInfo' => null, 'demo' => true];
         }
 
-        $response = Http::withHeaders([
-            'Authorization' => 'Apisecret '.$this->apiSecret(),
-            'Content-Type' => 'application/json',
-            'Accept' => 'application/json',
-        ])->post("{$this->baseUrl}/videos/{$videoId}/otp", [
-            'ttl' => $ttl,
-            'annotate' => json_encode([[
-                'type' => 'text',
-                'text' => $watermarkText,
-                'alpha' => '0.60',
-                'color' => '0xFFFFFF',
-                'size' => '14',
-                'interval' => '6000',
-            ]]),
-        ])->throw()->json();
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => 'Apisecret '.$this->apiSecret(),
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+            ])->post("{$this->baseUrl}/videos/{$videoId}/otp", [
+                'ttl' => $ttl,
+                'annotate' => json_encode([[
+                    'type' => 'rtext',
+                    'text' => $watermarkText,
+                    'alpha' => '0.60',
+                    'color' => '0xFFFFFF',
+                    'size' => '14',
+                    'interval' => '6000',
+                ]]),
+            ])->throw()->json();
+        } catch (\Throwable $e) {
+            Log::warning('VdoCipher OTP generation failed', [
+                'video_id' => $videoId,
+                'message' => $e->getMessage(),
+            ]);
+
+            return ['otp' => null, 'playbackInfo' => null, 'demo' => false];
+        }
 
         return [
             'otp' => $response['otp'] ?? null,
