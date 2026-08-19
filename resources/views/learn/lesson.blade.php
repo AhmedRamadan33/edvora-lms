@@ -30,12 +30,11 @@
             <div class="col-lg-8">
                 @if($lesson->type === 'video')
                     <div class="secure-player mb-3" oncontextmenu="return false;">
-                        @if($embedUrl)
-                            <iframe src="{{ $embedUrl }}" allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" allowfullscreen loading="lazy"></iframe>
+                        @if($otp && $playbackInfo)
+                            <iframe src="https://player.vdocipher.com/v2/?otp={{ $otp }}&playbackInfo={{ $playbackInfo }}" allow="encrypted-media" allowfullscreen loading="lazy"></iframe>
                         @else
                             <div class="text-white p-5 text-center">{{ __('Video is processing or unavailable.') }}</div>
                         @endif
-                        <div class="player-watermark">{{ $watermark }}</div>
                     </div>
                 @elseif($lesson->type === 'article')
                     <div class="ed-panel p-4 mb-3">

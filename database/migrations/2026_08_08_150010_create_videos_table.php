@@ -11,9 +11,8 @@ return new class extends Migration
         Schema::create('videos', function (Blueprint $table) {
             $table->id();
             $table->foreignId('lesson_id')->constrained()->cascadeOnDelete();
-            $table->string('bunny_video_id')->nullable();
-            $table->string('library_id')->nullable();
-            $table->string('status')->default('created'); // created, uploaded, processing, ready, failed
+            $table->string('vdocipher_video_id')->nullable()->after('lesson_id');
+            $table->string('status')->default('created'); 
             $table->string('title')->nullable();
             $table->unsignedInteger('length_seconds')->default(0);
             $table->timestamps();

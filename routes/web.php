@@ -44,6 +44,7 @@ use App\Http\Controllers\Student\ExamController as StudentExamController;
 use App\Http\Controllers\Student\LearnController;
 use App\Http\Controllers\Student\ReviewController;
 use App\Http\Controllers\Student\WishlistController;
+use App\Http\Controllers\VdoCipherWebhookController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
@@ -60,6 +61,7 @@ Route::post('/webhooks/stripe', [WebhookController::class, 'stripe'])->name('web
 Route::post('/webhooks/paymob', [WebhookController::class, 'paymob'])->name('webhooks.paymob');
 Route::post('/webhooks/paytabs', [WebhookController::class, 'paytabs'])->name('webhooks.paytabs');
 Route::post('/webhooks/paypal', [WebhookController::class, 'paypal'])->name('webhooks.paypal');
+Route::post('/webhooks/vdocipher', [VdoCipherWebhookController::class, 'handle'])->name('webhooks.vdocipher');
 Route::get('/checkout/paymob/return', [CheckoutController::class, 'paymobReturn'])->name('checkout.paymob.return');
 Route::post('/checkout/paytabs/return', [CheckoutController::class, 'paytabsReturn'])->name('checkout.paytabs.return');
 Route::get('/checkout/paypal/return', [CheckoutController::class, 'paypalReturn'])->name('checkout.paypal.return');
@@ -128,7 +130,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/courses/{course}/sections', [CurriculumController::class, 'storeSection'])->name('sections.store');
         Route::post('/courses/{course}/sections/{section}/lessons', [CurriculumController::class, 'storeLesson'])->name('lessons.store');
         Route::delete('/courses/{course}/lessons/{lesson}', [CurriculumController::class, 'destroyLesson'])->name('lessons.destroy');
-        Route::post('/courses/{course}/lessons/{lesson}/ready', [CurriculumController::class, 'markVideoReady'])->name('lessons.ready');
+        Route::post('/courses/{course}/videos/credentials', [CurriculumController::class, 'videoUploadCredentials'])->name('videos.credentials');
+        Route::post('/courses/{course}/lessons/{lesson}/check-status', [CurriculumController::class, 'checkVideoStatus'])->name('lessons.check-status');
         Route::prefix('courses/{course}/question-bank')->name('question-bank.')->group(function () {
             Route::get('/', [BankQuestionController::class, 'index'])->name('index');
             Route::post('/', [BankQuestionController::class, 'store'])->name('store');

@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initFormConfirmations();
     initSecurePlayer();
     initLessonForms();
+    initVideoUpload();
     initBankQuestionForms();
     initExamRuleForm();
     initExamAttempt();
@@ -144,23 +145,6 @@ function initSecurePlayer() {
     }
 
     player.addEventListener('contextmenu', (event) => event.preventDefault());
-
-    const watermark = player.querySelector('.player-watermark');
-    if (!watermark) {
-        return;
-    }
-
-    const move = () => {
-        const top = 10 + Math.random() * 70;
-        const side = Math.random() > 0.5 ? 'left' : 'right';
-        const offset = 5 + Math.random() * 55;
-        watermark.style.top = `${top}%`;
-        watermark.style.left = side === 'left' ? `${offset}%` : 'auto';
-        watermark.style.right = side === 'right' ? `${offset}%` : 'auto';
-    };
-
-    move();
-    setInterval(move, 8000);
 }
 
 function initLessonForms() {
@@ -200,6 +184,17 @@ function initLessonForms() {
             if (type === 'quiz' && questionsList && questionsList.children.length === 0) {
                 addQuestion();
             }
+
+            updateSubmitState();
+        };
+
+        const updateSubmitState = () => {
+            const submitButton = form.querySelector('[data-lesson-submit]');
+            const videoIdField = form.querySelector('[data-video-id-field]');
+            if (!submitButton || !videoIdField) {
+                return;
+            }
+            submitButton.disabled = typeSelect.value === 'video' && !videoIdField.value;
         };
 
         const reindexQuestions = () => {
@@ -257,6 +252,117 @@ function initLessonForms() {
         addQuestionBtn?.addEventListener('click', addQuestion);
         $(typeSelect).on('change', syncPanels);
         syncPanels();
+    });
+}
+
+function initVideoUpload() {
+    document.querySelectorAll('[data-video-input]').forEach((input) => {
+        const form = input.closest('[data-lesson-form]');
+        if (!form) {
+            return;
+        }
+
+        const progressWrap = form.querySelector('[data-video-progress-wrap]');
+        const progressBar = form.querySelector('[data-video-progress]');
+        const statusEl = form.querySelector('[data-video-status]');
+        const videoIdField = form.querySelector('[data-video-id-field]');
+        const submitButton = form.querySelector('[data-lesson-submit]');
+        const titleField = form.querySelector('input[name="title"]');
+        const tokenField = form.querySelector('input[name="_token"]');
+
+        const setStatus = (message) => {
+            if (statusEl) {
+                statusEl.textContent = message;
+            }
+        };
+
+        const setProgress = (percent) => {
+            if (progressWrap) {
+                progressWrap.classList.remove('d-none');
+            }
+            if (progressBar) {
+                progressBar.style.width = `${percent}%`;
+            }
+        };
+
+        input.addEventListener('change', () => {
+            const file = input.files?.[0];
+            videoIdField.value = '';
+            if (submitButton) {
+                submitButton.disabled = true;
+            }
+
+            if (!file) {
+                return;
+            }
+
+            const title = titleField?.value?.trim() || file.name;
+            setStatus(form.dataset.uploadingLabel || 'Uploading...');
+            setProgress(0);
+
+            fetch(form.dataset.videoCredentialsUrl, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': tokenField ? tokenField.value : '',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ title }),
+            })
+                .then((response) => response.json())
+                .then((credentials) => {
+                    if (credentials.demo || !credentials.clientPayload) {
+                        videoIdField.value = credentials.videoId;
+                        setProgress(100);
+                        setStatus(form.dataset.readyLabel || 'Video ready.');
+                        if (submitButton) {
+                            submitButton.disabled = false;
+                        }
+                        return;
+                    }
+
+                    const payload = credentials.clientPayload;
+                    const uploadData = new FormData();
+                    uploadData.append('key', payload.key);
+                    uploadData.append('x-amz-credential', payload['x-amz-credential']);
+                    uploadData.append('x-amz-algorithm', payload['x-amz-algorithm']);
+                    uploadData.append('x-amz-date', payload['x-amz-date']);
+                    uploadData.append('policy', payload.policy);
+                    uploadData.append('x-amz-signature', payload['x-amz-signature']);
+                    uploadData.append('success_action_status', '201');
+                    uploadData.append('file', file);
+
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('POST', payload.uploadLink);
+
+                    xhr.upload.addEventListener('progress', (event) => {
+                        if (event.lengthComputable) {
+                            setProgress(Math.round((event.loaded / event.total) * 100));
+                        }
+                    });
+
+                    xhr.addEventListener('load', () => {
+                        if (xhr.status === 200 || xhr.status === 201) {
+                            videoIdField.value = credentials.videoId;
+                            setStatus(form.dataset.processingLabel || 'Upload complete, processing...');
+                            if (submitButton) {
+                                submitButton.disabled = false;
+                            }
+                        } else {
+                            setStatus(form.dataset.failedLabel || 'Upload failed.');
+                        }
+                    });
+
+                    xhr.addEventListener('error', () => {
+                        setStatus(form.dataset.failedLabel || 'Upload failed.');
+                    });
+
+                    xhr.send(uploadData);
+                })
+                .catch(() => {
+                    setStatus(form.dataset.failedLabel || 'Upload failed.');
+                });
+        });
     });
 }
 

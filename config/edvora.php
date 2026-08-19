@@ -7,12 +7,9 @@ return [
     'supported_locales' => ['en', 'ar'],
     'default_locale' => env('APP_LOCALE', 'en'),
 
-    'bunny' => [
-        'library_id' => env('BUNNY_LIBRARY_ID'),
-        'api_key' => env('BUNNY_API_KEY'),
-        'cdn_hostname' => env('BUNNY_CDN_HOSTNAME'),
-        'token_key' => env('BUNNY_TOKEN_KEY'),
-        'token_ttl' => (int) env('BUNNY_TOKEN_TTL', 300),
+    'vdocipher' => [
+        'api_secret' => env('VDOCIPHER_API_SECRET'),
+        'webhook_token' => env('VDOCIPHER_WEBHOOK_TOKEN'),
     ],
 
     'stripe' => [

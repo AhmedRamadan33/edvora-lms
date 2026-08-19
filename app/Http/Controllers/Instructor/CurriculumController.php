@@ -3,12 +3,15 @@
 namespace App\Http\Controllers\Instructor;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Instructor\RequestVideoCredentialsRequest;
 use App\Http\Requests\Instructor\StoreLessonRequest;
 use App\Http\Requests\Instructor\StoreSectionRequest;
 use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Section;
+use App\Models\Video;
 use App\Services\CurriculumService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 
 class CurriculumController extends Controller
@@ -41,16 +44,28 @@ class CurriculumController extends Controller
         return back()->with('success', __('Lesson deleted.'));
     }
 
-    public function markVideoReady(Course $course, Lesson $lesson, CurriculumService $curriculum): RedirectResponse
+    public function videoUploadCredentials(RequestVideoCredentialsRequest $request, Course $course, CurriculumService $curriculum): JsonResponse
+    {
+        return response()->json($curriculum->requestVideoUploadCredentials($request->validated('title')));
+    }
+
+    public function checkVideoStatus(Course $course, Lesson $lesson, CurriculumService $curriculum): RedirectResponse
     {
         $this->authorizeCourse($course);
-        $curriculum->markVideoReady($course, $lesson);
+        $video = $curriculum->checkVideoStatus($course, $lesson);
 
-        return back()->with('success', __('Video marked ready.'));
+        $messages = [
+            Video::STATUS_READY => __('Video is ready.'),
+            Video::STATUS_PROCESSING => __('Video is still processing.'),
+            Video::STATUS_PENDING => __('Video upload has not been confirmed yet.'),
+            Video::STATUS_FAILED => __('Video processing failed.'),
+        ];
+
+        return back()->with('success', $messages[$video->status] ?? __('Video status updated.'));
     }
 
     protected function authorizeCourse(Course $course): void
     {
-        abort_unless($course->instructor_id === auth()->id(), 403);
+        abort_unless($course->instructor_id === auth()->id() || auth()->user()->hasRole('admin'), 403);
     }
 }

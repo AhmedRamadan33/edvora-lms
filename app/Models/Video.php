@@ -7,8 +7,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Video extends Model
 {
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_PROCESSING = 'processing';
+    public const STATUS_READY = 'ready';
+    public const STATUS_FAILED = 'failed';
+
     protected $fillable = [
-        'lesson_id', 'bunny_video_id', 'library_id', 'status', 'title', 'length_seconds',
+        'lesson_id', 'vdocipher_video_id', 'status', 'title', 'length_seconds',
     ];
 
     public function lesson(): BelongsTo
@@ -18,6 +23,6 @@ class Video extends Model
 
     public function isReady(): bool
     {
-        return $this->status === 'ready' && filled($this->bunny_video_id);
+        return $this->status === self::STATUS_READY && filled($this->vdocipher_video_id);
     }
 }

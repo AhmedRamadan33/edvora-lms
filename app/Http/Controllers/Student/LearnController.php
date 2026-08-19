@@ -12,9 +12,9 @@ use App\Models\Enrollment;
 use App\Models\Lesson;
 use App\Models\LessonProgress;
 use App\Models\QuizAttempt;
-use App\Services\BunnyStreamService;
 use App\Services\LearnService;
 use App\Services\ProgressService;
+use App\Services\VdoCipherService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
@@ -32,17 +32,23 @@ class LearnController extends Controller
         return view('learn.course', compact('course', 'progress', 'enrollment'));
     }
 
-    public function lesson(Course $course, Lesson $lesson, BunnyStreamService $bunny): View
+    public function lesson(Course $course, Lesson $lesson, VdoCipherService $vdocipher): View
     {
         $this->ensureEnrolled($course);
         abort_unless($lesson->course_id === $course->id, 404);
 
         $course->load(['translations', 'sections.lessons']);
         $lesson->load(['video', 'quiz.questions']);
-        $embedUrl = null;
+        $otp = null;
+        $playbackInfo = null;
 
-        if ($lesson->type === 'video' && $lesson->video) {
-            $embedUrl = $bunny->embedUrl($lesson->video);
+        if ($lesson->type === 'video' && $lesson->video?->isReady()) {
+            $playback = $vdocipher->generatePlaybackOtp(
+                $lesson->video->vdocipher_video_id,
+                auth()->user()->email.' #'.auth()->id()
+            );
+            $otp = $playback['otp'];
+            $playbackInfo = $playback['playbackInfo'];
         }
 
         $questions = CourseQuestion::query()
@@ -67,8 +73,8 @@ class LearnController extends Controller
         return view('learn.lesson', [
             'course' => $course,
             'lesson' => $lesson,
-            'embedUrl' => $embedUrl,
-            'watermark' => auth()->user()->email.' #'.auth()->id(),
+            'otp' => $otp,
+            'playbackInfo' => $playbackInfo,
             'questions' => $questions,
             'progress' => $this->progressFor($course),
             'enrollment' => $this->enrollmentFor($course),

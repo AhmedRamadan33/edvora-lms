@@ -22,6 +22,7 @@ class StoreLessonRequest extends FormRequest
             'type' => ['required', 'in:video,article,file,quiz'],
             'content' => ['nullable', 'string', 'required_if:type,article'],
             'is_preview' => ['nullable', 'boolean'],
+            'video_id' => ['nullable', 'string', 'required_if:type,video'],
             'attachment' => ['nullable', 'file', 'max:10240', 'required_if:type,file'],
             'quiz_title' => ['nullable', 'string', 'max:180'],
             'pass_percent' => ['nullable', 'integer', 'min:1', 'max:100'],

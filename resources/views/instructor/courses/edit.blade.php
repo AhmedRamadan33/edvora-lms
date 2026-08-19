@@ -125,9 +125,9 @@
                         </span>
                         <span class="d-flex gap-1">
                             @if ($lesson->type === 'video' && $lesson->video)
-                                <form method="POST" action="{{ route('instructor.lessons.ready', [$course, $lesson]) }}">
+                                <form method="POST" action="{{ route('instructor.lessons.check-status', [$course, $lesson]) }}">
                                     @csrf
-                                    <button class="btn btn-sm btn-outline-success">{{ __('Mark ready') }}</button>
+                                    <button class="btn btn-sm btn-outline-success">{{ __('Check status') }}</button>
                                 </form>
                             @endif
                             <form method="POST" action="{{ route('instructor.lessons.destroy', [$course, $lesson]) }}">
@@ -143,7 +143,12 @@
             </ul>
 
             <form method="POST" action="{{ route('instructor.lessons.store', [$course, $section]) }}"
-                enctype="multipart/form-data" class="lesson-form border rounded-3 p-3 bg-light" data-lesson-form>
+                enctype="multipart/form-data" class="lesson-form border rounded-3 p-3 bg-light" data-lesson-form
+                data-video-credentials-url="{{ route('instructor.videos.credentials', $course) }}"
+                data-uploading-label="{{ __('Uploading...') }}"
+                data-ready-label="{{ __('Video ready.') }}"
+                data-processing-label="{{ __('Upload complete, processing...') }}"
+                data-failed-label="{{ __('Upload failed.') }}">
                 @csrf
                 <h4 class="h6 mb-3">{{ __('Add lesson') }}</h4>
 
@@ -172,9 +177,16 @@
                 </div>
 
                 <div class="mt-3" data-panel="video">
-                    <div class="alert alert-secondary mb-0 small">
-                        {{ __('A Bunny video record will be created for this lesson. Upload/process the video in Bunny, then mark it ready.') }}
+                    <label class="form-label">{{ __('Video file') }}</label>
+                    <input type="file" accept="video/*" class="form-control" data-video-input>
+                    <div class="form-text">{{ __('The video uploads directly and securely; it never passes through our servers.') }}</div>
+
+                    <div class="progress mt-2 d-none" style="height:0.5rem;" data-video-progress-wrap>
+                        <div class="progress-bar" role="progressbar" style="width:0%" data-video-progress></div>
                     </div>
+                    <div class="small mt-1" data-video-status></div>
+
+                    <input type="hidden" name="video_id" data-video-id-field>
                 </div>
 
                 <div class="mt-3 d-none" data-panel="article">
@@ -213,7 +225,7 @@
                 </div>
 
                 <div class="mt-3">
-                    <button class="btn btn-primary btn-sm">{{ __('Add lesson') }}</button>
+                    <button class="btn btn-primary btn-sm" data-lesson-submit>{{ __('Add lesson') }}</button>
                 </div>
             </form>
         </div>

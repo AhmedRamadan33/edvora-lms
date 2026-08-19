@@ -31,8 +31,8 @@
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="tab-bunny-btn" data-bs-toggle="tab" data-bs-target="#tab-bunny" type="button" role="tab">
-                Bunny
+            <button class="nav-link" id="tab-vdocipher-btn" data-bs-toggle="tab" data-bs-target="#tab-vdocipher" type="button" role="tab">
+                VdoCipher
             </button>
         </li>
         <li class="nav-item" role="presentation">
@@ -88,24 +88,16 @@
             </div>
         </div>
 
-        <div class="tab-pane fade" id="tab-bunny" role="tabpanel">
+        <div class="tab-pane fade" id="tab-vdocipher" role="tabpanel">
             <div class="row g-3">
-                @foreach([
-                    'bunny_library_id' => 'Bunny library ID',
-                    'bunny_api_key' => 'Bunny API key',
-                    'bunny_cdn_hostname' => 'Bunny CDN hostname',
-                    'bunny_token_key' => 'Bunny token key',
-                ] as $key => $label)
-                    <div class="col-md-6">
-                        <label class="form-label">{{ __($label) }}</label>
-                        @if($key === 'bunny_api_key' || $key === 'bunny_token_key')
-                            <x-secret-input :name="$key" :value="old($key, $settings[$key] ?? '')" />
-                        @else
-                            <input class="form-control" name="{{ $key }}" value="{{ old($key, $settings[$key] ?? '') }}">
-                        @endif
-                    </div>
-                @endforeach
+                <div class="col-md-6">
+                    <label class="form-label">{{ __('VdoCipher API secret') }}</label>
+                    <x-secret-input name="vdocipher_api_secret" :value="old('vdocipher_api_secret', $settings['vdocipher_api_secret'] ?? '')" />
+                </div>
             </div>
+            {{-- <div class="ed-panel p-3 bg-light border-0 mt-3">
+                <div class="small text-muted mb-1">{{ __('Webhook endpoint') }}: <code>{{ rtrim(config('app.url'), '/') }}/webhooks/vdocipher?token=VDOCIPHER_WEBHOOK_TOKEN</code></div>
+            </div> --}}
         </div>
 
         <div class="tab-pane fade" id="tab-stripe" role="tabpanel">

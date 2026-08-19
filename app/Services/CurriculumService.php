@@ -12,7 +12,7 @@ use Illuminate\Http\UploadedFile;
 
 class CurriculumService
 {
-    public function __construct(private BunnyStreamService $bunny)
+    public function __construct(private VdoCipherService $vdocipher)
     {
     }
 
@@ -39,7 +39,7 @@ class CurriculumService
         ]);
 
         if ($data['type'] === 'video') {
-            $this->attachVideo($lesson, $data['title']);
+            $this->attachVideo($lesson, $data['title'], $data['video_id']);
         }
 
         if ($data['type'] === 'quiz') {
@@ -52,24 +52,36 @@ class CurriculumService
     public function deleteLesson(Course $course, Lesson $lesson): void
     {
         abort_unless($lesson->course_id === $course->id, 404);
+
+        if ($lesson->video?->vdocipher_video_id) {
+            $this->vdocipher->deleteVideo($lesson->video->vdocipher_video_id);
+        }
+
         $lesson->delete();
     }
 
-    public function markVideoReady(Course $course, Lesson $lesson): void
+    public function requestVideoUploadCredentials(string $title): array
     {
-        abort_unless($lesson->course_id === $course->id && $lesson->video, 404);
-        $this->bunny->markReady($lesson->video);
+        return $this->vdocipher->getUploadCredentials($title);
     }
 
-    protected function attachVideo(Lesson $lesson, string $title): void
+    public function checkVideoStatus(Course $course, Lesson $lesson): Video
     {
-        $created = $this->bunny->createVideo($title);
+        abort_unless($lesson->course_id === $course->id && $lesson->video, 404);
 
+        $video = $lesson->video;
+        $result = $this->vdocipher->checkStatus($video->vdocipher_video_id);
+        $video->update(['status' => $this->vdocipher->mapRemoteStatus($result['status'] ?? null)]);
+
+        return $video->fresh();
+    }
+
+    protected function attachVideo(Lesson $lesson, string $title, string $videoId): void
+    {
         Video::query()->create([
             'lesson_id' => $lesson->id,
-            'bunny_video_id' => $created['guid'] ?? null,
-            'library_id' => $this->bunny->libraryId(),
-            'status' => ! empty($created['demo']) ? 'ready' : 'created',
+            'vdocipher_video_id' => $videoId,
+            'status' => str_starts_with($videoId, 'demo-') ? Video::STATUS_READY : Video::STATUS_PROCESSING,
             'title' => $title,
         ]);
     }

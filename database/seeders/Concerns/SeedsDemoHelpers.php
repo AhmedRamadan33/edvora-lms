@@ -107,7 +107,7 @@ trait SeedsDemoHelpers
         Video::query()->updateOrCreate(
             ['lesson_id' => $videoLesson->id],
             [
-                'bunny_video_id' => (string) Str::uuid(),
+                'vdocipher_video_id' => 'demo-'.Str::uuid(),
                 'status' => 'ready',
                 'title' => 'Core Concepts',
                 'length_seconds' => 720,
@@ -161,7 +161,7 @@ trait SeedsDemoHelpers
         Video::query()->updateOrCreate(
             ['lesson_id' => $videoLesson->id],
             [
-                'bunny_video_id' => (string) Str::uuid(),
+                'vdocipher_video_id' => 'demo-'.Str::uuid(),
                 'status' => 'ready',
                 'title' => 'Hands-on Demo',
                 'length_seconds' => 900,

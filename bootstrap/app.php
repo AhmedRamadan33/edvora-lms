@@ -30,6 +30,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'webhooks/paymob',
             'webhooks/paytabs',
             'webhooks/paypal',
+            'webhooks/vdocipher',
             'checkout/paytabs/return',
         ]);
     })
