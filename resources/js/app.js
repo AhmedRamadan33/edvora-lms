@@ -335,6 +335,7 @@ function initVideoUpload() {
                     uploadData.append('policy', payload.policy);
                     uploadData.append('x-amz-signature', payload['x-amz-signature']);
                     uploadData.append('success_action_status', '201');
+                    uploadData.append('success_action_redirect', '');
                     uploadData.append('file', file);
 
                     const xhr = new XMLHttpRequest();
@@ -347,7 +348,7 @@ function initVideoUpload() {
                     });
 
                     xhr.addEventListener('load', () => {
-                        if (xhr.status === 200 || xhr.status === 201) {
+                        if (xhr.status >= 200 && xhr.status < 300) {
                             videoIdField.value = credentials.videoId;
                             setStatus(form.dataset.processingLabel || 'Upload complete, processing...');
                             if (submitButton) {
