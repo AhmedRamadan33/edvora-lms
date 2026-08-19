@@ -48,7 +48,7 @@
 
         <div class="ed-panel p-4">
             <h2 class="h4 mb-3">{{ __('Reviews') }}</h2>
-            @forelse($course->reviews as $review)
+            @forelse($course->approvedReviews as $review)
                 <div class="border rounded-3 p-3 mb-2 bg-white">
                     <div class="d-flex justify-content-between">
                         <strong>{{ $review->user->name }}</strong>
@@ -62,17 +62,31 @@
 
             @auth
                 @if($enrolled)
-                    <form method="POST" action="{{ route('reviews.store', $course) }}" class="mt-4 pt-3 border-top">
-                        @csrf
-                        <h3 class="h6">{{ __('Write a review') }}</h3>
-                        <select name="rating" class="form-select mb-2" required>
-                            @for($i = 5; $i >= 1; $i--)
-                                <option value="{{ $i }}">{{ $i }} ★</option>
-                            @endfor
-                        </select>
-                        <textarea name="comment" class="form-control mb-2" rows="3" placeholder="{{ __('Share your experience') }}"></textarea>
-                        <button class="btn btn-primary">{{ __('Submit review') }}</button>
-                    </form>
+                    <div class="mt-4 pt-3 border-top">
+                        @if($ownReview?->isRejected())
+                            <div class="alert alert-warning small mb-3">{{ __('Your review was hidden by moderators.') }}</div>
+                        @endif
+
+                        <form method="POST" action="{{ route('reviews.store', $course) }}">
+                            @csrf
+                            <h3 class="h6">{{ $ownReview ? __('Update review') : __('Write a review') }}</h3>
+                            <select name="rating" class="form-select mb-2" required>
+                                @for($i = 5; $i >= 1; $i--)
+                                    <option value="{{ $i }}" @selected($ownReview?->rating === $i)>{{ $i }} ★</option>
+                                @endfor
+                            </select>
+                            <textarea name="comment" class="form-control mb-2" rows="3" placeholder="{{ __('Share your experience') }}">{{ $ownReview?->comment }}</textarea>
+                            <button class="btn btn-primary">{{ $ownReview ? __('Update review') : __('Submit review') }}</button>
+                        </form>
+
+                        @if($ownReview)
+                            <form method="POST" action="{{ route('reviews.destroy', [$course, $ownReview]) }}" class="mt-2" data-confirm-delete>
+                                @csrf
+                                @method('DELETE')
+                                <button class="btn btn-outline-danger btn-sm">{{ __('Delete review') }}</button>
+                            </form>
+                        @endif
+                    </div>
                 @endif
             @endauth
         </div>

@@ -902,7 +902,6 @@ body.ed-panel-body {
     flex-wrap: wrap;
     gap: 0.75rem;
     align-items: center;
-    justify-content: space-between;
 }
 
 .ed-table-search {

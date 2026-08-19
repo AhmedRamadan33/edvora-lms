@@ -11,5 +11,6 @@
 <a class="nav-link @if(request()->routeIs('admin.pages.*')) active @endif" href="{{ route('admin.pages.index') }}"><i class="bi bi-file-earmark-text me-2"></i>{{ __('Pages') }}</a>
 <a class="nav-link @if(request()->routeIs('admin.contacts.*')) active @endif" href="{{ route('admin.contacts.index') }}"><i class="bi bi-envelope me-2"></i>{{ __('Contact') }}</a>
 <a class="nav-link @if(request()->routeIs('admin.testimonials.*')) active @endif" href="{{ route('admin.testimonials.index') }}"><i class="bi bi-chat-quote me-2"></i>{{ __('Testimonials') }}</a>
+<a class="nav-link @if(request()->routeIs('admin.reviews.*')) active @endif" href="{{ route('admin.reviews.index') }}"><i class="bi bi-star me-2"></i>{{ __('Reviews') }}</a>
 <a class="nav-link @if(request()->routeIs('admin.activity.*')) active @endif" href="{{ route('admin.activity.index') }}"><i class="bi bi-activity me-2"></i>{{ __('Activity') }}</a>
 <a class="nav-link @if(request()->routeIs('admin.settings.*')) active @endif" href="{{ route('admin.settings.edit') }}"><i class="bi bi-sliders me-2"></i>{{ __('Settings') }}</a>

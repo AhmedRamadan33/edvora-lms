@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\ContactMessageController as AdminContactMessageController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\CourseReviewController;
+use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\InstructorApprovalController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
@@ -88,6 +89,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/wishlist/{course}', [WishlistController::class, 'destroy'])->name('wishlist.destroy');
 
     Route::post('/courses/{course}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
+    Route::delete('/courses/{course}/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
 
     Route::prefix('student')->name('student.')->group(function () {
         Route::get('/dashboard', StudentDashboardController::class)->name('dashboard');
@@ -165,6 +167,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/courses/{course}', [CourseReviewController::class, 'show'])->name('courses.show');
         Route::post('/courses/{course}/approve', [CourseReviewController::class, 'approve'])->name('courses.approve');
         Route::post('/courses/{course}/reject', [CourseReviewController::class, 'reject'])->name('courses.reject');
+        Route::get('/reviews', [AdminReviewController::class, 'index'])->name('reviews.index');
+        Route::post('/reviews/{review}/approve', [AdminReviewController::class, 'approve'])->name('reviews.approve');
+        Route::post('/reviews/{review}/reject', [AdminReviewController::class, 'reject'])->name('reviews.reject');
+        Route::delete('/reviews/{review}', [AdminReviewController::class, 'destroy'])->name('reviews.destroy');
         Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
         Route::post('/users/{user}/toggle', [AdminUserController::class, 'toggle'])->name('users.toggle');
         Route::get('/students', [StudentController::class, 'index'])->name('students.index');

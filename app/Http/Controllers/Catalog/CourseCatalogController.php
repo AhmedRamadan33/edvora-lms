@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Catalog;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Course;
+use App\Repositories\ReviewRepository;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -29,7 +30,7 @@ class CourseCatalogController extends Controller
         return view('catalog.index', compact('courses', 'categories'));
     }
 
-    public function show(string $slug): View
+    public function show(string $slug, ReviewRepository $reviews): View
     {
         $course = Course::query()
             ->where('slug', $slug)
@@ -39,16 +40,17 @@ class CourseCatalogController extends Controller
                 'instructor.instructorProfile',
                 'category.translations',
                 'sections.lessons',
-                'reviews.user',
+                'approvedReviews.user',
             ])
             ->firstOrFail();
 
         $enrolled = auth()->check() && auth()->user()->isEnrolledIn($course->id);
+        $ownReview = auth()->check() ? $reviews->findOwnedByUser($course->id, auth()->id()) : null;
 
         $cover = $course->thumbnail
             ? asset('storage/'.$course->thumbnail)
             : 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1600&q=80';
 
-        return view('catalog.show', compact('course', 'enrolled', 'cover'));
+        return view('catalog.show', compact('course', 'enrolled', 'cover', 'ownReview'));
     }
 }

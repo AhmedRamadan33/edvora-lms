@@ -727,5 +727,15 @@
     "Sandbox": "تجريبي (Sandbox)",
     "Platform email": "البريد الإلكتروني للمنصة",
     "Platform phone": "رقم هاتف المنصة",
-    "Shown in the public site footer.": "بيظهر فى الفوتر الخاص بالموقع."
+    "Shown in the public site footer.": "بيظهر فى الفوتر الخاص بالموقع.",
+    "Moderate student reviews across all courses.": "راجع تقييمات الطلاب على كل الكورسات.",
+    "All ratings": "كل التقييمات",
+    "Rating": "التقييم",
+    "Comment": "التعليق",
+    "Review approved.": "تم قبول التقييم.",
+    "Review rejected.": "تم رفض التقييم.",
+    "Review deleted.": "تم حذف التقييم.",
+    "Update review": "تحديث التقييم",
+    "Delete review": "حذف التقييم",
+    "Your review was hidden by moderators.": "تقييمك تم إخفاؤه من قِبل المشرفين."
 }

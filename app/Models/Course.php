@@ -87,6 +87,11 @@ class Course extends Model
         return $this->hasMany(Review::class);
     }
 
+    public function approvedReviews(): HasMany
+    {
+        return $this->hasMany(Review::class)->where('status', Review::STATUS_APPROVED);
+    }
+
     public function translation(?string $locale = null): ?CourseTranslation
     {
         $locale = $locale ?: app()->getLocale();

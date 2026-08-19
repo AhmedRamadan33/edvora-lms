@@ -718,5 +718,16 @@
     "Sandbox": "Sandbox",
     "Platform email": "Platform email",
     "Platform phone": "Platform phone",
-    "Shown in the public site footer.": "Shown in the public site footer."
+    "Shown in the public site footer.": "Shown in the public site footer.",
+    "Moderate student reviews across all courses.": "Moderate student reviews across all courses.",
+    "All ratings": "All ratings",
+    "Rating": "Rating",
+    "Comment": "Comment",
+    "Reason": "Reason",
+    "Review approved.": "Review approved.",
+    "Review rejected.": "Review rejected.",
+    "Review deleted.": "Review deleted.",
+    "Update review": "Update review",
+    "Delete review": "Delete review",
+    "Your review was hidden by moderators.": "Your review was hidden by moderators."
 }
