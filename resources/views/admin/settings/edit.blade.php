@@ -95,9 +95,9 @@
                     <x-secret-input name="vdocipher_api_secret" :value="old('vdocipher_api_secret', $settings['vdocipher_api_secret'] ?? '')" />
                 </div>
             </div>
-            {{-- <div class="ed-panel p-3 bg-light border-0 mt-3">
+            <div class="ed-panel p-3 bg-light border-0 mt-3">
                 <div class="small text-muted mb-1">{{ __('Webhook endpoint') }}: <code>{{ rtrim(config('app.url'), '/') }}/webhooks/vdocipher?token=VDOCIPHER_WEBHOOK_TOKEN</code></div>
-            </div> --}}
+            </div>
         </div>
 
         <div class="tab-pane fade" id="tab-stripe" role="tabpanel">
@@ -120,10 +120,10 @@
                     <x-secret-input name="stripe_webhook_secret" :value="old('stripe_webhook_secret', $settings['stripe_webhook_secret'] ?? '')" />
                 </div>
             </div>
-            {{-- <div class="ed-panel p-3 bg-light border-0 mt-3">
+            <div class="ed-panel p-3 bg-light border-0 mt-3">
                 <div class="small text-muted mb-1">{{ __('Webhook endpoint') }}: <code>{{ rtrim(config('app.url'), '/') }}/webhooks/stripe</code></div>
-                <div class="small text-muted">{{ __('Events') }}: checkout.session.completed, checkout.session.expired, checkout.session.async_payment_succeeded, checkout.session.async_payment_failed, payment_intent.payment_failed</div>
-            </div> --}}
+                {{-- <div class="small text-muted">{{ __('Events') }}: checkout.session.completed, checkout.session.expired, checkout.session.async_payment_succeeded, checkout.session.async_payment_failed, payment_intent.payment_failed</div> --}}
+            </div>
         </div>
 
         <div class="tab-pane fade" id="tab-paymob" role="tabpanel">
@@ -150,10 +150,10 @@
                     <x-secret-input name="paymob_hmac_secret" :value="old('paymob_hmac_secret', $settings['paymob_hmac_secret'] ?? '')" />
                 </div>
             </div>
-            {{-- <div class="ed-panel p-3 bg-light border-0 mt-3">
+            <div class="ed-panel p-3 bg-light border-0 mt-3">
                 <div class="small text-muted mb-1">{{ __('Transaction processed callback') }}: <code>{{ rtrim(config('app.url'), '/') }}/webhooks/paymob</code></div>
                 <div class="small text-muted">{{ __('Redirection URL') }}: <code>{{ rtrim(config('app.url'), '/') }}/checkout/paymob/return</code></div>
-            </div> --}}
+            </div>
         </div>
 
         <div class="tab-pane fade" id="tab-paytabs" role="tabpanel">
@@ -181,10 +181,10 @@
                     </select>
                 </div>
             </div>
-            {{-- <div class="ed-panel p-3 bg-light border-0 mt-3">
+            <div class="ed-panel p-3 bg-light border-0 mt-3">
                 <div class="small text-muted mb-1">{{ __('Callback / IPN URL') }}: <code>{{ rtrim(config('app.url'), '/') }}/webhooks/paytabs</code></div>
                 <div class="small text-muted">{{ __('Return URL') }}: <code>{{ rtrim(config('app.url'), '/') }}/checkout/paytabs/return</code></div>
-            </div> --}}
+            </div>
         </div>
 
         <div class="tab-pane fade" id="tab-paypal" role="tabpanel">
@@ -215,10 +215,10 @@
                     </select>
                 </div>
             </div>
-            {{-- <div class="ed-panel p-3 bg-light border-0 mt-3">
+            <div class="ed-panel p-3 bg-light border-0 mt-3">
                 <div class="small text-muted mb-1">{{ __('Webhook endpoint') }}: <code>{{ rtrim(config('app.url'), '/') }}/webhooks/paypal</code></div>
-                <div class="small text-muted">{{ __('Events') }}: CHECKOUT.ORDER.APPROVED, PAYMENT.CAPTURE.COMPLETED</div>
-            </div> --}}
+                {{-- <div class="small text-muted">{{ __('Events') }}: CHECKOUT.ORDER.APPROVED, PAYMENT.CAPTURE.COMPLETED</div> --}}
+            </div>
         </div>
     </div>
 
