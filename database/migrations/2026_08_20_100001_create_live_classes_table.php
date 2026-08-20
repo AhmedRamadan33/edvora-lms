@@ -22,7 +22,6 @@ return new class extends Migration
             $table->text('start_url')->nullable();
             $table->string('status')->default('scheduled');
             $table->timestamp('reminder_sent_at')->nullable();
-            $table->timestamp('cancelled_at')->nullable();
             $table->json('meta')->nullable();
             $table->timestamps();
 
