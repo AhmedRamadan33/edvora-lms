@@ -109,7 +109,24 @@ class PayTabsService
         ];
     }
 
-    public function verifySignature(array $payload, ?string $signature): bool
+    public function verifyWebhookSignature(string $rawBody, ?string $signature): bool
+    {
+        $key = $this->serverKey();
+
+        if (! $key) {
+            return app()->environment('local', 'testing') && config('edvora.payments.allow_unsigned_webhooks');
+        }
+
+        if (! $signature) {
+            return false;
+        }
+
+        $calculated = hash_hmac('sha256', $rawBody, $key);
+
+        return hash_equals(strtolower($calculated), strtolower($signature));
+    }
+
+    public function verifyReturnSignature(array $payload, ?string $signature): bool
     {
         $key = $this->serverKey();
 
@@ -126,20 +143,21 @@ class PayTabsService
         return hash_equals(strtolower($calculated), strtolower($signature));
     }
 
-    public function handleWebhook(array $payload, ?string $signature): void
+    public function handleWebhook(string $rawBody, ?string $signature): void
     {
-        if (! $this->verifySignature($payload, $signature)) {
-            Log::warning('PayTabs webhook signature verification failed', ['cart_id' => data_get($payload, 'cart_id')]);
+        if (! $this->verifyWebhookSignature($rawBody, $signature)) {
+            Log::warning('PayTabs webhook signature verification failed', ['body' => $rawBody]);
 
             throw new RuntimeException('Invalid PayTabs signature.');
         }
 
+        $payload = json_decode($rawBody, true) ?? [];
         $this->applyResult($payload);
     }
 
     public function handleReturn(array $payload, ?string $signature): bool
     {
-        if (! $this->verifySignature($payload, $signature)) {
+        if (! $this->verifyReturnSignature($payload, $signature)) {
             Log::info('PayTabs return signature unavailable or invalid, relying on async callback', [
                 'cart_id' => data_get($payload, 'cart_id'),
             ]);

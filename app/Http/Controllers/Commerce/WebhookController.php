@@ -57,12 +57,7 @@ class WebhookController extends Controller
     public function paytabs(Request $request, PayTabsService $paytabs): Response
     {
         try {
-            $payload = $request->json()->all();
-            if ($payload === []) {
-                $payload = $request->all();
-            }
-
-            $paytabs->handleWebhook($payload, $request->header('Signature'));
+            $paytabs->handleWebhook($request->getContent(), $request->header('Signature'));
         } catch (\Throwable $e) {
             Log::error('PayTabs webhook error', [
                 'message' => $e->getMessage(),
