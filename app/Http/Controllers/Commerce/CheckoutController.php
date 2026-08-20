@@ -175,15 +175,9 @@ class CheckoutController extends Controller
             abort(403);
         }
 
-        $ok = $paytabs->handleReturn($payload, $request->input('signature'));
-
-        if (! $ok) {
-            return redirect()
-                ->route('cart.index')
-                ->with('error', __('PayTabs payment failed or could not be verified.'));
-        }
-
         $this->restoreSessionFor($order);
+
+        $paytabs->handleReturn($payload, $request->input('signature'));
 
         return redirect()->route('checkout.success', [
             'order' => $order,
