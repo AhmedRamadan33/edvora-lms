@@ -20,13 +20,13 @@ class OrderFulfillmentService
     ) {
     }
 
-    public function markPaid(Order $order, string $provider, ?string $reference = null, array $payload = []): void
+    public function markPaid(Order $order, string $provider, ?string $reference = null, array $payload = [], ?float $chargedAmount = null, ?string $chargedCurrency = null): void
     {
         if ($order->status === 'paid') {
             return;
         }
 
-        DB::transaction(function () use ($order, $provider, $reference, $payload) {
+        DB::transaction(function () use ($order, $provider, $reference, $payload, $chargedAmount, $chargedCurrency) {
             $order->update([
                 'status' => 'paid',
                 'payment_method' => $provider,
@@ -35,8 +35,8 @@ class OrderFulfillmentService
             $this->payments->upsertForOrder($order->id, [
                 'provider' => $provider,
                 'provider_reference' => $reference,
-                'amount' => $order->total,
-                'currency' => $order->currency,
+                'amount' => $chargedAmount ?? $order->total,
+                'currency' => $chargedCurrency ?? $order->currency,
                 'status' => 'paid',
                 'payload' => $payload,
             ]);
@@ -78,13 +78,13 @@ class OrderFulfillmentService
         });
     }
 
-    public function markFailed(Order $order, string $provider, ?string $reference = null, array $payload = []): void
+    public function markFailed(Order $order, string $provider, ?string $reference = null, array $payload = [], ?float $chargedAmount = null, ?string $chargedCurrency = null): void
     {
         if ($order->status === 'paid') {
             return;
         }
 
-        DB::transaction(function () use ($order, $provider, $reference, $payload) {
+        DB::transaction(function () use ($order, $provider, $reference, $payload, $chargedAmount, $chargedCurrency) {
             $order->update([
                 'status' => 'failed',
                 'payment_method' => $provider,
@@ -93,8 +93,8 @@ class OrderFulfillmentService
             $this->payments->upsertForOrder($order->id, [
                 'provider' => $provider,
                 'provider_reference' => $reference,
-                'amount' => $order->total,
-                'currency' => $order->currency,
+                'amount' => $chargedAmount ?? $order->total,
+                'currency' => $chargedCurrency ?? $order->currency,
                 'status' => 'failed',
                 'payload' => $payload,
             ]);
@@ -103,27 +103,27 @@ class OrderFulfillmentService
         });
     }
 
-    public function markPendingPayment(Order $order, string $provider, ?string $reference = null, array $payload = []): void
+    public function markPendingPayment(Order $order, string $provider, ?string $reference = null, array $payload = [], ?float $chargedAmount = null, ?string $chargedCurrency = null): void
     {
         $order->update(['payment_method' => $provider]);
 
         $this->payments->upsertForOrder($order->id, [
             'provider' => $provider,
             'provider_reference' => $reference,
-            'amount' => $order->total,
-            'currency' => $order->currency,
+            'amount' => $chargedAmount ?? $order->total,
+            'currency' => $chargedCurrency ?? $order->currency,
             'status' => 'pending',
             'payload' => $payload,
         ]);
     }
 
-    public function amountsMatch(Order $order, int|float|string|null $paidMinorUnits, ?string $currency = null, ?string $provider = null): bool
+    public function amountsMatch(Order $order, int|float|string|null $paidMinorUnits, ?string $currency = null, ?string $provider = null, ?float $expectedAmount = null, ?string $expectedCurrency = null): bool
     {
         if ($paidMinorUnits === null) {
             return false;
         }
 
-        $expected = (int) round(((float) $order->total) * 100);
+        $expected = (int) round((($expectedAmount ?? (float) $order->total)) * 100);
         $paid = (int) $paidMinorUnits;
 
         if ($expected !== $paid) {
@@ -140,7 +140,7 @@ class OrderFulfillmentService
             return true;
         }
 
-        $orderCurrency = strtoupper((string) $order->currency);
+        $orderCurrency = strtoupper($expectedCurrency ?? (string) $order->currency);
         $paidCurrency = strtoupper($currency);
 
         if ($paidCurrency === $orderCurrency) {
@@ -149,7 +149,7 @@ class OrderFulfillmentService
 
         Log::warning('Payment currency mismatch', [
             'order_id' => $order->id,
-            'expected' => $order->currency,
+            'expected' => $orderCurrency,
             'paid' => $currency,
             'provider' => $provider ?: $order->payment_method,
         ]);

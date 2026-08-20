@@ -214,10 +214,25 @@
                         <option value="live" @selected($currentMode === 'live')>{{ __('Live') }}</option>
                     </select>
                 </div>
+                <div class="col-md-6">
+                    <label class="form-label">{{ __('PayPal settlement currency') }}</label>
+                    @php($currentSettlementCurrency = old('paypal_settlement_currency', $settings['paypal_settlement_currency'] ?? 'USD'))
+                    <select class="form-select" name="paypal_settlement_currency">
+                        @foreach ($paypalCurrencies as $currencyCode)
+                            <option value="{{ $currencyCode }}" @selected($currentSettlementCurrency === $currencyCode)>{{ $currencyCode }}</option>
+                        @endforeach
+                    </select>
+                    <div class="form-text">{{ __('Used only when the store currency is not natively supported by PayPal.') }}</div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">{{ __('PayPal exchange rate') }}</label>
+                    <input type="number" step="0.0001" min="0" class="form-control" name="paypal_exchange_rate" value="{{ old('paypal_exchange_rate', $settings['paypal_exchange_rate'] ?? '') }}">
+                    <div class="form-text">{{ __('How many units of the store currency equal 1 unit of the settlement currency, e.g. 49.5.') }}</div>
+                </div>
             </div>
             <div class="ed-panel p-3 bg-light border-0 mt-3">
                 <div class="small text-muted mb-1">{{ __('Webhook endpoint') }}: <code>{{ rtrim(config('app.url'), '/') }}/webhooks/paypal</code></div>
-                {{-- <div class="small text-muted">{{ __('Events') }}: CHECKOUT.ORDER.APPROVED, PAYMENT.CAPTURE.COMPLETED</div> --}}
+                <div class="small text-muted">{{ __('If the store currency is not supported by PayPal, payments are converted to the settlement currency using the exchange rate above.') }}</div>
             </div>
         </div>
     </div>

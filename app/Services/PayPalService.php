@@ -9,6 +9,12 @@ use RuntimeException;
 
 class PayPalService
 {
+    protected const SUPPORTED_CURRENCIES = [
+        'AUD', 'BRL', 'CAD', 'CNY', 'CZK', 'DKK', 'EUR', 'HKD', 'HUF', 'ILS',
+        'JPY', 'MYR', 'MXN', 'TWD', 'NZD', 'NOK', 'PHP', 'PLN', 'GBP', 'SGD',
+        'SEK', 'CHF', 'THB', 'USD',
+    ];
+
     public function __construct(private OrderFulfillmentService $fulfillment)
     {
     }
@@ -21,6 +27,41 @@ class PayPalService
     public function isEnabledByAdmin(): bool
     {
         return (bool) SettingService::get('paypal_enabled', true);
+    }
+
+    public static function supportedCurrencies(): array
+    {
+        return self::SUPPORTED_CURRENCIES;
+    }
+
+    protected function settlementCurrency(): string
+    {
+        return strtoupper((string) (SettingService::get('paypal_settlement_currency') ?: 'USD'));
+    }
+
+    protected function exchangeRate(): ?float
+    {
+        $rate = SettingService::get('paypal_exchange_rate');
+
+        return $rate !== null && $rate !== '' ? (float) $rate : null;
+    }
+
+    public function chargeAmount(Order $order): array
+    {
+        $currency = strtoupper((string) $order->currency);
+
+        if (in_array($currency, self::SUPPORTED_CURRENCIES, true)) {
+            return [$currency, (float) $order->total];
+        }
+
+        $settlementCurrency = $this->settlementCurrency();
+        $rate = $this->exchangeRate();
+
+        if (! $rate || $rate <= 0) {
+            throw new RuntimeException("PayPal exchange rate is not configured for {$currency}.");
+        }
+
+        return [$settlementCurrency, round(((float) $order->total) / $rate, 2)];
     }
 
     protected function clientId(): ?string
@@ -72,6 +113,8 @@ class PayPalService
 
         $order->loadMissing('items.course.translations', 'user');
 
+        [$chargeCurrency, $chargeAmount] = $this->chargeAmount($order);
+
         $response = Http::withToken($this->accessToken())
             ->timeout(30)
             ->post("{$this->baseUrl()}/v2/checkout/orders", [
@@ -80,8 +123,8 @@ class PayPalService
                     'reference_id' => $order->number,
                     'custom_id' => (string) $order->id,
                     'amount' => [
-                        'currency_code' => strtoupper($order->currency),
-                        'value' => number_format((float) $order->total, 2, '.', ''),
+                        'currency_code' => $chargeCurrency,
+                        'value' => number_format($chargeAmount, 2, '.', ''),
                     ],
                 ]],
                 'payment_source' => [
@@ -98,7 +141,7 @@ class PayPalService
             ?? collect($response['links'] ?? [])->firstWhere('rel', 'approve')['href']
             ?? null;
 
-        $this->fulfillment->markPendingPayment($order, 'paypal', $response['id'] ?? null, $response);
+        $this->fulfillment->markPendingPayment($order, 'paypal', $response['id'] ?? null, $response, $chargeAmount, $chargeCurrency);
 
         return [
             'demo' => false,
@@ -117,22 +160,27 @@ class PayPalService
             return false;
         }
 
+        $order->loadMissing('payment');
+        $expectedAmount = $order->payment ? (float) $order->payment->amount : (float) $order->total;
+        $expectedCurrency = $order->payment?->currency ?: $order->currency;
+
         $response = Http::withToken($this->accessToken())
             ->timeout(30)
             ->post("{$this->baseUrl()}/v2/checkout/orders/{$paypalOrderId}/capture")
             ->throw()->json();
 
         if (($response['status'] ?? null) !== 'COMPLETED') {
-            $this->fulfillment->markFailed($order, 'paypal', $paypalOrderId, $response);
+            $this->fulfillment->markFailed($order, 'paypal', $paypalOrderId, $response, $expectedAmount, $expectedCurrency);
 
             return false;
         }
 
         $capture = data_get($response, 'purchase_units.0.payments.captures.0');
-        $amountMinorUnits = (int) round(((float) data_get($capture, 'amount.value', 0)) * 100);
+        $capturedAmount = (float) data_get($capture, 'amount.value', 0);
+        $amountMinorUnits = (int) round($capturedAmount * 100);
         $currency = data_get($capture, 'amount.currency_code');
 
-        if (! $this->fulfillment->amountsMatch($order, $amountMinorUnits, $currency, 'paypal')) {
+        if (! $this->fulfillment->amountsMatch($order, $amountMinorUnits, $currency, 'paypal', $expectedAmount, $expectedCurrency)) {
             return false;
         }
 
@@ -140,7 +188,9 @@ class PayPalService
             $order->load('items.course', 'user', 'coupon'),
             'paypal',
             data_get($capture, 'id', $paypalOrderId),
-            $response
+            $response,
+            $capturedAmount,
+            $currency
         );
 
         return true;
@@ -200,13 +250,18 @@ class PayPalService
             return;
         }
 
-        $amountMinorUnits = (int) round(((float) data_get($body, 'resource.amount.value', 0)) * 100);
+        $order->loadMissing('payment');
+        $expectedAmount = $order->payment ? (float) $order->payment->amount : (float) $order->total;
+        $expectedCurrency = $order->payment?->currency ?: $order->currency;
+
+        $capturedAmount = (float) data_get($body, 'resource.amount.value', 0);
+        $amountMinorUnits = (int) round($capturedAmount * 100);
         $currency = data_get($body, 'resource.amount.currency_code');
 
-        if (! $this->fulfillment->amountsMatch($order, $amountMinorUnits, $currency, 'paypal')) {
+        if (! $this->fulfillment->amountsMatch($order, $amountMinorUnits, $currency, 'paypal', $expectedAmount, $expectedCurrency)) {
             return;
         }
 
-        $this->fulfillment->markPaid($order, 'paypal', data_get($body, 'resource.id', ''), $body);
+        $this->fulfillment->markPaid($order, 'paypal', data_get($body, 'resource.id', ''), $body, $capturedAmount, $currency);
     }
 }

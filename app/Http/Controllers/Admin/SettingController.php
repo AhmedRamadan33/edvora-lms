@@ -45,13 +45,17 @@ class SettingController extends Controller
             'paypal_secret' => '',
             'paypal_webhook_id' => '',
             'paypal_mode' => 'sandbox',
+            'paypal_settlement_currency' => 'USD',
+            'paypal_exchange_rate' => '',
             'stripe_enabled' => true,
             'paymob_enabled' => true,
             'paytabs_enabled' => true,
             'paypal_enabled' => true,
         ]);
 
-        return view('admin.settings.edit', compact('settings', 'gateways'));
+        $paypalCurrencies = PayPalService::supportedCurrencies();
+
+        return view('admin.settings.edit', compact('settings', 'gateways', 'paypalCurrencies'));
     }
 
     public function update(UpdateSettingsRequest $request, AdminCatalogService $catalog): RedirectResponse

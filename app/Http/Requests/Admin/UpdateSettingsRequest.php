@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Services\PayPalService;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -44,6 +45,8 @@ class UpdateSettingsRequest extends FormRequest
             'paypal_secret' => ['nullable', 'string'],
             'paypal_webhook_id' => ['nullable', 'string'],
             'paypal_mode' => ['nullable', Rule::in(['sandbox', 'live'])],
+            'paypal_settlement_currency' => ['nullable', 'string', 'size:3', Rule::in(PayPalService::supportedCurrencies())],
+            'paypal_exchange_rate' => ['nullable', 'numeric', 'min:0.0001'],
             'stripe_enabled' => ['nullable', 'in:0,1'],
             'paymob_enabled' => ['nullable', 'in:0,1'],
             'paytabs_enabled' => ['nullable', 'in:0,1'],
