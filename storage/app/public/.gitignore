@@ -1,2 +1,5 @@
 *
 !.gitignore
+!courses/
+courses/*
+!courses/course_thumbnail.png
