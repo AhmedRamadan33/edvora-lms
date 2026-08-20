@@ -13,6 +13,7 @@ use App\Services\PayPalService;
 use App\Services\PayTabsService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -131,9 +132,7 @@ class CheckoutController extends Controller
                 ->with('error', __('Paymob payment failed or could not be verified.'));
         }
 
-        if (! auth()->check()) {
-            return redirect()->route('login')->with('success', __('Payment successful. Please sign in to access your courses.'));
-        }
+        $this->restoreSessionFor($order);
 
         return redirect()->route('checkout.success', [
             'order' => $order,
@@ -184,9 +183,7 @@ class CheckoutController extends Controller
                 ->with('error', __('PayTabs payment failed or could not be verified.'));
         }
 
-        if (! auth()->check()) {
-            return redirect()->route('login')->with('success', __('Payment successful. Please sign in to access your courses.'));
-        }
+        $this->restoreSessionFor($order);
 
         return redirect()->route('checkout.success', [
             'order' => $order,
@@ -241,9 +238,7 @@ class CheckoutController extends Controller
                 ->with('error', __('PayPal payment failed or could not be verified.'));
         }
 
-        if (! auth()->check()) {
-            return redirect()->route('login')->with('success', __('Payment successful. Please sign in to access your courses.'));
-        }
+        $this->restoreSessionFor($order);
 
         return redirect()->route('checkout.success', [
             'order' => $order,
@@ -268,5 +263,12 @@ class CheckoutController extends Controller
             'provider' => 'paypal',
             'demo' => 1,
         ]);
+    }
+
+    protected function restoreSessionFor(Order $order): void
+    {
+        if (! auth()->check()) {
+            Auth::login($order->user);
+        }
     }
 }

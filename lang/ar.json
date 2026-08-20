@@ -484,7 +484,6 @@
     "Payment is still pending. If you were charged, your enrollment will unlock shortly.": "الدفع ما زال قيد المعالجة. إذا تم الخصم، سيتم فتح الكورسات قريبًا.",
     "Paymob payment failed or could not be verified.": "فشل دفع Paymob أو تعذر التحقق منه.",
     "Paymob payment could not be matched to an order.": "تعذر مطابقة دفع Paymob مع الطلب.",
-    "Payment successful. Please sign in to access your courses.": "تم الدفع بنجاح. سجّل الدخول للوصول إلى كورساتك.",
     "Paid with": "تم الدفع عبر",
     "Browse more courses": "تصفح المزيد من الكورسات",
     "Payment webhooks": "روابط Webhooks للدفع",
