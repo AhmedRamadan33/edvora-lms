@@ -35,6 +35,7 @@ class LiveClass extends Model
             'scheduled_at' => 'datetime',
             'reminder_sent_at' => 'datetime',
             'cancelled_at' => 'datetime',
+            'duration_minutes' => 'integer',
             'meta' => 'array',
         ];
     }
