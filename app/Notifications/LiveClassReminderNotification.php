@@ -27,7 +27,7 @@ class LiveClassReminderNotification extends Notification implements ShouldQueue
                 'title' => $this->liveClass->title,
                 'course' => $this->liveClass->course->translation()?->title,
             ]))
-            ->line(__('Scheduled at: :datetime', ['datetime' => $this->liveClass->scheduled_at->format('Y-m-d H:i')]))
+            ->line(__('Scheduled at: :datetime', ['datetime' => $this->liveClass->scheduledAtLocal()->format('Y-m-d H:i')]))
             ->action(__('View course'), route('learn.course', $this->liveClass->course));
     }
 

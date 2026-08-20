@@ -63,7 +63,7 @@
                 <a class="ed-brand navbar-brand mb-0 me-lg-3" href="{{ route('home') }}">
                     <img src="{{ asset('edvora-logo.svg') }}" alt="{{ $platform }}" class="ed-brand__mark"
                         width="34" height="34">
-                    <span class="ed-brand__text">{{ $platform }}<span>.</span></span>
+                    <span class="ed-brand__text">{{ $platform }}</span>
                 </a>
 
                 <button class="navbar-toggler border-0 shadow-none ms-auto" type="button" data-bs-toggle="collapse"
@@ -165,7 +165,7 @@
                 <div class="col-lg-5">
                     <div class="ed-footer__brand mb-2 d-flex align-items-center gap-2">
                         <img src="{{ asset('edvora-logo.svg') }}" alt="" width="28" height="28">
-                        <span>{{ $platform }}<span>.</span></span>
+                        <span>{{ $platform }}</span>
                     </div>
                     <p class="mb-0">{{ __('edvora-description') }}</p>
                 </div>

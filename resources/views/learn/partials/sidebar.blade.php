@@ -7,7 +7,7 @@
     ];
     $percent = (float) ($enrollment->progress_percent ?? 0);
     $nextLiveClass = $course->liveClasses
-        ->reject(fn ($liveClass) => in_array($liveClass->computedState(), ['cancelled', 'ended'], true))
+        ->reject(fn ($liveClass) => $liveClass->computedState() === 'ended')
         ->sortBy('scheduled_at')
         ->first();
 @endphp
@@ -19,7 +19,7 @@
             @if($nextLiveClass->computedState() === 'live')
                 {{ __('Live now: :title', ['title' => $nextLiveClass->title]) }}
             @else
-                {{ __('Upcoming live class: :title at :time', ['title' => $nextLiveClass->title, 'time' => $nextLiveClass->scheduled_at->format('Y-m-d H:i')]) }}
+                {{ __('Upcoming live class: :title at :time', ['title' => $nextLiveClass->title, 'time' => $nextLiveClass->scheduledAtLocal()->format('Y-m-d H:i')]) }}
             @endif
         </a>
     @endif

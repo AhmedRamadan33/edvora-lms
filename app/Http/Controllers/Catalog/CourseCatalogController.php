@@ -49,7 +49,7 @@ class CourseCatalogController extends Controller
 
         $cover = $course->thumbnail
             ? asset('storage/'.$course->thumbnail)
-            : 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1600&q=80';
+            : asset('images/course_thumbnail.png');
 
         return view('catalog.show', compact('course', 'enrolled', 'cover', 'ownReview'));
     }

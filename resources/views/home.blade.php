@@ -140,9 +140,9 @@
         <div class="row g-3">
             @foreach($categories as $category)
                 <div class="col-6 col-md-3 ed-reveal">
-                    <a href="{{ route('courses.index', ['category' => $category->slug]) }}" class="course-tile" style="padding:1.25rem; min-height:120px; justify-content:center;">
+                    <a href="{{ route('courses.index', ['category' => $category->slug]) }}" class="course-tile" style="padding:1.25rem; min-height:120px; justify-content:center; color:var(--ed-ink);">
                         <div class="d-flex align-items-center gap-2">
-                            @if($category->icon)<i class="bi {{ $category->icon }} fs-4" style="color:var(--ed-accent)"></i>@endif
+                            @if($category->icon)<i class="bi {{ $category->icon }} fs-4" style="color:var(--ed-ink)"></i>@endif
                             <strong class="display-font" style="font-size:1.1rem">{{ $category->translation()?->name }}</strong>
                         </div>
                     </a>

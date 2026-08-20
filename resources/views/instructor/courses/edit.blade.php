@@ -234,11 +234,11 @@
     <div class="ed-panel p-4 mb-4">
         <h2 class="h5 mb-3">{{ __('Live Classes') }}</h2>
 
-        <ul class="list-group mb-4">
-            @forelse ($course->liveClasses as $liveClass)
+        <ul class="list-group mb-1">
+            @forelse ($liveClasses as $liveClass)
                 @php
                     $liveState = $liveClass->computedState();
-                    $liveStateClass = ['upcoming' => 'pending', 'live' => 'active', 'ended' => 'inactive', 'cancelled' => 'rejected', 'failed' => 'failed'][$liveState] ?? 'pending';
+                    $liveStateClass = ['upcoming' => 'pending', 'live' => 'active', 'ended' => 'inactive', 'failed' => 'failed'][$liveState] ?? 'pending';
                 @endphp
                 <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap gap-2">
                     <span>
@@ -246,27 +246,29 @@
                         <span class="badge text-bg-light">{{ $liveClass->provider === 'zoom' ? __('Zoom') : __('Google Meet') }}</span>
                         <span class="ed-status is-{{ $liveStateClass }}">{{ __status($liveState) }}</span>
                         <br>
-                        <small class="text-muted">{{ $liveClass->scheduled_at->format('Y-m-d H:i') }} · {{ $liveClass->duration_minutes }} {{ __('min') }}</small>
+                        <small class="text-muted">{{ $liveClass->scheduledAtLocal()->format('Y-m-d H:i') }} · {{ $liveClass->duration_minutes }} {{ __('min') }}</small>
                     </span>
                     <span class="d-flex gap-1">
-                        @if (! in_array($liveState, ['cancelled', 'ended', 'failed'], true))
+                        @if (! in_array($liveState, ['ended', 'failed'], true))
                             @if ($liveClass->provider === 'zoom' && $liveClass->start_url)
                                 <a href="{{ $liveClass->start_url }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-success">{{ __('Start') }}</a>
                             @elseif ($liveClass->join_url)
                                 <a href="{{ $liveClass->join_url }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-success">{{ __('Join') }}</a>
                             @endif
-                            <form method="POST" action="{{ route('instructor.live-classes.destroy', $liveClass) }}" data-confirm-delete>
-                                @csrf
-                                @method('DELETE')
-                                <button class="btn btn-sm btn-outline-danger">{{ __('Cancel') }}</button>
-                            </form>
                         @endif
+                        <form method="POST" action="{{ route('instructor.live-classes.destroy', $liveClass) }}" data-confirm-delete>
+                            @csrf
+                            @method('DELETE')
+                            <button class="btn btn-sm btn-outline-danger">{{ __('Delete') }}</button>
+                        </form>
                     </span>
                 </li>
             @empty
                 <li class="list-group-item text-muted">{{ __('No live classes scheduled yet.') }}</li>
             @endforelse
         </ul>
+
+        <x-table-pagination :paginator="$liveClasses" />
 
         @if (empty($connectedLiveProviders))
             <div class="alert alert-warning mb-0">

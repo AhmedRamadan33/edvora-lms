@@ -34,6 +34,6 @@ class CourseRepository extends BaseRepository
 
     public function loadCurriculum(Course $course): Course
     {
-        return $course->load(['translations', 'sections.lessons.video', 'sections.lessons.quiz.questions', 'liveClasses']);
+        return $course->load(['translations', 'sections.lessons.video', 'sections.lessons.quiz.questions']);
     }
 }

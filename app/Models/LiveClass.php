@@ -13,8 +13,6 @@ class LiveClass extends Model
 
     public const STATUS_SCHEDULED = 'scheduled';
 
-    public const STATUS_CANCELLED = 'cancelled';
-
     public const STATUS_FAILED = 'failed';
 
     public const STATE_UPCOMING = 'upcoming';
@@ -26,7 +24,7 @@ class LiveClass extends Model
     protected $fillable = [
         'course_id', 'instructor_id', 'provider', 'title', 'description',
         'scheduled_at', 'duration_minutes', 'provider_meeting_id',
-        'join_url', 'start_url', 'status', 'reminder_sent_at', 'cancelled_at', 'meta',
+        'join_url', 'start_url', 'status', 'reminder_sent_at', 'meta',
     ];
 
     protected function casts(): array
@@ -34,7 +32,6 @@ class LiveClass extends Model
         return [
             'scheduled_at' => 'datetime',
             'reminder_sent_at' => 'datetime',
-            'cancelled_at' => 'datetime',
             'duration_minutes' => 'integer',
             'meta' => 'array',
         ];
@@ -55,12 +52,13 @@ class LiveClass extends Model
         return $this->scheduled_at->clone()->addMinutes($this->duration_minutes);
     }
 
+    public function scheduledAtLocal(): \Illuminate\Support\Carbon
+    {
+        return $this->scheduled_at->clone()->setTimezone(config('edvora.display_timezone', 'Africa/Cairo'));
+    }
+
     public function computedState(): string
     {
-        if ($this->status === self::STATUS_CANCELLED) {
-            return self::STATUS_CANCELLED;
-        }
-
         if ($this->status === self::STATUS_FAILED) {
             return self::STATUS_FAILED;
         }
@@ -80,7 +78,7 @@ class LiveClass extends Model
 
     public function isJoinable(): bool
     {
-        if (in_array($this->status, [self::STATUS_CANCELLED, self::STATUS_FAILED], true)) {
+        if ($this->status === self::STATUS_FAILED) {
             return false;
         }
 

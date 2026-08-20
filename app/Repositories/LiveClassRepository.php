@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\LiveClass;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 
 class LiveClassRepository extends BaseRepository
@@ -29,14 +30,22 @@ class LiveClassRepository extends BaseRepository
             ->get();
     }
 
-    public function upcomingForCourse(int $courseId): Collection
+    public function paginateForCourse(int $courseId, int $perPage = 10): LengthAwarePaginator
+    {
+        return $this->query()
+            ->where('course_id', $courseId)
+            ->orderByDesc('scheduled_at')
+            ->paginate($perPage);
+    }
+
+    public function paginateUpcomingForCourse(int $courseId, int $perPage = 10): LengthAwarePaginator
     {
         return $this->query()
             ->where('course_id', $courseId)
             ->where('status', LiveClass::STATUS_SCHEDULED)
-            ->where('scheduled_at', '>=', now()->subMinutes(10))
+            ->whereRaw('DATE_ADD(scheduled_at, INTERVAL duration_minutes MINUTE) >= ?', [now()])
             ->orderBy('scheduled_at')
-            ->get();
+            ->paginate($perPage);
     }
 
     public function upcomingForStudent(int $studentId, int $limit = 5): Collection

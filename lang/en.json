@@ -756,7 +756,7 @@
     "Live class scheduled.": "Live class scheduled.",
     "Unable to update the live class: :message": "Unable to update the live class: :message",
     "Live class updated.": "Live class updated.",
-    "Live class cancelled.": "Live class cancelled.",
+    "Live class deleted.": "Live class deleted.",
     "Show this payment method to students": "Show this payment method to students",
     "Disabled": "Disabled",
     "Live": "Live",

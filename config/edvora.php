@@ -40,6 +40,8 @@ return [
         'mode' => env('PAYPAL_MODE', 'sandbox'),
     ],
 
+    'display_timezone' => env('EDVORA_DISPLAY_TIMEZONE', 'Africa/Cairo'),
+
     'zoom' => [
         'client_id' => env('ZOOM_CLIENT_ID'),
         'client_secret' => env('ZOOM_CLIENT_SECRET'),

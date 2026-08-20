@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Instructor;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Carbon;
 
 class UpdateLiveClassRequest extends FormRequest
 {
@@ -13,6 +14,15 @@ class UpdateLiveClassRequest extends FormRequest
         return $this->user()
             && $liveClass
             && ($liveClass->instructor_id === $this->user()->id || $this->user()->hasRole('admin'));
+    }
+
+    protected function prepareForValidation(): void
+    {
+        if ($this->filled('scheduled_at')) {
+            $this->merge([
+                'scheduled_at' => Carbon::parse($this->input('scheduled_at'), config('edvora.display_timezone', 'Africa/Cairo'))->utc(),
+            ]);
+        }
     }
 
     public function rules(): array

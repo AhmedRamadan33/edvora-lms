@@ -12,6 +12,7 @@ use App\Models\Enrollment;
 use App\Models\Lesson;
 use App\Models\LessonProgress;
 use App\Models\QuizAttempt;
+use App\Repositories\LiveClassRepository;
 use App\Services\LearnService;
 use App\Services\ProgressService;
 use App\Services\VdoCipherService;
@@ -21,15 +22,16 @@ use Illuminate\View\View;
 
 class LearnController extends Controller
 {
-    public function show(Course $course): View
+    public function show(Course $course, LiveClassRepository $liveClassRepository): View
     {
         $this->ensureEnrolled($course);
 
         $course->load(['translations', 'sections.lessons', 'liveClasses']);
         $progress = $this->progressFor($course);
         $enrollment = $this->enrollmentFor($course);
+        $liveClasses = $liveClassRepository->paginateUpcomingForCourse($course->id);
 
-        return view('learn.course', compact('course', 'progress', 'enrollment'));
+        return view('learn.course', compact('course', 'progress', 'enrollment', 'liveClasses'));
     }
 
     public function lesson(Course $course, Lesson $lesson, VdoCipherService $vdocipher): View

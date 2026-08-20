@@ -4,6 +4,7 @@ namespace App\Http\Requests\Instructor;
 
 use App\Models\LiveClass;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
 
 class StoreLiveClassRequest extends FormRequest
@@ -15,6 +16,15 @@ class StoreLiveClassRequest extends FormRequest
         return $this->user()
             && $course
             && ($course->instructor_id === $this->user()->id || $this->user()->hasRole('admin'));
+    }
+
+    protected function prepareForValidation(): void
+    {
+        if ($this->filled('scheduled_at')) {
+            $this->merge([
+                'scheduled_at' => Carbon::parse($this->input('scheduled_at'), config('edvora.display_timezone', 'Africa/Cairo'))->utc(),
+            ]);
+        }
     }
 
     public function rules(): array

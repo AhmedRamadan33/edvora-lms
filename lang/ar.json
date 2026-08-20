@@ -765,7 +765,7 @@
     "Live class scheduled.": "تم جدولة المحاضرة المباشرة.",
     "Unable to update the live class: :message": "تعذر تحديث المحاضرة المباشرة: :message",
     "Live class updated.": "تم تحديث المحاضرة المباشرة.",
-    "Live class cancelled.": "تم إلغاء المحاضرة المباشرة.",
+    "Live class deleted.": "تم حذف المحاضرة المباشرة.",
     "Show this payment method to students": "إظهار وسيلة الدفع دي للطلاب",
     "Disabled": "معطّلة",
     "Live": "فعلية",

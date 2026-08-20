@@ -78,14 +78,11 @@ class LiveClassService
         return $liveClass;
     }
 
-    public function cancel(LiveClass $liveClass): void
+    public function delete(LiveClass $liveClass): void
     {
         $this->providerService($liveClass->provider)->deleteMeeting($liveClass->instructor, $liveClass);
 
-        $liveClass->update([
-            'status' => LiveClass::STATUS_CANCELLED,
-            'cancelled_at' => now(),
-        ]);
+        $liveClass->delete();
     }
 
     protected function providerService(string $provider): ZoomService|GoogleMeetService

@@ -1,16 +1,13 @@
 @php($t = $course->translation())
 <a href="{{ route('courses.show', $course->slug) }}" class="course-tile text-decoration-none text-reset">
     <div class="course-tile__media">
-        <img
-            src="{{ $course->thumbnail ? asset('storage/'.$course->thumbnail) : 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80' }}"
-            alt="{{ $t?->title }}"
-            loading="lazy"
-        >
+        <img src="{{ $course->thumbnail ? asset('storage/' . $course->thumbnail) : asset('images/course_thumbnail.png') }}"
+            alt="{{ $t?->title }}" loading="lazy">
     </div>
     <div class="course-tile__body">
         <div class="course-tile__meta">
             {{ $course->instructor?->name }}
-            @if($course->level)
+            @if ($course->level)
                 · {{ ucfirst($course->level) }}
             @endif
         </div>
@@ -19,7 +16,7 @@
         <div class="course-tile__footer">
             <div class="course-tile__price">{{ money($course->price) }}</div>
             <span class="small text-muted">
-                @if($course->reviews_count)
+                @if ($course->reviews_count)
                     {{ number_format($course->avg_rating, 1) }} ★
                 @else
                     {{ __('New') }}

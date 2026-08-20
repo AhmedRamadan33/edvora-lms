@@ -4,7 +4,7 @@
 <div class="auth-shell">
     <div class="auth-card">
         <div class="mb-4">
-            <div class="ed-brand mb-2" style="font-size:1.4rem">Edvora<span>.</span></div>
+            <div class="ed-brand mb-2" style="font-size:1.4rem">Edvora</div>
             <h1>{{ __('Join Edvora') }}</h1>
             <p class="text-muted mb-0">{{ __('Learn from experts or start teaching today.') }}</p>
         </div>

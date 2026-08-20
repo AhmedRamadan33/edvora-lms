@@ -14,7 +14,7 @@
                     <strong>{{ $liveClass->title }}</strong>
                     <span class="small text-muted">— {{ $liveClass->course->translation()?->title }}</span>
                     <br>
-                    <small class="text-muted">{{ $liveClass->scheduled_at->format('Y-m-d H:i') }}</small>
+                    <small class="text-muted">{{ $liveClass->scheduledAtLocal()->format('Y-m-d H:i') }}</small>
                 </span>
                 <a href="{{ route('learn.course', $liveClass->course) }}" class="btn btn-sm btn-outline-primary">{{ __('View course') }}</a>
             </li>

@@ -38,9 +38,9 @@ class LiveClassController extends Controller
     {
         $this->authorizeLiveClass($liveClass);
 
-        $liveClasses->cancel($liveClass);
+        $liveClasses->delete($liveClass);
 
-        return back()->with('success', __('Live class cancelled.'));
+        return back()->with('success', __('Live class deleted.'));
     }
 
     protected function authorizeLiveClass(LiveClass $liveClass): void
