@@ -14,6 +14,7 @@ use App\Services\PayTabsService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -165,6 +166,13 @@ class CheckoutController extends Controller
         $payload = $request->all();
         $order = Order::query()->where('number', $request->input('cart_id'))->first();
 
+        Log::info('PayTabs return received', [
+            'cart_id' => $request->input('cart_id'),
+            'order_found' => (bool) $order,
+            'authenticated_before' => auth()->check(),
+            'payload_keys' => array_keys($payload),
+        ]);
+
         if (! $order) {
             return redirect()
                 ->route('cart.index')
@@ -178,6 +186,12 @@ class CheckoutController extends Controller
         $this->restoreSessionFor($order);
 
         $paytabs->handleReturn($payload, $request->input('signature'));
+
+        Log::info('PayTabs return processed', [
+            'order_id' => $order->id,
+            'authenticated_after' => auth()->check(),
+            'session_id' => session()->getId(),
+        ]);
 
         return redirect()->route('checkout.success', [
             'order' => $order,
