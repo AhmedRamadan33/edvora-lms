@@ -4,6 +4,24 @@
 @include('student.partials.nav')
 @endsection
 @section('content')
+@if($upcomingLiveClasses->isNotEmpty())
+<div class="ed-panel p-3 mb-4">
+    <h2 class="h6 mb-3"><i class="bi bi-camera-video me-2"></i>{{ __('Upcoming Live Classes') }}</h2>
+    <ul class="list-group list-group-flush">
+        @foreach($upcomingLiveClasses as $liveClass)
+            <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap gap-2 px-0">
+                <span>
+                    <strong>{{ $liveClass->title }}</strong>
+                    <span class="small text-muted">— {{ $liveClass->course->translation()?->title }}</span>
+                    <br>
+                    <small class="text-muted">{{ $liveClass->scheduled_at->format('Y-m-d H:i') }}</small>
+                </span>
+                <a href="{{ route('learn.course', $liveClass->course) }}" class="btn btn-sm btn-outline-primary">{{ __('View course') }}</a>
+            </li>
+        @endforeach
+    </ul>
+</div>
+@endif
 <div class="row g-4">
 @forelse($enrollments as $enrollment)
 <div class="col-md-6 col-xl-4">

@@ -87,6 +87,11 @@ class Course extends Model
         return $this->hasMany(Review::class);
     }
 
+    public function liveClasses(): HasMany
+    {
+        return $this->hasMany(LiveClass::class)->orderBy('scheduled_at');
+    }
+
     public function approvedReviews(): HasMany
     {
         return $this->hasMany(Review::class)->where('status', Review::STATUS_APPROVED);

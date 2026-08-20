@@ -75,6 +75,16 @@ class User extends Authenticatable
         return $this->hasMany(PayoutRequest::class, 'instructor_id');
     }
 
+    public function oauthConnections(): HasMany
+    {
+        return $this->hasMany(OAuthConnection::class);
+    }
+
+    public function liveClasses(): HasMany
+    {
+        return $this->hasMany(LiveClass::class, 'instructor_id');
+    }
+
     public function isEnrolledIn(int $courseId): bool
     {
         return $this->enrollments()->where('course_id', $courseId)->exists();

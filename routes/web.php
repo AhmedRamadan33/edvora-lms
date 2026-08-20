@@ -32,6 +32,8 @@ use App\Http\Controllers\Instructor\DashboardController as InstructorDashboardCo
 use App\Http\Controllers\Instructor\EarningController;
 use App\Http\Controllers\Instructor\ExamAttemptController;
 use App\Http\Controllers\Instructor\ExamController;
+use App\Http\Controllers\Instructor\IntegrationController;
+use App\Http\Controllers\Instructor\LiveClassController;
 use App\Http\Controllers\Instructor\OrderController as InstructorOrderController;
 use App\Http\Controllers\Instructor\ProfileController as InstructorProfileController;
 use App\Http\Controllers\Instructor\PublicProfileController;
@@ -134,6 +136,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/courses/{course}/lessons/{lesson}', [CurriculumController::class, 'destroyLesson'])->name('lessons.destroy');
         Route::post('/courses/{course}/videos/credentials', [CurriculumController::class, 'videoUploadCredentials'])->name('videos.credentials');
         Route::post('/courses/{course}/lessons/{lesson}/check-status', [CurriculumController::class, 'checkVideoStatus'])->name('lessons.check-status');
+        Route::post('/courses/{course}/live-classes', [LiveClassController::class, 'store'])->name('live-classes.store');
+        Route::put('/live-classes/{liveClass}', [LiveClassController::class, 'update'])->name('live-classes.update');
+        Route::delete('/live-classes/{liveClass}', [LiveClassController::class, 'destroy'])->name('live-classes.destroy');
+        Route::get('/integrations', [IntegrationController::class, 'index'])->name('integrations.index');
+        Route::get('/integrations/zoom/connect', [IntegrationController::class, 'redirectToZoom'])->name('integrations.zoom.connect');
+        Route::get('/integrations/zoom/callback', [IntegrationController::class, 'zoomCallback'])->name('integrations.zoom.callback');
+        Route::post('/integrations/zoom/disconnect', [IntegrationController::class, 'disconnectZoom'])->name('integrations.zoom.disconnect');
+        Route::get('/integrations/google/connect', [IntegrationController::class, 'redirectToGoogle'])->name('integrations.google.connect');
+        Route::get('/integrations/google/callback', [IntegrationController::class, 'googleCallback'])->name('integrations.google.callback');
+        Route::post('/integrations/google/disconnect', [IntegrationController::class, 'disconnectGoogle'])->name('integrations.google.disconnect');
         Route::prefix('courses/{course}/question-bank')->name('question-bank.')->group(function () {
             Route::get('/', [BankQuestionController::class, 'index'])->name('index');
             Route::post('/', [BankQuestionController::class, 'store'])->name('store');

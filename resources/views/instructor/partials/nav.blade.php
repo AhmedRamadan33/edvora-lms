@@ -6,3 +6,4 @@
 <a class="nav-link @if(request()->routeIs('instructor.earnings.*')) active @endif" href="{{ route('instructor.earnings.index') }}"><i class="bi bi-cash-coin me-2"></i>{{ __('Earnings') }}</a>
 <a class="nav-link @if(request()->routeIs('instructor.orders.*')) active @endif" href="{{ route('instructor.orders.index') }}"><i class="bi bi-receipt me-2"></i>{{ __('My orders') }}</a>
 <a class="nav-link @if(request()->routeIs('instructor.profile.*')) active @endif" href="{{ route('instructor.profile.edit') }}"><i class="bi bi-person-badge me-2"></i>{{ __('Instructor profile') }}</a>
+<a class="nav-link @if(request()->routeIs('instructor.integrations.*')) active @endif" href="{{ route('instructor.integrations.index') }}"><i class="bi bi-camera-video me-2"></i>{{ __('Integrations') }}</a>

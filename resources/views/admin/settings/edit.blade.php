@@ -55,6 +55,11 @@
                 {{ __('PayPal') }} <span class="badge text-bg-{{ $badges['paypal']['class'] }} ms-1">{{ $badges['paypal']['text'] }}</span>
             </button>
         </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-live-classes-btn" data-bs-toggle="tab" data-bs-target="#tab-live-classes" type="button" role="tab">
+                {{ __('Live Classes') }}
+            </button>
+        </li>
     </ul>
 
     <div class="tab-content">
@@ -233,6 +238,32 @@
             <div class="ed-panel p-3 bg-light border-0 mt-3">
                 <div class="small text-muted mb-1">{{ __('Webhook endpoint') }}: <code>{{ rtrim(config('app.url'), '/') }}/webhooks/paypal</code></div>
                 <div class="small text-muted">{{ __('If the store currency is not supported by PayPal, payments are converted to the settlement currency using the exchange rate above.') }}</div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="tab-live-classes" role="tabpanel">
+            <p class="text-muted small">{{ __('Instructors connect their own Zoom and Google accounts individually from their dashboard. These credentials only register the platform app so instructors can authorize it.') }}</p>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">{{ __('Zoom client ID') }}</label>
+                    <input class="form-control" name="zoom_client_id" value="{{ old('zoom_client_id', $settings['zoom_client_id'] ?? '') }}">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">{{ __('Zoom client secret') }}</label>
+                    <x-secret-input name="zoom_client_secret" :value="old('zoom_client_secret', $settings['zoom_client_secret'] ?? '')" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">{{ __('Google client ID') }}</label>
+                    <input class="form-control" name="google_meet_client_id" value="{{ old('google_meet_client_id', $settings['google_meet_client_id'] ?? '') }}">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">{{ __('Google client secret') }}</label>
+                    <x-secret-input name="google_meet_client_secret" :value="old('google_meet_client_secret', $settings['google_meet_client_secret'] ?? '')" />
+                </div>
+            </div>
+            <div class="ed-panel p-3 bg-light border-0 mt-3">
+                <div class="small text-muted mb-1">{{ __('Zoom OAuth redirect URL') }}: <code>{{ rtrim(config('app.url'), '/') }}/instructor/integrations/zoom/callback</code></div>
+                <div class="small text-muted">{{ __('Google OAuth redirect URL') }}: <code>{{ rtrim(config('app.url'), '/') }}/instructor/integrations/google/callback</code></div>
             </div>
         </div>
     </div>

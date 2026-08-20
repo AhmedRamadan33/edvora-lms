@@ -6,9 +6,24 @@
         'quiz' => 'bi-patch-question',
     ];
     $percent = (float) ($enrollment->progress_percent ?? 0);
+    $nextLiveClass = $course->liveClasses
+        ->reject(fn ($liveClass) => in_array($liveClass->computedState(), ['cancelled', 'ended'], true))
+        ->sortBy('scheduled_at')
+        ->first();
 @endphp
 
 <aside class="learn-sidebar">
+    @if($nextLiveClass)
+        <a href="{{ route('learn.course', $course) }}" class="alert alert-info d-block mb-3 py-2 px-3 small text-decoration-none">
+            <i class="bi bi-camera-video me-1"></i>
+            @if($nextLiveClass->computedState() === 'live')
+                {{ __('Live now: :title', ['title' => $nextLiveClass->title]) }}
+            @else
+                {{ __('Upcoming live class: :title at :time', ['title' => $nextLiveClass->title, 'time' => $nextLiveClass->scheduled_at->format('Y-m-d H:i')]) }}
+            @endif
+        </a>
+    @endif
+
     <div class="mb-3">
         <div class="d-flex justify-content-between align-items-center mb-1">
             <span class="small fw-semibold">{{ __('Your progress') }}</span>

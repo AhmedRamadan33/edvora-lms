@@ -13,6 +13,33 @@
     </div>
 </div>
 
+@php($visibleLiveClasses = $course->liveClasses->reject(fn ($liveClass) => in_array($liveClass->computedState(), ['cancelled', 'ended'], true)))
+@if($visibleLiveClasses->isNotEmpty())
+    <div class="ed-panel p-4 mb-4">
+        <h2 class="h5 mb-3"><i class="bi bi-camera-video me-2"></i>{{ __('Live Classes') }}</h2>
+        <ul class="list-group">
+            @foreach($visibleLiveClasses as $liveClass)
+                <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <span>
+                        <strong>{{ $liveClass->title }}</strong>
+                        <span class="badge text-bg-light">{{ $liveClass->provider === 'zoom' ? __('Zoom') : __('Google Meet') }}</span>
+                        @if($liveClass->computedState() === 'live')
+                            <span class="ed-status is-active">{{ __('Live now') }}</span>
+                        @endif
+                        <br>
+                        <small class="text-muted">{{ $liveClass->scheduled_at->format('Y-m-d H:i') }} · {{ $liveClass->duration_minutes }} {{ __('min') }}</small>
+                    </span>
+                    @if($liveClass->isJoinable())
+                        <a href="{{ $liveClass->join_url }}" target="_blank" rel="noopener" class="btn btn-sm btn-success">{{ __('Join now') }}</a>
+                    @else
+                        <span class="btn btn-sm btn-outline-secondary disabled">{{ __('Starts at :time', ['time' => $liveClass->scheduled_at->format('H:i')]) }}</span>
+                    @endif
+                </li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
 <div class="learn-shell">
     @include('learn.partials.sidebar', ['activeLesson' => null])
 

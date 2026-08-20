@@ -25,7 +25,7 @@ class LearnController extends Controller
     {
         $this->ensureEnrolled($course);
 
-        $course->load(['translations', 'sections.lessons']);
+        $course->load(['translations', 'sections.lessons', 'liveClasses']);
         $progress = $this->progressFor($course);
         $enrollment = $this->enrollmentFor($course);
 
@@ -37,7 +37,7 @@ class LearnController extends Controller
         $this->ensureEnrolled($course);
         abort_unless($lesson->course_id === $course->id, 404);
 
-        $course->load(['translations', 'sections.lessons']);
+        $course->load(['translations', 'sections.lessons', 'liveClasses']);
         $lesson->load(['video', 'quiz.questions']);
         $otp = null;
         $playbackInfo = null;

@@ -7,6 +7,8 @@ use App\Http\Requests\Instructor\StoreCourseRequest;
 use App\Http\Requests\Instructor\UpdateCourseRequest;
 use App\Models\Course;
 use App\Services\CourseService;
+use App\Services\GoogleMeetService;
+use App\Services\ZoomService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -34,13 +36,18 @@ class CourseController extends Controller
         return redirect()->route('instructor.courses.edit', $course)->with('success', __('Course created.'));
     }
 
-    public function edit(Course $course, CourseService $courses): View
+    public function edit(Course $course, CourseService $courses, ZoomService $zoom, GoogleMeetService $googleMeet): View
     {
         $this->authorizeCourse($course);
         $course = $courses->loadForEdit($course);
         $categories = $courses->activeCategories();
 
-        return view('instructor.courses.edit', compact('course', 'categories'));
+        $connectedLiveProviders = array_filter([
+            $zoom->connectionFor(auth()->user()) ? 'zoom' : null,
+            $googleMeet->connectionFor(auth()->user()) ? 'google_meet' : null,
+        ]);
+
+        return view('instructor.courses.edit', compact('course', 'categories', 'connectedLiveProviders'));
     }
 
     public function update(UpdateCourseRequest $request, Course $course, CourseService $courses): RedirectResponse

@@ -231,6 +231,88 @@
         </div>
     @endforeach
 
+    <div class="ed-panel p-4 mb-4">
+        <h2 class="h5 mb-3">{{ __('Live Classes') }}</h2>
+
+        <ul class="list-group mb-4">
+            @forelse ($course->liveClasses as $liveClass)
+                @php
+                    $liveState = $liveClass->computedState();
+                    $liveStateClass = ['upcoming' => 'pending', 'live' => 'active', 'ended' => 'inactive', 'cancelled' => 'rejected', 'failed' => 'failed'][$liveState] ?? 'pending';
+                @endphp
+                <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <span>
+                        <strong>{{ $liveClass->title }}</strong>
+                        <span class="badge text-bg-light">{{ $liveClass->provider === 'zoom' ? __('Zoom') : __('Google Meet') }}</span>
+                        <span class="ed-status is-{{ $liveStateClass }}">{{ __status($liveState) }}</span>
+                        <br>
+                        <small class="text-muted">{{ $liveClass->scheduled_at->format('Y-m-d H:i') }} · {{ $liveClass->duration_minutes }} {{ __('min') }}</small>
+                    </span>
+                    <span class="d-flex gap-1">
+                        @if (! in_array($liveState, ['cancelled', 'ended', 'failed'], true))
+                            @if ($liveClass->provider === 'zoom' && $liveClass->start_url)
+                                <a href="{{ $liveClass->start_url }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-success">{{ __('Start') }}</a>
+                            @elseif ($liveClass->join_url)
+                                <a href="{{ $liveClass->join_url }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-success">{{ __('Join') }}</a>
+                            @endif
+                            <form method="POST" action="{{ route('instructor.live-classes.destroy', $liveClass) }}" data-confirm-delete>
+                                @csrf
+                                @method('DELETE')
+                                <button class="btn btn-sm btn-outline-danger">{{ __('Cancel') }}</button>
+                            </form>
+                        @endif
+                    </span>
+                </li>
+            @empty
+                <li class="list-group-item text-muted">{{ __('No live classes scheduled yet.') }}</li>
+            @endforelse
+        </ul>
+
+        @if (empty($connectedLiveProviders))
+            <div class="alert alert-warning mb-0">
+                {{ __('Connect a Zoom or Google account to schedule live classes.') }}
+                <a href="{{ route('instructor.integrations.index') }}">{{ __('Go to Integrations') }}</a>
+            </div>
+        @else
+            <form method="POST" action="{{ route('instructor.live-classes.store', $course) }}" class="border rounded-3 p-3 bg-light">
+                @csrf
+                <h4 class="h6 mb-3">{{ __('Schedule live class') }}</h4>
+                <div class="row g-3">
+                    <div class="col-md-5">
+                        <label class="form-label">{{ __('Title') }}</label>
+                        <input name="title" class="form-control" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">{{ __('Provider') }}</label>
+                        <select name="provider" class="form-select" required>
+                            @if (in_array('zoom', $connectedLiveProviders))
+                                <option value="zoom">{{ __('Zoom') }}</option>
+                            @endif
+                            @if (in_array('google_meet', $connectedLiveProviders))
+                                <option value="google_meet">{{ __('Google Meet') }}</option>
+                            @endif
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">{{ __('Scheduled at') }}</label>
+                        <input type="datetime-local" name="scheduled_at" class="form-control" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">{{ __('Duration (minutes)') }}</label>
+                        <input type="number" name="duration_minutes" class="form-control" value="60" min="15" max="480" required>
+                    </div>
+                    <div class="col-md-9">
+                        <label class="form-label">{{ __('Description') }}</label>
+                        <input name="description" class="form-control">
+                    </div>
+                    <div class="col-12">
+                        <button class="btn btn-primary btn-sm">{{ __('Schedule live class') }}</button>
+                    </div>
+                </div>
+            </form>
+        @endif
+    </div>
+
     <template id="lesson-question-template">
         <div class="card border mb-3" data-question-item>
             <div class="card-body">

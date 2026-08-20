@@ -40,6 +40,16 @@ return [
         'mode' => env('PAYPAL_MODE', 'sandbox'),
     ],
 
+    'zoom' => [
+        'client_id' => env('ZOOM_CLIENT_ID'),
+        'client_secret' => env('ZOOM_CLIENT_SECRET'),
+    ],
+
+    'google_meet' => [
+        'client_id' => env('GOOGLE_MEET_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_MEET_CLIENT_SECRET'),
+    ],
+
     'payments' => [
         // Demo/local-only completion when gateway keys are missing.
         'allow_demo' => (bool) env('EDVORA_ALLOW_DEMO_PAYMENTS', env('APP_ENV') === 'local'),

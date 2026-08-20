@@ -3,6 +3,7 @@
 use App\Http\Middleware\EnsureRole;
 use App\Http\Middleware\EnsureStudentOnly;
 use App\Http\Middleware\SetLocale;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -33,6 +34,15 @@ return Application::configure(basePath: dirname(__DIR__))
             'webhooks/vdocipher',
             'checkout/paytabs/return',
         ]);
+    })
+    ->withSchedule(function (Schedule $schedule): void {
+        $schedule->command('live-classes:send-reminders')->everyMinute();
+
+        // No persistent queue worker is assumed (shared hosting rarely allows one):
+        // process whatever is queued in short bursts every minute instead.
+        $schedule->command('queue:work --stop-when-empty --max-time=50 --tries=3')
+            ->everyMinute()
+            ->withoutOverlapping();
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
