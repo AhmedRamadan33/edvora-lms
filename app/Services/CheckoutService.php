@@ -267,6 +267,7 @@ class CheckoutService
         ?string $provider = null,
         ?string $sessionId = null,
         ?string $paymobTransactionId = null,
+        ?string $paytabsTranRef = null,
     ): Order {
         abort_unless($order->user_id === $user->id, 403);
 
@@ -287,6 +288,10 @@ class CheckoutService
 
             if ($provider === 'paymob' && $this->paymob->isConfigured()) {
                 $this->paymob->confirmPaymentForOrder($order, $paymobTransactionId);
+            }
+
+            if ($provider === 'paytabs' && $this->paytabs->isConfigured()) {
+                $this->paytabs->confirmPaymentForOrder($order, $paytabsTranRef);
             }
 
             $order->refresh();

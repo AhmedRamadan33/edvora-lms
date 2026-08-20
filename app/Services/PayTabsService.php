@@ -168,6 +168,44 @@ class PayTabsService
         return $this->applyResult($payload);
     }
 
+    public function confirmPaymentForOrder(Order $order, ?string $tranRef = null): bool
+    {
+        if ($order->status === 'paid') {
+            return true;
+        }
+
+        if (! $this->isConfigured()) {
+            return false;
+        }
+
+        $order->loadMissing('payment');
+
+        $reference = $tranRef ?: $order->payment?->provider_reference;
+
+        if (! $reference) {
+            return false;
+        }
+
+        try {
+            $response = Http::withHeaders(['Authorization' => $this->serverKey()])
+                ->timeout(30)
+                ->post("{$this->baseUrl()}/payment/query", [
+                    'profile_id' => (int) $this->profileId(),
+                    'tran_ref' => $reference,
+                ])->throw()->json();
+        } catch (\Throwable $e) {
+            Log::warning('PayTabs transaction query failed', [
+                'order_id' => $order->id,
+                'tran_ref' => $reference,
+                'message' => $e->getMessage(),
+            ]);
+
+            return false;
+        }
+
+        return $this->applyResult(is_array($response) ? $response : []);
+    }
+
     protected function applyResult(array $payload): bool
     {
         $order = Order::query()

@@ -74,6 +74,7 @@ class CheckoutController extends Controller
             $request->get('provider'),
             $request->get('session_id'),
             $request->get('id'),
+            $request->get('tran_ref'),
         );
 
         $request->session()->forget('coupon_code');
@@ -197,6 +198,7 @@ class CheckoutController extends Controller
         return redirect()->route('checkout.success', [
             'order' => $order,
             'provider' => 'paytabs',
+            'tran_ref' => $request->input('tranRef'),
         ]);
     }
 
