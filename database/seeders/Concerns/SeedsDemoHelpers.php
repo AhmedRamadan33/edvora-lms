@@ -45,6 +45,7 @@ trait SeedsDemoHelpers
             [
                 'instructor_id' => $data['instructor']->id,
                 'category_id' => $data['category']->id,
+                'thumbnail' => $data['thumbnail'] ?? 'courses/course_thumbnail.png',
                 'level' => $data['level'] ?? 'beginner',
                 'language' => $data['language'] ?? 'en',
                 'price' => $data['price'],
