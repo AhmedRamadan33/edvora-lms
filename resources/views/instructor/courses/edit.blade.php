@@ -89,7 +89,13 @@
             </div>
             <div class="col-md-4">
                 <label class="form-label">{{ __('Thumbnail') }}</label>
+                @if($course->thumbnail)
+                    <img src="{{ asset('storage/'.$course->thumbnail) }}" alt="{{ __('Current thumbnail') }}" class="d-block mb-2 rounded" style="width:160px; height:100px; object-fit:cover;">
+                @endif
                 <input type="file" name="thumbnail" class="form-control">
+                @if($course->thumbnail)
+                    <div class="form-text">{{ __('Uploading a new file will replace the current thumbnail.') }}</div>
+                @endif
             </div>
             <div class="col-12">
                 <button class="btn btn-primary">{{ __('Save course') }}</button>

@@ -368,6 +368,8 @@
     "intermediate": "المتوسط",
     "advanced": "المتقدم",
     "Thumbnail": "صورة مصغرة",
+    "Current thumbnail": "الصورة الحالية",
+    "Uploading a new file will replace the current thumbnail.": "رفع صورة جديدة هيستبدل الصورة الحالية.",
     "Save Course": "حفظ الكورس",
     "Add section": "إضافة قسم",
     "Add": "إضافة",

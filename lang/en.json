@@ -358,6 +358,8 @@
     "intermediate": "Intermediate",
     "advanced": "Advanced",
     "Thumbnail": "Thumbnail",
+    "Current thumbnail": "Current thumbnail",
+    "Uploading a new file will replace the current thumbnail.": "Uploading a new file will replace the current thumbnail.",
     "Save Course": "Save Course",
     "Add section": "Add section",
     "Add": "Add",

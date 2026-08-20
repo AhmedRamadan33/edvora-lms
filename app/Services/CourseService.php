@@ -6,6 +6,7 @@ use App\Models\Course;
 use App\Models\User;
 use App\Repositories\CourseRepository;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class CourseService
@@ -55,6 +56,10 @@ class CourseService
         ];
 
         if ($thumbnail) {
+            if ($course->thumbnail) {
+                Storage::disk('public')->delete($course->thumbnail);
+            }
+
             $payload['thumbnail'] = $thumbnail->store('courses', 'public');
         }
 
