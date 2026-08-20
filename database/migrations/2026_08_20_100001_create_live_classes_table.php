@@ -18,8 +18,8 @@ return new class extends Migration
             $table->dateTime('scheduled_at');
             $table->unsignedInteger('duration_minutes')->default(60);
             $table->string('provider_meeting_id')->nullable();
-            $table->string('join_url')->nullable();
-            $table->string('start_url')->nullable();
+            $table->text('join_url')->nullable();
+            $table->text('start_url')->nullable();
             $table->string('status')->default('scheduled');
             $table->timestamp('reminder_sent_at')->nullable();
             $table->timestamp('cancelled_at')->nullable();
