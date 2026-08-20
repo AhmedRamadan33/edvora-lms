@@ -202,7 +202,8 @@ class PayTabsService
 
     protected function isSuccessfulResult(array $payload): bool
     {
-        return data_get($payload, 'payment_result.response_status') === 'A';
+        return data_get($payload, 'payment_result.response_status') === 'A'
+            || data_get($payload, 'respStatus') === 'A';
     }
 
     protected function splitName(string $name): array

@@ -164,10 +164,11 @@ class CheckoutController extends Controller
     public function paytabsReturn(Request $request, PayTabsService $paytabs): RedirectResponse
     {
         $payload = $request->all();
-        $order = Order::query()->where('number', $request->input('cart_id'))->first();
+        $cartId = $request->input('cartId') ?? $request->input('cart_id');
+        $order = Order::query()->where('number', $cartId)->first();
 
         Log::info('PayTabs return received', [
-            'cart_id' => $request->input('cart_id'),
+            'cart_id' => $cartId,
             'order_found' => (bool) $order,
             'authenticated_before' => auth()->check(),
             'payload_keys' => array_keys($payload),
