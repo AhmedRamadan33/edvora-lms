@@ -953,5 +953,7 @@
     "Notifications": "الإشعارات",
     "Mark all as read": "تحديد الكل كمقروء",
     "No notifications yet.": "لا توجد إشعارات بعد.",
-    "Everything relevant to your account, in one place.": "كل ما يخص حسابك، في مكان واحد."
+    "Everything relevant to your account, in one place.": "كل ما يخص حسابك، في مكان واحد.",
+    "A new exam \":title\" is available in \":course\".": "في امتحان جديد \":title\" متاح في \":course\".",
+    "New exam available": "امتحان جديد متاح"
 }

@@ -9,9 +9,11 @@ use App\Models\Exam;
 use App\Models\ExamQuestion;
 use App\Models\Subject;
 use App\Models\User;
+use App\Notifications\GenericNotification;
 use App\Repositories\ExamRepository;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 
 class ExamService
 {
@@ -103,11 +105,17 @@ class ExamService
 
     public function toggleStatus(Exam $exam): Exam
     {
+        $wasPublished = $exam->status === 'published';
+
         $exam = $this->exams->update($exam, [
-            'status' => $exam->status === 'published' ? 'draft' : 'published',
+            'status' => $wasPublished ? 'draft' : 'published',
         ]);
 
         ActivityLog::record('exam.status_toggled', $exam, ['title' => $exam->title, 'status' => $exam->status]);
+
+        if (! $wasPublished && $exam->status === 'published') {
+            $this->notifyEnrolledStudents($exam);
+        }
 
         return $exam;
     }
@@ -119,6 +127,24 @@ class ExamService
         $this->exams->delete($exam);
 
         ActivityLog::record('exam.deleted', $exam, ['title' => $title]);
+    }
+
+    protected function notifyEnrolledStudents(Exam $exam): void
+    {
+        $students = $exam->course->enrollments()->with('user')->get()->pluck('user')->filter();
+
+        if ($students->isEmpty()) {
+            return;
+        }
+
+        Notification::send($students, new GenericNotification(
+            __('A new exam ":title" is available in ":course".', [
+                'title' => $exam->title,
+                'course' => $exam->course->translation()?->title,
+            ]),
+            route('exams.show', $exam),
+            __('New exam available')
+        ));
     }
 
     /**

@@ -948,5 +948,7 @@
     "Notifications": "Notifications",
     "Mark all as read": "Mark all as read",
     "No notifications yet.": "No notifications yet.",
-    "Everything relevant to your account, in one place.": "Everything relevant to your account, in one place."
+    "Everything relevant to your account, in one place.": "Everything relevant to your account, in one place.",
+    "A new exam \":title\" is available in \":course\".": "A new exam \":title\" is available in \":course\".",
+    "New exam available": "New exam available"
 }
