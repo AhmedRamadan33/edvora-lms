@@ -849,6 +849,7 @@
     "Google account connected.": "تم ربط حساب جوجل.",
     "Google account disconnected.": "تم فصل حساب جوجل.",
     "Unable to schedule the live class: :message": "تعذر جدولة المحاضرة المباشرة: :message",
+    "Unable to create the instructor account: :message": "تعذر إنشاء حساب المدرّس: :message",
     "Live class scheduled.": "تم جدولة المحاضرة المباشرة.",
     "Unable to update the live class: :message": "تعذر تحديث المحاضرة المباشرة: :message",
     "Live class updated.": "تم تحديث المحاضرة المباشرة.",

@@ -51,7 +51,11 @@ class InstructorApprovalController extends Controller
 
     public function store(CreateInstructorRequest $request, AdminCatalogService $catalog): RedirectResponse
     {
-        $catalog->createInstructor($request->validated());
+        try {
+            $catalog->createInstructor($request->validated());
+        } catch (\Throwable $e) {
+            return back()->withInput()->with('error', __('Unable to create the instructor account: :message', ['message' => $e->getMessage()]));
+        }
 
         return redirect()->route('admin.instructors.index')->with('success', __('Instructor account created. An email was sent so they can set their password.'));
     }

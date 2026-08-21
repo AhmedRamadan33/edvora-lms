@@ -843,6 +843,7 @@
     "Google account connected.": "Google account connected.",
     "Google account disconnected.": "Google account disconnected.",
     "Unable to schedule the live class: :message": "Unable to schedule the live class: :message",
+    "Unable to create the instructor account: :message": "Unable to create the instructor account: :message",
     "Live class scheduled.": "Live class scheduled.",
     "Unable to update the live class: :message": "Unable to update the live class: :message",
     "Live class updated.": "Live class updated.",

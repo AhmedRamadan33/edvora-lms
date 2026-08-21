@@ -111,29 +111,31 @@ class AdminCatalogService
 
     public function createInstructor(array $data): User
     {
-        $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'phone' => $data['phone'] ?? null,
-            'password' => Hash::make(Str::random(40)),
-        ]);
+        return DB::transaction(function () use ($data) {
+            $user = User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'phone' => $data['phone'] ?? null,
+                'password' => Hash::make(Str::random(40)),
+            ]);
 
-        $user->forceFill(['email_verified_at' => now()])->save();
+            $user->forceFill(['email_verified_at' => now()])->save();
 
-        $user->syncRoles(['instructor']);
+            $user->syncRoles(['instructor']);
 
-        InstructorProfile::create([
-            'user_id' => $user->id,
-            'headline' => $data['headline'] ?? null,
-            'status' => 'approved',
-            'approved_at' => now(),
-        ]);
+            InstructorProfile::create([
+                'user_id' => $user->id,
+                'headline' => $data['headline'] ?? null,
+                'status' => 'approved',
+                'approved_at' => now(),
+            ]);
 
-        Password::sendResetLink(['email' => $user->email]);
+            Password::sendResetLink(['email' => $user->email]);
 
-        ActivityLog::record('instructor.created_by_admin', $user, ['name' => $user->name]);
+            ActivityLog::record('instructor.created_by_admin', $user, ['name' => $user->name]);
 
-        return $user;
+            return $user;
+        });
     }
 
     public function approvePayout(PayoutRequest $payout, string $transactionReference): array
