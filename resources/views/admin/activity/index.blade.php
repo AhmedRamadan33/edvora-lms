@@ -36,7 +36,7 @@
                     <th>{{ __('When') }}</th>
                     <th>{{ __('User') }}</th>
                     <th>{{ __('Message') }}</th>
-                    {{-- <th>IP</th> --}}
+                    <th>IP</th>
                 </tr>
             </thead>
             <tbody>
@@ -46,7 +46,7 @@
                         <td title="{{ $log->created_at }}">{{ $log->created_at->diffForHumans() }}</td>
                         <td class="fw-semibold">{{ $log->user?->name ?? __('System') }}</td>
                         <td>{{ $log->description() }}</td>
-                        {{-- <td class="text-muted">{{ $log->ip_address }}</td> --}}
+                        <td class="text-muted">{{ $log->ip_address }}</td>
                     </tr>
                 @empty
                     <tr>
