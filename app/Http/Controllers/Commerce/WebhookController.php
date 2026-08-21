@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Commerce;
 
 use App\Http\Controllers\Controller;
+use App\Services\FawryService;
 use App\Services\PaymobService;
 use App\Services\PayPalService;
 use App\Services\PayTabsService;
@@ -87,6 +88,27 @@ class WebhookController extends Controller
             ], $body);
         } catch (\Throwable $e) {
             Log::error('PayPal webhook error', [
+                'message' => $e->getMessage(),
+                'payload' => $request->all(),
+            ]);
+
+            return response('invalid', 400);
+        }
+
+        return response('ok');
+    }
+
+    public function fawry(Request $request, FawryService $fawry): Response
+    {
+        try {
+            $payload = $request->json()->all();
+            if ($payload === []) {
+                $payload = $request->all();
+            }
+
+            $fawry->handleWebhook($payload);
+        } catch (\Throwable $e) {
+            Log::error('Fawry webhook error', [
                 'message' => $e->getMessage(),
                 'payload' => $request->all(),
             ]);

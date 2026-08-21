@@ -14,7 +14,7 @@ class PayOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'provider' => ['required', 'in:stripe,paymob,paytabs,paypal'],
+            'provider' => ['required', 'in:stripe,paymob,paytabs,paypal,fawry'],
         ];
     }
 }

@@ -11,12 +11,12 @@
 
 @php
     $badges = [];
-    foreach (['stripe', 'paymob', 'paytabs', 'paypal'] as $gateway) {
+    foreach (['stripe', 'paymob', 'paytabs', 'paypal', 'fawry'] as $gateway) {
         $isEnabled = (bool) ($settings["{$gateway}_enabled"] ?? true);
         $isConfigured = $gateways[$gateway]['configured'];
         $badges[$gateway] = [
-            'class' => ! $isEnabled ? 'secondary' : ($isConfigured ? 'success' : 'warning'),
-            'text' => ! $isEnabled ? __('Disabled') : ($isConfigured ? __('Live') : __('Demo')),
+            'class' => !$isEnabled ? 'secondary' : ($isConfigured ? 'success' : 'warning'),
+            'text' => !$isEnabled ? __('Disabled') : ($isConfigured ? __('Live') : __('Demo')),
         ];
     }
 @endphp
@@ -26,37 +26,55 @@
 
     <ul class="nav nav-tabs mb-4" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="tab-basic-btn" data-bs-toggle="tab" data-bs-target="#tab-basic" type="button" role="tab">
+            <button class="nav-link active" id="tab-basic-btn" data-bs-toggle="tab" data-bs-target="#tab-basic"
+                type="button" role="tab">
                 {{ __('Basic settings') }}
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="tab-vdocipher-btn" data-bs-toggle="tab" data-bs-target="#tab-vdocipher" type="button" role="tab">
+            <button class="nav-link" id="tab-vdocipher-btn" data-bs-toggle="tab" data-bs-target="#tab-vdocipher"
+                type="button" role="tab">
                 VdoCipher
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="tab-stripe-btn" data-bs-toggle="tab" data-bs-target="#tab-stripe" type="button" role="tab">
-                Stripe <span class="badge text-bg-{{ $badges['stripe']['class'] }} ms-1">{{ $badges['stripe']['text'] }}</span>
+            <button class="nav-link" id="tab-stripe-btn" data-bs-toggle="tab" data-bs-target="#tab-stripe" type="button"
+                role="tab">
+                Stripe <span
+                    class="badge text-bg-{{ $badges['stripe']['class'] }} ms-1">{{ $badges['stripe']['text'] }}</span>
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="tab-paymob-btn" data-bs-toggle="tab" data-bs-target="#tab-paymob" type="button" role="tab">
-                Paymob <span class="badge text-bg-{{ $badges['paymob']['class'] }} ms-1">{{ $badges['paymob']['text'] }}</span>
+            <button class="nav-link" id="tab-paymob-btn" data-bs-toggle="tab" data-bs-target="#tab-paymob" type="button"
+                role="tab">
+                Paymob <span
+                    class="badge text-bg-{{ $badges['paymob']['class'] }} ms-1">{{ $badges['paymob']['text'] }}</span>
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="tab-paytabs-btn" data-bs-toggle="tab" data-bs-target="#tab-paytabs" type="button" role="tab">
-                PayTabs <span class="badge text-bg-{{ $badges['paytabs']['class'] }} ms-1">{{ $badges['paytabs']['text'] }}</span>
+            <button class="nav-link" id="tab-paytabs-btn" data-bs-toggle="tab" data-bs-target="#tab-paytabs"
+                type="button" role="tab">
+                PayTabs <span
+                    class="badge text-bg-{{ $badges['paytabs']['class'] }} ms-1">{{ $badges['paytabs']['text'] }}</span>
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="tab-paypal-btn" data-bs-toggle="tab" data-bs-target="#tab-paypal" type="button" role="tab">
-                {{ __('PayPal') }} <span class="badge text-bg-{{ $badges['paypal']['class'] }} ms-1">{{ $badges['paypal']['text'] }}</span>
+            <button class="nav-link" id="tab-paypal-btn" data-bs-toggle="tab" data-bs-target="#tab-paypal" type="button"
+                role="tab">
+                {{ __('PayPal') }} <span
+                    class="badge text-bg-{{ $badges['paypal']['class'] }} ms-1">{{ $badges['paypal']['text'] }}</span>
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="tab-live-classes-btn" data-bs-toggle="tab" data-bs-target="#tab-live-classes" type="button" role="tab">
+            <button class="nav-link" id="tab-fawry-btn" data-bs-toggle="tab" data-bs-target="#tab-fawry" type="button"
+                role="tab">
+                Fawry (فورى) <span
+                    class="badge text-bg-{{ $badges['fawry']['class'] }} ms-1">{{ $badges['fawry']['text'] }}</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-live-classes-btn" data-bs-toggle="tab" data-bs-target="#tab-live-classes"
+                type="button" role="tab">
                 {{ __('Live Classes') }}
             </button>
         </li>
@@ -66,24 +84,26 @@
         <div class="tab-pane fade show active" id="tab-basic" role="tabpanel">
             <div class="row g-3">
                 @foreach([
-                    'platform_name' => 'Platform name',
-                    'platform_email' => 'Platform email',
-                    'platform_phone' => 'Platform phone',
-                    'default_commission' => 'Default commission %',
-                    'currency' => 'Currency',
-                ] as $key => $label)
+                        'platform_name' => 'Platform name',
+                        'platform_email' => 'Platform email',
+                        'platform_phone' => 'Platform phone',
+                        'default_commission' => 'Default commission %',
+                        'currency' => 'Currency',
+                    ] as $key => $label)
                     <div class="col-md-6">
                         <label class="form-label">{{ __($label) }}</label>
                         <input class="form-control" name="{{ $key }}" value="{{ old($key, $settings[$key] ?? '') }}"
-                            @if($key === 'platform_email') type="email" @endif
-                            @if($key === 'currency') list="edvora-currencies" maxlength="3" style="text-transform:uppercase" @endif>
+                            @if($key === 'platform_email') type="email" @endif @if($key === 'currency') list="edvora-currencies"
+                            maxlength="3" style="text-transform:uppercase" @endif>
                         @if($key === 'currency')
                             <datalist id="edvora-currencies">
                                 @foreach(config('edvora.supported_currencies') as $code)
                                     <option value="{{ $code }}"></option>
                                 @endforeach
                             </datalist>
-                            <div class="form-text">{{ __('Official platform currency for courses, checkout, Stripe, and Paymob. Changing it updates all courses.') }}</div>
+                            <div class="form-text">
+                                {{ __('Official platform currency for courses, checkout, Stripe, and Paymob. Changing it updates all courses.') }}
+                            </div>
                         @endif
                         @if($key === 'platform_phone')
                             <div class="form-text">{{ __('Shown in the public site footer.') }}</div>
@@ -101,20 +121,25 @@
                 </div>
             </div>
             <div class="ed-panel p-3 bg-light border-0 mt-3">
-                <div class="small text-muted mb-1">{{ __('Webhook endpoint') }}: <code>{{ rtrim(config('app.url'), '/') }}/webhooks/vdocipher?token=VDOCIPHER_WEBHOOK_TOKEN</code></div>
+                <div class="small text-muted mb-1">{{ __('Webhook endpoint') }}:
+                    <code>{{ rtrim(config('app.url'), '/') }}/webhooks/vdocipher?token=VDOCIPHER_WEBHOOK_TOKEN</code>
+                </div>
             </div>
         </div>
 
         <div class="tab-pane fade" id="tab-stripe" role="tabpanel">
             <div class="form-check form-switch mb-3">
                 <input type="hidden" name="stripe_enabled" value="0">
-                <input class="form-check-input" type="checkbox" role="switch" id="stripe_enabled" name="stripe_enabled" value="1" @checked($settings['stripe_enabled'] ?? true)>
-                <label class="form-check-label" for="stripe_enabled">{{ __('Show this payment method to students') }}</label>
+                <input class="form-check-input" type="checkbox" role="switch" id="stripe_enabled" name="stripe_enabled"
+                    value="1" @checked($settings['stripe_enabled'] ?? true)>
+                <label class="form-check-label"
+                    for="stripe_enabled">{{ __('Show this payment method to students') }}</label>
             </div>
             <div class="row g-3">
                 <div class="col-md-6">
                     <label class="form-label">{{ __('Stripe publishable key') }}</label>
-                    <input class="form-control" name="stripe_key" value="{{ old('stripe_key', $settings['stripe_key'] ?? '') }}">
+                    <input class="form-control" name="stripe_key"
+                        value="{{ old('stripe_key', $settings['stripe_key'] ?? '') }}">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">{{ __('Stripe secret') }}</label>
@@ -126,16 +151,21 @@
                 </div>
             </div>
             <div class="ed-panel p-3 bg-light border-0 mt-3">
-                <div class="small text-muted mb-1">{{ __('Webhook endpoint') }}: <code>{{ rtrim(config('app.url'), '/') }}/webhooks/stripe</code></div>
-                {{-- <div class="small text-muted">{{ __('Events') }}: checkout.session.completed, checkout.session.expired, checkout.session.async_payment_succeeded, checkout.session.async_payment_failed, payment_intent.payment_failed</div> --}}
+                <div class="small text-muted mb-1">{{ __('Webhook endpoint') }}:
+                    <code>{{ rtrim(config('app.url'), '/') }}/webhooks/stripe</code></div>
+                {{-- <div class="small text-muted">{{ __('Events') }}: checkout.session.completed,
+                    checkout.session.expired, checkout.session.async_payment_succeeded,
+                    checkout.session.async_payment_failed, payment_intent.payment_failed</div> --}}
             </div>
         </div>
 
         <div class="tab-pane fade" id="tab-paymob" role="tabpanel">
             <div class="form-check form-switch mb-3">
                 <input type="hidden" name="paymob_enabled" value="0">
-                <input class="form-check-input" type="checkbox" role="switch" id="paymob_enabled" name="paymob_enabled" value="1" @checked($settings['paymob_enabled'] ?? true)>
-                <label class="form-check-label" for="paymob_enabled">{{ __('Show this payment method to students') }}</label>
+                <input class="form-check-input" type="checkbox" role="switch" id="paymob_enabled" name="paymob_enabled"
+                    value="1" @checked($settings['paymob_enabled'] ?? true)>
+                <label class="form-check-label"
+                    for="paymob_enabled">{{ __('Show this payment method to students') }}</label>
             </div>
             <div class="row g-3">
                 <div class="col-md-6">
@@ -144,11 +174,13 @@
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">{{ __('Paymob integration ID') }}</label>
-                    <input class="form-control" name="paymob_integration_id" value="{{ old('paymob_integration_id', $settings['paymob_integration_id'] ?? '') }}">
+                    <input class="form-control" name="paymob_integration_id"
+                        value="{{ old('paymob_integration_id', $settings['paymob_integration_id'] ?? '') }}">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">{{ __('Paymob iframe ID') }}</label>
-                    <input class="form-control" name="paymob_iframe_id" value="{{ old('paymob_iframe_id', $settings['paymob_iframe_id'] ?? '') }}">
+                    <input class="form-control" name="paymob_iframe_id"
+                        value="{{ old('paymob_iframe_id', $settings['paymob_iframe_id'] ?? '') }}">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">{{ __('Paymob HMAC') }}</label>
@@ -156,21 +188,26 @@
                 </div>
             </div>
             <div class="ed-panel p-3 bg-light border-0 mt-3">
-                <div class="small text-muted mb-1">{{ __('Transaction processed callback') }}: <code>{{ rtrim(config('app.url'), '/') }}/webhooks/paymob</code></div>
-                <div class="small text-muted">{{ __('Redirection URL') }}: <code>{{ rtrim(config('app.url'), '/') }}/checkout/paymob/return</code></div>
+                <div class="small text-muted mb-1">{{ __('Transaction processed callback') }}:
+                    <code>{{ rtrim(config('app.url'), '/') }}/webhooks/paymob</code></div>
+                <div class="small text-muted">{{ __('Redirection URL') }}:
+                    <code>{{ rtrim(config('app.url'), '/') }}/checkout/paymob/return</code></div>
             </div>
         </div>
 
         <div class="tab-pane fade" id="tab-paytabs" role="tabpanel">
             <div class="form-check form-switch mb-3">
                 <input type="hidden" name="paytabs_enabled" value="0">
-                <input class="form-check-input" type="checkbox" role="switch" id="paytabs_enabled" name="paytabs_enabled" value="1" @checked($settings['paytabs_enabled'] ?? true)>
-                <label class="form-check-label" for="paytabs_enabled">{{ __('Show this payment method to students') }}</label>
+                <input class="form-check-input" type="checkbox" role="switch" id="paytabs_enabled"
+                    name="paytabs_enabled" value="1" @checked($settings['paytabs_enabled'] ?? true)>
+                <label class="form-check-label"
+                    for="paytabs_enabled">{{ __('Show this payment method to students') }}</label>
             </div>
             <div class="row g-3">
                 <div class="col-md-6">
                     <label class="form-label">{{ __('PayTabs profile ID') }}</label>
-                    <input class="form-control" name="paytabs_profile_id" value="{{ old('paytabs_profile_id', $settings['paytabs_profile_id'] ?? '') }}">
+                    <input class="form-control" name="paytabs_profile_id"
+                        value="{{ old('paytabs_profile_id', $settings['paytabs_profile_id'] ?? '') }}">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">{{ __('PayTabs server key') }}</label>
@@ -187,21 +224,26 @@
                 </div>
             </div>
             <div class="ed-panel p-3 bg-light border-0 mt-3">
-                <div class="small text-muted mb-1">{{ __('Callback / IPN URL') }}: <code>{{ rtrim(config('app.url'), '/') }}/webhooks/paytabs</code></div>
-                <div class="small text-muted">{{ __('Return URL') }}: <code>{{ rtrim(config('app.url'), '/') }}/checkout/paytabs/return</code></div>
+                <div class="small text-muted mb-1">{{ __('Callback / IPN URL') }}:
+                    <code>{{ rtrim(config('app.url'), '/') }}/webhooks/paytabs</code></div>
+                <div class="small text-muted">{{ __('Return URL') }}:
+                    <code>{{ rtrim(config('app.url'), '/') }}/checkout/paytabs/return</code></div>
             </div>
         </div>
 
         <div class="tab-pane fade" id="tab-paypal" role="tabpanel">
             <div class="form-check form-switch mb-3">
                 <input type="hidden" name="paypal_enabled" value="0">
-                <input class="form-check-input" type="checkbox" role="switch" id="paypal_enabled" name="paypal_enabled" value="1" @checked($settings['paypal_enabled'] ?? true)>
-                <label class="form-check-label" for="paypal_enabled">{{ __('Show this payment method to students') }}</label>
+                <input class="form-check-input" type="checkbox" role="switch" id="paypal_enabled" name="paypal_enabled"
+                    value="1" @checked($settings['paypal_enabled'] ?? true)>
+                <label class="form-check-label"
+                    for="paypal_enabled">{{ __('Show this payment method to students') }}</label>
             </div>
             <div class="row g-3">
                 <div class="col-md-6">
                     <label class="form-label">{{ __('PayPal client ID') }}</label>
-                    <input class="form-control" name="paypal_client_id" value="{{ old('paypal_client_id', $settings['paypal_client_id'] ?? '') }}">
+                    <input class="form-control" name="paypal_client_id"
+                        value="{{ old('paypal_client_id', $settings['paypal_client_id'] ?? '') }}">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">{{ __('PayPal secret') }}</label>
@@ -209,7 +251,8 @@
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">{{ __('PayPal webhook ID') }}</label>
-                    <input class="form-control" name="paypal_webhook_id" value="{{ old('paypal_webhook_id', $settings['paypal_webhook_id'] ?? '') }}">
+                    <input class="form-control" name="paypal_webhook_id"
+                        value="{{ old('paypal_webhook_id', $settings['paypal_webhook_id'] ?? '') }}">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">{{ __('PayPal mode') }}</label>
@@ -224,29 +267,75 @@
                     @php($currentSettlementCurrency = old('paypal_settlement_currency', $settings['paypal_settlement_currency'] ?? 'USD'))
                     <select class="form-select" name="paypal_settlement_currency">
                         @foreach ($paypalCurrencies as $currencyCode)
-                            <option value="{{ $currencyCode }}" @selected($currentSettlementCurrency === $currencyCode)>{{ $currencyCode }}</option>
+                            <option value="{{ $currencyCode }}" @selected($currentSettlementCurrency === $currencyCode)>
+                                {{ $currencyCode }}</option>
                         @endforeach
                     </select>
-                    <div class="form-text">{{ __('Used only when the store currency is not natively supported by PayPal.') }}</div>
+                    <div class="form-text">
+                        {{ __('Used only when the store currency is not natively supported by PayPal.') }}</div>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">{{ __('PayPal exchange rate') }}</label>
-                    <input type="number" step="0.0001" min="0" class="form-control" name="paypal_exchange_rate" value="{{ old('paypal_exchange_rate', $settings['paypal_exchange_rate'] ?? '') }}">
-                    <div class="form-text">{{ __('How many units of the store currency equal 1 unit of the settlement currency, e.g. 49.5.') }}</div>
+                    <input type="number" step="0.0001" min="0" class="form-control" name="paypal_exchange_rate"
+                        value="{{ old('paypal_exchange_rate', $settings['paypal_exchange_rate'] ?? '') }}">
+                    <div class="form-text">
+                        {{ __('How many units of the store currency equal 1 unit of the settlement currency, e.g. 49.5.') }}
+                    </div>
                 </div>
             </div>
             <div class="ed-panel p-3 bg-light border-0 mt-3">
-                <div class="small text-muted mb-1">{{ __('Webhook endpoint') }}: <code>{{ rtrim(config('app.url'), '/') }}/webhooks/paypal</code></div>
-                <div class="small text-muted">{{ __('If the store currency is not supported by PayPal, payments are converted to the settlement currency using the exchange rate above.') }}</div>
+                <div class="small text-muted mb-1">{{ __('Webhook endpoint') }}:
+                    <code>{{ rtrim(config('app.url'), '/') }}/webhooks/paypal</code></div>
+                <div class="small text-muted">
+                    {{ __('If the store currency is not supported by PayPal, payments are converted to the settlement currency using the exchange rate above.') }}
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="tab-fawry" role="tabpanel">
+            <div class="form-check form-switch mb-3">
+                <input type="hidden" name="fawry_enabled" value="0">
+                <input class="form-check-input" type="checkbox" role="switch" id="fawry_enabled" name="fawry_enabled"
+                    value="1" @checked($settings['fawry_enabled'] ?? true)>
+                <label class="form-check-label"
+                    for="fawry_enabled">{{ __('Show this payment method to students') }}</label>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">{{ __('Fawry merchant code') }}</label>
+                    <input class="form-control" name="fawry_merchant_code"
+                        value="{{ old('fawry_merchant_code', $settings['fawry_merchant_code'] ?? '') }}">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">{{ __('Fawry security key') }}</label>
+                    <x-secret-input name="fawry_security_key" :value="old('fawry_security_key', $settings['fawry_security_key'] ?? '')" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">{{ __('Fawry mode') }}</label>
+                    @php($currentFawryMode = old('fawry_mode', $settings['fawry_mode'] ?? 'sandbox'))
+                    <select class="form-select" name="fawry_mode">
+                        <option value="sandbox" @selected($currentFawryMode === 'sandbox')>{{ __('Sandbox') }}</option>
+                        <option value="live" @selected($currentFawryMode === 'live')>{{ __('Live') }}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="ed-panel p-3 bg-light border-0 mt-3">
+                <div class="small text-muted mb-1">{{ __('Notification callback URL (Webhook)') }}:
+                    <code>{{ rtrim(config('app.url'), '/') }}/webhooks/fawry</code></div>
+                <div class="small text-muted">{{ __('Return URL') }}:
+                    <code>{{ rtrim(config('app.url'), '/') }}/checkout/fawry/return</code></div>
             </div>
         </div>
 
         <div class="tab-pane fade" id="tab-live-classes" role="tabpanel">
-            <p class="text-muted small">{{ __('Instructors connect their own Zoom and Google accounts individually from their dashboard. These credentials only register the platform app so instructors can authorize it.') }}</p>
+            <p class="text-muted small">
+                {{ __('Instructors connect their own Zoom and Google accounts individually from their dashboard. These credentials only register the platform app so instructors can authorize it.') }}
+            </p>
             <div class="row g-3">
                 <div class="col-md-6">
                     <label class="form-label">{{ __('Zoom client ID') }}</label>
-                    <input class="form-control" name="zoom_client_id" value="{{ old('zoom_client_id', $settings['zoom_client_id'] ?? '') }}">
+                    <input class="form-control" name="zoom_client_id"
+                        value="{{ old('zoom_client_id', $settings['zoom_client_id'] ?? '') }}">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">{{ __('Zoom client secret') }}</label>
@@ -254,7 +343,8 @@
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">{{ __('Google client ID') }}</label>
-                    <input class="form-control" name="google_meet_client_id" value="{{ old('google_meet_client_id', $settings['google_meet_client_id'] ?? '') }}">
+                    <input class="form-control" name="google_meet_client_id"
+                        value="{{ old('google_meet_client_id', $settings['google_meet_client_id'] ?? '') }}">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">{{ __('Google client secret') }}</label>
@@ -262,8 +352,10 @@
                 </div>
             </div>
             <div class="ed-panel p-3 bg-light border-0 mt-3">
-                <div class="small text-muted mb-1">{{ __('Zoom OAuth redirect URL') }}: <code>{{ rtrim(config('app.url'), '/') }}/instructor/integrations/zoom/callback</code></div>
-                <div class="small text-muted">{{ __('Google OAuth redirect URL') }}: <code>{{ rtrim(config('app.url'), '/') }}/instructor/integrations/google/callback</code></div>
+                <div class="small text-muted mb-1">{{ __('Zoom OAuth redirect URL') }}:
+                    <code>{{ rtrim(config('app.url'), '/') }}/instructor/integrations/zoom/callback</code></div>
+                <div class="small text-muted">{{ __('Google OAuth redirect URL') }}:
+                    <code>{{ rtrim(config('app.url'), '/') }}/instructor/integrations/google/callback</code></div>
             </div>
         </div>
     </div>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateSettingsRequest;
 use App\Services\AdminCatalogService;
+use App\Services\FawryService;
 use App\Services\PaymobService;
 use App\Services\PayPalService;
 use App\Services\PayTabsService;
@@ -15,13 +16,14 @@ use Illuminate\View\View;
 
 class SettingController extends Controller
 {
-    public function edit(StripeService $stripe, PaymobService $paymob, PayTabsService $paytabs, PayPalService $paypal): View
+    public function edit(StripeService $stripe, PaymobService $paymob, PayTabsService $paytabs, PayPalService $paypal, FawryService $fawry): View
     {
         $gateways = [
             'stripe' => ['configured' => $stripe->isConfigured()],
             'paymob' => ['configured' => $paymob->isConfigured()],
             'paytabs' => ['configured' => $paytabs->isConfigured()],
             'paypal' => ['configured' => $paypal->isConfigured()],
+            'fawry' => ['configured' => $fawry->isConfigured()],
         ];
 
         $settings = SettingService::many([
@@ -55,6 +57,10 @@ class SettingController extends Controller
             'paymob_enabled' => true,
             'paytabs_enabled' => true,
             'paypal_enabled' => true,
+            'fawry_merchant_code' => '',
+            'fawry_security_key' => '',
+            'fawry_mode' => 'sandbox',
+            'fawry_enabled' => true,
         ]);
 
         $paypalCurrencies = PayPalService::supportedCurrencies();
