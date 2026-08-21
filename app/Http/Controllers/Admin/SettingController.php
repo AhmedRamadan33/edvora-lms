@@ -28,7 +28,7 @@ class SettingController extends Controller
 
         $settings = SettingService::many([
             'platform_name' => 'Edvora',
-            'platform_email' => config('mail.from.address', 'support@edvora.test'),
+            'platform_email' => config('mail.from.address', 'info@edvora.codeversetechno.com'),
             'platform_phone' => '+01199676020',
             'default_commission' => config('edvora.default_commission'),
             'currency' => config('edvora.currency'),

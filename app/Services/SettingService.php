@@ -47,7 +47,7 @@ class SettingService
 
     public static function platformEmail(): string
     {
-        return (string) static::get('platform_email', config('mail.from.address', 'support@edvora.test'));
+        return (string) static::get('platform_email', config('mail.from.address', 'info@edvora.codeversetechno.com'));
     }
 
     public static function platformPhone(): string

@@ -40,7 +40,7 @@
             <h2 class="h5 mb-3">{{ __('Support') }}</h2>
             <p class="text-muted">{{ __('For partnerships, instructor onboarding, or payment support, reach out anytime.') }}</p>
             <div class="d-grid gap-2 mt-4">
-                <div><strong>{{ __('Email') }}</strong><div class="text-muted">support@edvora.test</div></div>
+                <div><strong>{{ __('Email') }}</strong><div class="text-muted">info@edvora.codeversetechno.com</div></div>
                 <div><strong>{{ __('Hours') }}</strong><div class="text-muted">{{ __('Sunday - Thursday, 10:00 - 18:00') }}</div></div>
             </div>
         </div>
