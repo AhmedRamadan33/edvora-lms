@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ActivityLog;
 use App\Models\Category;
 use App\Repositories\CategoryRepository;
 use Illuminate\Support\Str;
@@ -29,6 +30,8 @@ class CategoryService
 
         $this->syncTranslations($category, $data);
 
+        ActivityLog::record('category.created', $category, ['name' => $data['name_en']]);
+
         return $category;
     }
 
@@ -42,12 +45,20 @@ class CategoryService
 
         $this->syncTranslations($category, $data);
 
+        ActivityLog::record('category.updated', $category, ['name' => $data['name_en']]);
+
         return $category->refresh();
     }
 
     public function delete(Category $category): bool
     {
-        return $this->categories->delete($category);
+        $name = $category->translation()?->name;
+
+        $result = $this->categories->delete($category);
+
+        ActivityLog::record('category.deleted', $category, ['name' => $name]);
+
+        return $result;
     }
 
     protected function syncTranslations(Category $category, array $data): void

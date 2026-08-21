@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ActivityLog;
 use App\Models\Course;
 use App\Models\Review;
 use App\Models\User;
@@ -25,6 +26,8 @@ class ReviewService
 
         $this->recalculateCourseRating($course);
 
+        ActivityLog::record('review.saved', $review, ['course' => $course->translation()?->title, 'rating' => $review->rating]);
+
         return $review;
     }
 
@@ -35,6 +38,8 @@ class ReviewService
         $course = $review->course;
         $this->reviews->delete($review);
         $this->recalculateCourseRating($course);
+
+        ActivityLog::record('review.deleted', $review, ['course' => $course->translation()?->title]);
     }
 
     public function approve(Review $review, User $admin): void
@@ -46,6 +51,8 @@ class ReviewService
         ]);
 
         $this->recalculateCourseRating($review->course);
+
+        ActivityLog::record('review.approved', $review, ['course' => $review->course?->translation()?->title]);
     }
 
     public function reject(Review $review, User $admin, string $note): void
@@ -58,6 +65,8 @@ class ReviewService
         ]);
 
         $this->recalculateCourseRating($review->course);
+
+        ActivityLog::record('review.rejected', $review, ['course' => $review->course?->translation()?->title]);
     }
 
     public function deleteAsAdmin(Review $review): void
@@ -65,6 +74,8 @@ class ReviewService
         $course = $review->course;
         $this->reviews->delete($review);
         $this->recalculateCourseRating($course);
+
+        ActivityLog::record('review.deleted_by_admin', $review, ['course' => $course->translation()?->title]);
     }
 
     public function listForAdmin(array $filters): LengthAwarePaginator

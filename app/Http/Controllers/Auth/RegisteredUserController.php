@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\RegisterUserRequest;
+use App\Models\ActivityLog;
 use App\Models\InstructorProfile;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
@@ -41,6 +42,8 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
         Auth::login($user);
+
+        ActivityLog::record('auth.registered', $user);
 
         return redirect(route('dashboard', absolute: false));
     }

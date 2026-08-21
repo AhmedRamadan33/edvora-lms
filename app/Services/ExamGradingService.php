@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ActivityLog;
 use App\Models\Exam;
 use App\Models\ExamAttempt;
 use App\Models\User;
@@ -69,7 +70,14 @@ class ExamGradingService
                 'reviewed_by' => $instructor->id,
             ]);
 
-            return $attempt->fresh('answers.bankQuestion.choices', 'answers.bankQuestion.matches', 'user', 'exam', 'reviewer');
+            $attempt = $attempt->fresh('answers.bankQuestion.choices', 'answers.bankQuestion.matches', 'user', 'exam', 'reviewer');
+
+            ActivityLog::record('exam_attempt.graded', $attempt, [
+                'exam' => $attempt->exam?->title,
+                'student' => $attempt->user?->name,
+            ]);
+
+            return $attempt;
         });
     }
 

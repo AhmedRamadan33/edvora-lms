@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ActivityLog;
 use App\Models\Course;
 use App\Models\User;
 use App\Repositories\CourseRepository;
@@ -42,6 +43,8 @@ class CourseService
 
         $this->syncTranslations($course, $data);
 
+        ActivityLog::record('course.created', $course, ['title' => $data['title_en']]);
+
         return $course;
     }
 
@@ -66,6 +69,8 @@ class CourseService
         $this->courses->update($course, $payload);
         $this->syncTranslations($course, $data);
 
+        ActivityLog::record('course.updated', $course, ['title' => $data['title_en'] ?? $course->translation()?->title]);
+
         return $course->refresh();
     }
 
@@ -79,6 +84,8 @@ class CourseService
             'status' => 'pending_review',
             'rejection_reason' => null,
         ]);
+
+        ActivityLog::record('course.submitted', $course, ['title' => $course->translation()?->title]);
 
         return ['ok' => true, 'message' => __('Course submitted for review.')];
     }

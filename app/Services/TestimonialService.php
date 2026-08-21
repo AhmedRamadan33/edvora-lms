@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ActivityLog;
 use App\Models\Testimonial;
 use App\Repositories\TestimonialRepository;
 
@@ -21,7 +22,11 @@ class TestimonialService
         $data['is_published'] = $isPublished;
         $data['show_on_home'] = $showOnHome;
 
-        return $this->testimonials->create($data);
+        $testimonial = $this->testimonials->create($data);
+
+        ActivityLog::record('testimonial.created', $testimonial, ['name' => $testimonial->name]);
+
+        return $testimonial;
     }
 
     public function update(Testimonial $testimonial, array $data, bool $isPublished, bool $showOnHome): Testimonial
@@ -29,11 +34,21 @@ class TestimonialService
         $data['is_published'] = $isPublished;
         $data['show_on_home'] = $showOnHome;
 
-        return $this->testimonials->update($testimonial, $data);
+        $testimonial = $this->testimonials->update($testimonial, $data);
+
+        ActivityLog::record('testimonial.updated', $testimonial, ['name' => $testimonial->name]);
+
+        return $testimonial;
     }
 
     public function delete(Testimonial $testimonial): bool
     {
-        return $this->testimonials->delete($testimonial);
+        $name = $testimonial->name;
+
+        $result = $this->testimonials->delete($testimonial);
+
+        ActivityLog::record('testimonial.deleted', $testimonial, ['name' => $name]);
+
+        return $result;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ActivityLog;
 use App\Models\LiveClass;
 use App\Models\OAuthConnection;
 use App\Models\User;
@@ -70,7 +71,7 @@ class ZoomService
             ->get(self::API_BASE.'/users/me')
             ->throw()->json();
 
-        OAuthConnection::query()->updateOrCreate(
+        $connection = OAuthConnection::query()->updateOrCreate(
             ['user_id' => $instructor->id, 'provider' => OAuthConnection::PROVIDER_ZOOM],
             [
                 'provider_user_id' => $profile['id'] ?? null,
@@ -81,6 +82,8 @@ class ZoomService
                 'scopes' => $response['scope'] ?? null,
             ]
         );
+
+        ActivityLog::record('oauth.connected', $connection, ['provider' => 'Zoom']);
     }
 
     public function disconnect(User $instructor): void
@@ -105,6 +108,8 @@ class ZoomService
         }
 
         $connection->delete();
+
+        ActivityLog::record('oauth.disconnected', $connection, ['provider' => 'Zoom']);
     }
 
     public function connectionFor(User $instructor): ?OAuthConnection

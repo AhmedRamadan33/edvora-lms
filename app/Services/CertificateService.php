@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ActivityLog;
 use App\Models\Certificate;
 use App\Models\Course;
 use App\Models\Enrollment;
@@ -21,13 +22,19 @@ class CertificateService
             return null;
         }
 
-        return Certificate::query()->firstOrCreate(
+        $certificate = Certificate::query()->firstOrCreate(
             [
                 'user_id' => $user->id,
                 'course_id' => $course->id,
             ],
             ['issued_at' => now()]
         );
+
+        if ($certificate->wasRecentlyCreated) {
+            ActivityLog::record('certificate.issued', $certificate, ['course' => $course->translation()?->title]);
+        }
+
+        return $certificate;
     }
 
     public function download(Certificate $certificate)
@@ -44,6 +51,8 @@ class CertificateService
             'instructorName' => $certificate->course->instructor?->name ?? SettingService::platformName(),
             'verificationUrl' => route('certificates.verify', $certificate->code),
         ])->setPaper('a4', 'landscape');
+
+        ActivityLog::record('certificate.downloaded', $certificate, ['course' => $courseTitle]);
 
         return $pdf->download('certificate-'.$certificate->code.'.pdf');
     }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\UserService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -28,13 +29,13 @@ class UserController extends Controller
         return view('admin.users.index', compact('users'));
     }
 
-    public function toggle(User $user): RedirectResponse
+    public function toggle(User $user, UserService $users): RedirectResponse
     {
         if ($user->hasRole('admin')) {
             return back()->with('error', __('Cannot deactivate admin.'));
         }
 
-        $user->update(['is_active' => ! $user->is_active]);
+        $users->toggleActive($user);
 
         return back()->with('success', __('User status updated.'));
     }

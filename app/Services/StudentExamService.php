@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ActivityLog;
 use App\Models\BankQuestion;
 use App\Models\Exam;
 use App\Models\ExamAttempt;
@@ -40,12 +41,16 @@ class StudentExamService
 
         abort_if($this->attempts->forExamAndUser($exam->id, $student->id), 403, __('You have already attempted this exam.'));
 
-        return $this->attempts->create([
+        $attempt = $this->attempts->create([
             'exam_id' => $exam->id,
             'user_id' => $student->id,
             'started_at' => now(),
             'total_points' => (int) $exam->questions()->sum('points'),
         ]);
+
+        ActivityLog::record('exam_attempt.started', $attempt, ['exam' => $exam->title]);
+
+        return $attempt;
     }
 
     public function submitAttempt(ExamAttempt $attempt, array $answers): ExamAttempt
@@ -84,6 +89,9 @@ class StudentExamService
                 'auto_score' => $autoScore,
                 'passed' => $passed,
             ]);
+
+            $score = $attempt->total_points > 0 ? (int) round(($autoScore / $attempt->total_points) * 100) : 0;
+            ActivityLog::record('exam_attempt.submitted', $attempt, ['exam' => $attempt->exam?->title, 'score' => $score]);
 
             return $attempt->fresh('answers.bankQuestion.choices', 'answers.bankQuestion.matches', 'answers.bankQuestion.subject');
         });

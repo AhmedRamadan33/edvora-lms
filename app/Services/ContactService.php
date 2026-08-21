@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ActivityLog;
 use App\Models\ContactMessage;
 use App\Repositories\ContactMessageRepository;
 
@@ -24,10 +25,12 @@ class ContactService
     public function markRead(ContactMessage $message): ContactMessage
     {
         if ($message->status === 'new') {
-            return $this->messages->update($message, [
+            $message = $this->messages->update($message, [
                 'status' => 'read',
                 'read_at' => now(),
             ]);
+
+            ActivityLog::record('contact_message.read', $message, ['name' => $message->name]);
         }
 
         return $message;
@@ -35,6 +38,12 @@ class ContactService
 
     public function delete(ContactMessage $message): bool
     {
-        return $this->messages->delete($message);
+        $name = $message->name;
+
+        $result = $this->messages->delete($message);
+
+        ActivityLog::record('contact_message.deleted', $message, ['name' => $name]);
+
+        return $result;
     }
 }

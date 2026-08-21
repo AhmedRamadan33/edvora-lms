@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ActivityLog;
 use App\Models\Page;
 use App\Repositories\PageRepository;
 use Illuminate\Support\Str;
@@ -27,6 +28,8 @@ class PageService
 
         $this->syncTranslations($page, $data);
 
+        ActivityLog::record('page.created', $page, ['title' => $data['title_en']]);
+
         return $page;
     }
 
@@ -34,6 +37,8 @@ class PageService
     {
         $this->pages->update($page, ['is_published' => $isPublished]);
         $this->syncTranslations($page, $data);
+
+        ActivityLog::record('page.updated', $page, ['title' => $data['title_en']]);
 
         return $page->refresh();
     }

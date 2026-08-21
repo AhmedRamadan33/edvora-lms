@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ActivityLog;
 use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Question;
@@ -18,10 +19,14 @@ class CurriculumService
 
     public function addSection(Course $course, string $title): Section
     {
-        return $course->sections()->create([
+        $section = $course->sections()->create([
             'title' => $title,
             'sort_order' => $course->sections()->count() + 1,
         ]);
+
+        ActivityLog::record('section.created', $section, ['title' => $title, 'course' => $course->translation()?->title]);
+
+        return $section;
     }
 
     public function addLesson(Course $course, Section $section, array $data, ?UploadedFile $attachment = null): Lesson
@@ -46,6 +51,8 @@ class CurriculumService
             $this->attachQuiz($lesson, $data);
         }
 
+        ActivityLog::record('lesson.created', $lesson, ['title' => $lesson->title, 'course' => $course->translation()?->title]);
+
         return $lesson;
     }
 
@@ -58,6 +65,8 @@ class CurriculumService
         }
 
         $lesson->delete();
+
+        ActivityLog::record('lesson.deleted', $lesson, ['title' => $lesson->title, 'course' => $course->translation()?->title]);
     }
 
     public function requestVideoUploadCredentials(string $title): array

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ActivityLog;
 use App\Models\Enrollment;
 use App\Models\Lesson;
 use App\Models\LessonProgress;
@@ -30,6 +31,11 @@ class ProgressService
         );
 
         $justCompletedCourse = $this->recalculate($user->id, $lesson->course_id);
+
+        ActivityLog::record('lesson.completed', $lesson, [
+            'title' => $lesson->title,
+            'course' => $lesson->course?->translation()?->title,
+        ]);
 
         return ['progress' => $progress, 'justCompletedCourse' => $justCompletedCourse];
     }

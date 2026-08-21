@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ActivityLog;
 use App\Models\InstructorEarning;
 use App\Models\InstructorProfile;
 use App\Models\PayoutRequest;
@@ -23,6 +24,8 @@ class InstructorProfileService
         $profile->update($data);
 
         $user->syncRoles(['instructor']);
+
+        ActivityLog::record('instructor_profile.updated', $profile);
 
         return $profile->refresh();
     }

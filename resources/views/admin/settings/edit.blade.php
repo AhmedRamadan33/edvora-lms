@@ -105,9 +105,7 @@
                                 {{ __('Official platform currency for courses, checkout, Stripe, and Paymob. Changing it updates all courses.') }}
                             </div>
                         @endif
-                        @if($key === 'platform_phone')
-                            <div class="form-text">{{ __('Shown in the public site footer.') }}</div>
-                        @endif
+                        
                     </div>
                 @endforeach
             </div>

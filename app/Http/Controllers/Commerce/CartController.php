@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Commerce;
 use App\Http\Controllers\Controller;
 use App\Models\CartItem;
 use App\Models\Course;
+use App\Services\CartService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -22,7 +23,7 @@ class CartController extends Controller
         return view('commerce.cart', compact('items', 'subtotal'));
     }
 
-    public function store(Course $course): RedirectResponse
+    public function store(Course $course, CartService $cart): RedirectResponse
     {
         abort_unless($course->isPublished(), 404);
 
@@ -30,20 +31,14 @@ class CartController extends Controller
             return back()->with('error', __('Already enrolled.'));
         }
 
-        CartItem::query()->firstOrCreate([
-            'user_id' => auth()->id(),
-            'course_id' => $course->id,
-        ]);
+        $cart->add(auth()->user(), $course);
 
         return redirect()->route('cart.index')->with('success', __('Added to cart.'));
     }
 
-    public function destroy(Course $course): RedirectResponse
+    public function destroy(Course $course, CartService $cart): RedirectResponse
     {
-        CartItem::query()
-            ->where('user_id', auth()->id())
-            ->where('course_id', $course->id)
-            ->delete();
+        $cart->remove(auth()->user(), $course);
 
         return back()->with('success', __('Removed from cart.'));
     }

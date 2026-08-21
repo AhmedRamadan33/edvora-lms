@@ -72,7 +72,7 @@ class OrderFulfillmentService
 
             $this->cart->clearForUser($order->user_id);
 
-            ActivityLog::record('order.paid', $order, ['provider' => $provider, 'reference' => $reference]);
+            ActivityLog::record('order.paid', $order, ['number' => $order->number, 'provider' => $provider, 'reference' => $reference]);
 
             $order->user?->notify(new OrderPaidNotification($order));
         });
@@ -99,7 +99,7 @@ class OrderFulfillmentService
                 'payload' => $payload,
             ]);
 
-            ActivityLog::record('order.failed', $order, ['provider' => $provider, 'reference' => $reference]);
+            ActivityLog::record('order.failed', $order, ['number' => $order->number, 'provider' => $provider, 'reference' => $reference]);
         });
     }
 

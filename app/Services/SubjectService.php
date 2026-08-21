@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ActivityLog;
 use App\Models\Course;
 use App\Models\Subject;
 use App\Models\User;
@@ -21,14 +22,23 @@ class SubjectService
 
     public function create(Course $course, string $name): Subject
     {
-        return $this->subjects->create([
+        $subject = $this->subjects->create([
             'course_id' => $course->id,
             'name' => trim($name),
         ]);
+
+        ActivityLog::record('subject.created', $subject, ['name' => $subject->name, 'course' => $course->translation()?->title]);
+
+        return $subject;
     }
 
     public function delete(Subject $subject): void
     {
+        $name = $subject->name;
+        $course = $subject->course;
+
         $this->subjects->delete($subject);
+
+        ActivityLog::record('subject.deleted', $subject, ['name' => $name, 'course' => $course?->translation()?->title]);
     }
 }

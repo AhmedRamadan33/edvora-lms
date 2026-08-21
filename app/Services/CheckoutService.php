@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ActivityLog;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\User;
@@ -75,6 +76,8 @@ class CheckoutService
             return ['ok' => false, 'message' => __('Invalid coupon.')];
         }
 
+        ActivityLog::record('coupon.applied', $coupon, ['code' => $coupon->code]);
+
         return ['ok' => true, 'code' => $coupon->code, 'message' => __('Coupon applied.')];
     }
 
@@ -131,6 +134,8 @@ class CheckoutService
 
             return $order->load('items.course.translations', 'user', 'coupon');
         });
+
+        ActivityLog::record('order.created', $order, ['number' => $order->number]);
 
         // Free / 100% discounted orders skip gateways.
         if ((float) $order->total <= 0) {

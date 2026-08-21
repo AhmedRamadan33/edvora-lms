@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ActivityLog;
 use App\Models\LiveClass;
 use App\Models\OAuthConnection;
 use App\Models\User;
@@ -76,19 +77,21 @@ class GoogleMeetService
             ->get('https://www.googleapis.com/oauth2/v2/userinfo')
             ->throw()->json();
 
-        $connection = $this->connectionFor($instructor);
+        $existing = $this->connectionFor($instructor);
 
-        OAuthConnection::query()->updateOrCreate(
+        $connection = OAuthConnection::query()->updateOrCreate(
             ['user_id' => $instructor->id, 'provider' => OAuthConnection::PROVIDER_GOOGLE_MEET],
             [
                 'provider_user_id' => $profile['id'] ?? null,
                 'provider_email' => $profile['email'] ?? null,
                 'access_token' => $response['access_token'],
-                'refresh_token' => $response['refresh_token'] ?? $connection?->refresh_token,
+                'refresh_token' => $response['refresh_token'] ?? $existing?->refresh_token,
                 'expires_at' => now()->addSeconds((int) ($response['expires_in'] ?? 3600)),
                 'scopes' => $response['scope'] ?? null,
             ]
         );
+
+        ActivityLog::record('oauth.connected', $connection, ['provider' => 'Google Meet']);
     }
 
     public function disconnect(User $instructor): void
@@ -112,6 +115,8 @@ class GoogleMeetService
         }
 
         $connection->delete();
+
+        ActivityLog::record('oauth.disconnected', $connection, ['provider' => 'Google Meet']);
     }
 
     public function connectionFor(User $instructor): ?OAuthConnection

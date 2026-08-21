@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ActivityLog;
 use App\Models\Course;
 use App\Models\CourseAnswer;
 use App\Models\CourseQuestion;
@@ -39,13 +40,15 @@ class LearnService
         $score = (int) round(($correct / $total) * 100);
         $passed = $score >= $quiz->pass_percent;
 
-        QuizAttempt::query()->create([
+        $attempt = QuizAttempt::query()->create([
             'quiz_id' => $quiz->id,
             'user_id' => $user->id,
             'score' => $score,
             'passed' => $passed,
             'answers' => $answers,
         ]);
+
+        ActivityLog::record('quiz.submitted', $attempt, ['title' => $lesson->title, 'score' => $score]);
 
         $courseJustCompleted = false;
 
@@ -65,23 +68,31 @@ class LearnService
 
     public function ask(User $user, Course $course, Lesson $lesson, array $data): CourseQuestion
     {
-        return CourseQuestion::query()->create([
+        $question = CourseQuestion::query()->create([
             'course_id' => $course->id,
             'lesson_id' => $lesson->id,
             'user_id' => $user->id,
             'title' => $data['title'],
             'body' => $data['body'],
         ]);
+
+        ActivityLog::record('question.asked', $question, ['course' => $course->translation()?->title]);
+
+        return $question;
     }
 
     public function answer(User $user, Course $course, CourseQuestion $question, array $data): CourseAnswer
     {
         abort_unless($question->course_id === $course->id, 404);
 
-        return CourseAnswer::query()->create([
+        $answer = CourseAnswer::query()->create([
             'course_question_id' => $question->id,
             'user_id' => $user->id,
             'body' => $data['body'],
         ]);
+
+        ActivityLog::record('question.answered', $answer, ['course' => $course->translation()?->title]);
+
+        return $answer;
     }
 }

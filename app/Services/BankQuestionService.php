@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ActivityLog;
 use App\Models\BankQuestion;
 use App\Models\Course;
 use App\Models\User;
@@ -41,6 +42,8 @@ class BankQuestionService
 
             $this->syncAnswers($question, $data);
 
+            ActivityLog::record('bank_question.created', $question, ['course' => $course->translation()?->title]);
+
             return $question->load('choices', 'matches', 'subject');
         });
     }
@@ -64,18 +67,28 @@ class BankQuestionService
             $question->matches()->delete();
             $this->syncAnswers($question, $data, $previousChoiceImages);
 
+            ActivityLog::record('bank_question.updated', $question, ['course' => $question->course?->translation()?->title]);
+
             return $question->load('choices', 'matches', 'subject');
         });
     }
 
     public function delete(BankQuestion $question): void
     {
+        $course = $question->course;
+
         $this->questions->delete($question);
+
+        ActivityLog::record('bank_question.deleted', $question, ['course' => $course?->translation()?->title]);
     }
 
     public function toggleActive(BankQuestion $question): BankQuestion
     {
-        return $this->questions->update($question, ['is_active' => ! $question->is_active]);
+        $question = $this->questions->update($question, ['is_active' => ! $question->is_active]);
+
+        ActivityLog::record('bank_question.toggled', $question, ['course' => $question->course?->translation()?->title, 'active' => $question->is_active]);
+
+        return $question;
     }
 
     protected function syncAnswers(BankQuestion $question, array $data, array $previousChoiceImages = []): void

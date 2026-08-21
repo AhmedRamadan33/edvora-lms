@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ActivityLog;
 use App\Models\BankQuestion;
 use App\Models\Course;
 use App\Models\Exam;
@@ -45,6 +46,8 @@ class ExamService
 
             $shortfalls = $this->applyRules($exam, $course, $data['rules']);
 
+            ActivityLog::record('exam.created', $exam, ['title' => $exam->title, 'course' => $course->translation()?->title]);
+
             return [
                 'exam' => $exam->load('examQuestions.bankQuestion'),
                 'shortfalls' => $shortfalls,
@@ -54,11 +57,15 @@ class ExamService
 
     public function update(Exam $exam, array $data): Exam
     {
-        return $this->exams->update($exam, [
+        $exam = $this->exams->update($exam, [
             'title' => $data['title'],
             'duration_minutes' => $data['duration_minutes'] ?? null,
             'pass_percent' => $data['pass_percent'] ?? $exam->pass_percent,
         ]);
+
+        ActivityLog::record('exam.updated', $exam, ['title' => $exam->title]);
+
+        return $exam;
     }
 
     /**
@@ -68,7 +75,14 @@ class ExamService
      */
     public function addQuestions(Exam $exam, array $rules): array
     {
-        return DB::transaction(fn () => $this->applyRules($exam, $exam->course, $rules));
+        $before = $exam->examQuestions()->count();
+
+        $shortfalls = DB::transaction(fn () => $this->applyRules($exam, $exam->course, $rules));
+
+        $added = $exam->examQuestions()->count() - $before;
+        ActivityLog::record('exam.questions_added', $exam, ['title' => $exam->title, 'count' => $added]);
+
+        return $shortfalls;
     }
 
     public function removeQuestion(Exam $exam, ExamQuestion $examQuestion): void
@@ -76,6 +90,8 @@ class ExamService
         abort_unless($examQuestion->exam_id === $exam->id, 404);
 
         $examQuestion->delete();
+
+        ActivityLog::record('exam.question_removed', $exam, ['title' => $exam->title]);
     }
 
     public function paginateQuestions(Exam $exam, int $perPage = 15): LengthAwarePaginator
@@ -87,14 +103,22 @@ class ExamService
 
     public function toggleStatus(Exam $exam): Exam
     {
-        return $this->exams->update($exam, [
+        $exam = $this->exams->update($exam, [
             'status' => $exam->status === 'published' ? 'draft' : 'published',
         ]);
+
+        ActivityLog::record('exam.status_toggled', $exam, ['title' => $exam->title, 'status' => $exam->status]);
+
+        return $exam;
     }
 
     public function delete(Exam $exam): void
     {
+        $title = $exam->title;
+
         $this->exams->delete($exam);
+
+        ActivityLog::record('exam.deleted', $exam, ['title' => $title]);
     }
 
     /**

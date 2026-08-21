@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ActivityLog;
 use App\Models\Course;
 use App\Models\LiveClass;
 use App\Models\User;
@@ -59,6 +60,12 @@ class LiveClassService
 
         $this->notifyEnrolledStudents($liveClass);
 
+        ActivityLog::record('live_class.scheduled', $liveClass, [
+            'title' => $liveClass->title,
+            'course' => $course->translation()?->title,
+            'provider' => $this->providerLabel($provider),
+        ]);
+
         return $liveClass;
     }
 
@@ -75,6 +82,8 @@ class LiveClassService
 
         $liveClass->save();
 
+        ActivityLog::record('live_class.rescheduled', $liveClass, ['title' => $liveClass->title]);
+
         return $liveClass;
     }
 
@@ -82,7 +91,11 @@ class LiveClassService
     {
         $this->providerService($liveClass->provider)->deleteMeeting($liveClass->instructor, $liveClass);
 
+        $title = $liveClass->title;
+
         $liveClass->delete();
+
+        ActivityLog::record('live_class.deleted', $liveClass, ['title' => $title]);
     }
 
     protected function providerService(string $provider): ZoomService|GoogleMeetService
