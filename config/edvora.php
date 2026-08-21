@@ -40,6 +40,12 @@ return [
         'mode' => env('PAYPAL_MODE', 'sandbox'),
     ],
 
+    'fawry' => [
+        'merchant_code' => env('FAWRY_MERCHANT_CODE'),
+        'security_key' => env('FAWRY_SECURITY_KEY'),
+        'mode' => env('FAWRY_MODE', 'sandbox'), // sandbox | live
+    ],
+
     'display_timezone' => env('EDVORA_DISPLAY_TIMEZONE', 'Africa/Cairo'),
 
     'zoom' => [

@@ -55,6 +55,10 @@ class UpdateSettingsRequest extends FormRequest
             'paymob_enabled' => ['nullable', 'in:0,1'],
             'paytabs_enabled' => ['nullable', 'in:0,1'],
             'paypal_enabled' => ['nullable', 'in:0,1'],
+            'fawry_merchant_code' => ['nullable', 'string'],
+            'fawry_security_key' => ['nullable', 'string'],
+            'fawry_mode' => ['nullable', Rule::in(['sandbox', 'live'])],
+            'fawry_enabled' => ['nullable', 'in:0,1'],
         ];
     }
 }

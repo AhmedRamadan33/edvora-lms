@@ -19,6 +19,7 @@ class CheckoutService
         private PaymobService $paymob,
         private PayTabsService $paytabs,
         private PayPalService $paypal,
+        private FawryService $fawry,
         private OrderFulfillmentService $fulfillment,
     ) {
     }
@@ -26,7 +27,7 @@ class CheckoutService
     public function summary(User $user, ?string $couponCode = null): array
     {
         $items = $this->cart->itemsForUser($user->id);
-        $subtotal = $items->sum(fn ($item) => (float) $item->course->price);
+        $subtotal = $items->sum(fn($item) => (float) $item->course->price);
         $coupon = $couponCode ? $this->cart->findCouponByCode($couponCode) : null;
         $discount = $coupon?->discountFor($subtotal) ?? 0;
 
@@ -55,6 +56,10 @@ class CheckoutService
                     'enabled' => $this->paypal->isEnabledByAdmin() && ($this->paypal->isConfigured() || config('edvora.payments.allow_demo')),
                     'configured' => $this->paypal->isConfigured(),
                 ],
+                'fawry' => [
+                    'enabled' => $this->fawry->isEnabledByAdmin() && ($this->fawry->isConfigured() || config('edvora.payments.allow_demo')),
+                    'configured' => $this->fawry->isConfigured(),
+                ],
             ],
             'demo_mode' => (bool) config('edvora.payments.allow_demo'),
         ];
@@ -64,9 +69,9 @@ class CheckoutService
     {
         $coupon = $this->cart->findCouponByCode($code);
         $subtotal = $this->cart->itemsForUser($user->id)
-            ->sum(fn ($item) => (float) $item->course->price);
+            ->sum(fn($item) => (float) $item->course->price);
 
-        if (! $coupon || ! $coupon->isValid($subtotal)) {
+        if (!$coupon || !$coupon->isValid($subtotal)) {
             return ['ok' => false, 'message' => __('Invalid coupon.')];
         }
 
@@ -80,15 +85,15 @@ class CheckoutService
             return ['ok' => false, 'message' => __('Cart is empty.'), 'redirect' => route('cart.index')];
         }
 
-        if (! in_array($provider, ['stripe', 'paymob', 'paytabs', 'paypal'], true)) {
+        if (!in_array($provider, ['stripe', 'paymob', 'paytabs', 'paypal', 'fawry'], true)) {
             return ['ok' => false, 'message' => __('Invalid payment method.'), 'redirect' => route('checkout.show')];
         }
 
         $order = DB::transaction(function () use ($cartItems, $user, $couponCode, $provider) {
-            $subtotal = $cartItems->sum(fn ($item) => (float) $item->course->price);
+            $subtotal = $cartItems->sum(fn($item) => (float) $item->course->price);
             $coupon = $couponCode ? $this->cart->findCouponByCode($couponCode) : null;
 
-            if ($coupon && ! $coupon->isValid($subtotal)) {
+            if ($coupon && !$coupon->isValid($subtotal)) {
                 $coupon = null;
             }
 
@@ -96,7 +101,7 @@ class CheckoutService
             $currency = SettingService::currency();
 
             $order = Order::query()->create([
-                'number' => 'EDV-'.strtoupper(Str::random(10)),
+                'number' => 'EDV-' . strtoupper(Str::random(10)),
                 'user_id' => $user->id,
                 'coupon_id' => $coupon?->id,
                 'subtotal' => $subtotal,
@@ -129,7 +134,7 @@ class CheckoutService
 
         // Free / 100% discounted orders skip gateways.
         if ((float) $order->total <= 0) {
-            $this->fulfillment->markPaid($order, $provider, 'free-'.Str::lower(Str::random(8)), [
+            $this->fulfillment->markPaid($order, $provider, 'free-' . Str::lower(Str::random(8)), [
                 'type' => 'free_order',
             ]);
 
@@ -143,14 +148,15 @@ class CheckoutService
             'stripe' => $this->startStripe($order),
             'paytabs' => $this->startPayTabs($order),
             'paypal' => $this->startPayPal($order),
+            'fawry' => $this->startFawry($order),
             default => $this->startPaymob($order),
         };
     }
 
     protected function startStripe(Order $order): array
     {
-        if (! $this->stripe->isConfigured()) {
-            if (! config('edvora.payments.allow_demo')) {
+        if (!$this->stripe->isConfigured()) {
+            if (!config('edvora.payments.allow_demo')) {
                 return [
                     'ok' => false,
                     'message' => __('Stripe is not configured.'),
@@ -260,6 +266,48 @@ class CheckoutService
         }
     }
 
+    protected function startFawry(Order $order): array
+    {
+        if (!$this->fawry->isConfigured()) {
+            if (!config('edvora.payments.allow_demo')) {
+                return [
+                    'ok' => false,
+                    'message' => __('Fawry is not configured.'),
+                    'redirect' => route('checkout.show'),
+                ];
+            }
+
+            $this->fulfillment->markPendingPayment($order, 'fawry', 'demo-pending');
+
+            return [
+                'ok' => true,
+                'redirect' => route('checkout.fawry.demo', $order),
+            ];
+        }
+
+        try {
+            $fawrySession = $this->fawry->createPaymentRequest($order);
+
+            return ['ok' => true, 'redirect' => $fawrySession['redirect_url']];
+        } catch (\Throwable $e) {
+            Log::error('Fawry checkout failed', [
+                'order_id' => $order->id,
+                'message' => $e->getMessage(),
+            ]);
+
+            $this->fulfillment->markFailed($order, 'fawry', null, [
+                'error' => $e->getMessage(),
+            ]);
+
+            return [
+                'ok' => false,
+                'message' => __('Unable to start Fawry payment. Please try again.'),
+                'redirect' => route('checkout.show'),
+            ];
+        }
+    }
+
+
     public function completeSuccess(
         User $user,
         Order $order,
@@ -300,7 +348,7 @@ class CheckoutService
                 $this->fulfillment->markPaid(
                     $order->load('items.course', 'user', 'coupon'),
                     $provider ?: ($order->payment_method ?: 'stripe'),
-                    'demo-'.Str::random(8),
+                    'demo-' . Str::random(8),
                     ['demo' => true]
                 );
             }

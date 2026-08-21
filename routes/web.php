@@ -65,10 +65,12 @@ Route::post('/webhooks/stripe', [WebhookController::class, 'stripe'])->name('web
 Route::post('/webhooks/paymob', [WebhookController::class, 'paymob'])->name('webhooks.paymob');
 Route::post('/webhooks/paytabs', [WebhookController::class, 'paytabs'])->name('webhooks.paytabs');
 Route::post('/webhooks/paypal', [WebhookController::class, 'paypal'])->name('webhooks.paypal');
+Route::post('/webhooks/fawry', [WebhookController::class, 'fawry'])->name('webhooks.fawry');
 Route::post('/webhooks/vdocipher', [VdoCipherWebhookController::class, 'handle'])->name('webhooks.vdocipher');
 Route::get('/checkout/paymob/return', [CheckoutController::class, 'paymobReturn'])->name('checkout.paymob.return');
 Route::post('/checkout/paytabs/return', [CheckoutController::class, 'paytabsReturn'])->name('checkout.paytabs.return');
 Route::get('/checkout/paypal/return', [CheckoutController::class, 'paypalReturn'])->name('checkout.paypal.return');
+Route::get('/checkout/fawry/return', [CheckoutController::class, 'fawryReturn'])->name('checkout.fawry.return');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
@@ -89,6 +91,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/checkout/{order}/paymob-demo', [CheckoutController::class, 'paymobDemo'])->name('checkout.paymob.demo');
     Route::get('/checkout/{order}/paytabs-demo', [CheckoutController::class, 'paytabsDemo'])->name('checkout.paytabs.demo');
     Route::get('/checkout/{order}/paypal-demo', [CheckoutController::class, 'paypalDemo'])->name('checkout.paypal.demo');
+    Route::get('/checkout/{order}/fawry-demo', [CheckoutController::class, 'fawryDemo'])->name('checkout.fawry.demo');
 
     Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
     Route::post('/wishlist/{course}', [WishlistController::class, 'store'])->name('wishlist.store');
@@ -216,4 +219,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

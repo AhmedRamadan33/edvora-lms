@@ -7,6 +7,7 @@ use App\Http\Requests\Commerce\ApplyCouponRequest;
 use App\Http\Requests\Commerce\PayOrderRequest;
 use App\Models\Order;
 use App\Services\CheckoutService;
+use App\Services\FawryService;
 use App\Services\OrderFulfillmentService;
 use App\Services\PaymobService;
 use App\Services\PayPalService;
@@ -35,7 +36,7 @@ class CheckoutController extends Controller
     {
         $result = $checkout->applyCoupon(auth()->user(), $request->validated('code'));
 
-        if (! $result['ok']) {
+        if (!$result['ok']) {
             return back()->with('error', $result['message']);
         }
 
@@ -52,7 +53,7 @@ class CheckoutController extends Controller
             $request->session()->get('coupon_code')
         );
 
-        if (! ($result['ok'] ?? false)) {
+        if (!($result['ok'] ?? false)) {
             return redirect()
                 ->to($result['redirect'] ?? route('checkout.show'))
                 ->with('error', $result['message'] ?? __('Unable to start payment.'));
@@ -110,13 +111,13 @@ class CheckoutController extends Controller
             $order = Order::query()->where('number', $merchantOrderId)->first();
         }
 
-        if (! $order && $request->filled('order')) {
+        if (!$order && $request->filled('order')) {
             $order = Order::query()
-                ->whereHas('payment', fn ($q) => $q->where('provider', 'paymob')->where('provider_reference', $request->query('order')))
+                ->whereHas('payment', fn($q) => $q->where('provider', 'paymob')->where('provider_reference', $request->query('order')))
                 ->first();
         }
 
-        if (! $order) {
+        if (!$order) {
             return redirect()
                 ->route('cart.index')
                 ->with('error', __('Paymob payment could not be matched to an order.'));
@@ -128,7 +129,7 @@ class CheckoutController extends Controller
 
         $ok = $paymob->handleReturn($order, $request->query());
 
-        if (! $ok) {
+        if (!$ok) {
             return redirect()
                 ->route('cart.index')
                 ->with('error', __('Paymob payment failed or could not be verified.'));
@@ -151,7 +152,7 @@ class CheckoutController extends Controller
         $fulfillment->markPaid(
             $order->load('items.course', 'user', 'coupon'),
             'paymob',
-            'demo-'.Str::random(8),
+            'demo-' . Str::random(8),
             ['demo' => true]
         );
 
@@ -175,7 +176,7 @@ class CheckoutController extends Controller
             'payload_keys' => array_keys($payload),
         ]);
 
-        if (! $order) {
+        if (!$order) {
             return redirect()
                 ->route('cart.index')
                 ->with('error', __('PayTabs payment could not be matched to an order.'));
@@ -210,7 +211,7 @@ class CheckoutController extends Controller
         $fulfillment->markPaid(
             $order->load('items.course', 'user', 'coupon'),
             'paytabs',
-            'demo-'.Str::random(8),
+            'demo-' . Str::random(8),
             ['demo' => true]
         );
 
@@ -227,11 +228,11 @@ class CheckoutController extends Controller
 
         $order = $paypalOrderId !== ''
             ? Order::query()
-                ->whereHas('payment', fn ($query) => $query->where('provider', 'paypal')->where('provider_reference', $paypalOrderId))
+                ->whereHas('payment', fn($query) => $query->where('provider', 'paypal')->where('provider_reference', $paypalOrderId))
                 ->first()
             : null;
 
-        if (! $order) {
+        if (!$order) {
             return redirect()
                 ->route('cart.index')
                 ->with('error', __('PayPal payment could not be matched to an order.'));
@@ -243,7 +244,7 @@ class CheckoutController extends Controller
 
         $ok = $paypal->captureOrder($order, $paypalOrderId);
 
-        if (! $ok) {
+        if (!$ok) {
             return redirect()
                 ->route('cart.index')
                 ->with('error', __('PayPal payment failed or could not be verified.'));
@@ -265,7 +266,7 @@ class CheckoutController extends Controller
         $fulfillment->markPaid(
             $order->load('items.course', 'user', 'coupon'),
             'paypal',
-            'demo-'.Str::random(8),
+            'demo-' . Str::random(8),
             ['demo' => true]
         );
 
@@ -276,9 +277,62 @@ class CheckoutController extends Controller
         ]);
     }
 
+    public function fawryReturn(Request $request, FawryService $fawry): RedirectResponse
+    {
+        $orderNumber = (string) $request->query('merchantRefNum', '');
+
+        $order = $orderNumber !== ''
+            ? Order::query()->where('number', $orderNumber)->first()
+            : null;
+
+        if (!$order) {
+            return redirect()
+                ->route('cart.index')
+                ->with('error', __('Fawry payment could not be matched to an order.'));
+        }
+
+        if (auth()->check() && $order->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $this->restoreSessionFor($order);
+
+        $ok = $fawry->handleReturn($order, $request->query());
+
+        if (!$ok) {
+            return redirect()
+                ->route('cart.index')
+                ->with('error', __('Fawry payment failed or could not be verified.'));
+        }
+
+        return redirect()->route('checkout.success', [
+            'order' => $order,
+            'provider' => 'fawry',
+        ]);
+    }
+
+    public function fawryDemo(Order $order, OrderFulfillmentService $fulfillment): RedirectResponse
+    {
+        abort_unless($order->user_id === auth()->id(), 403);
+        abort_unless(config('edvora.payments.allow_demo'), 404);
+
+        $fulfillment->markPaid(
+            $order->load('items.course', 'user', 'coupon'),
+            'fawry',
+            'demo-' . Str::random(8),
+            ['demo' => true]
+        );
+
+        return redirect()->route('checkout.success', [
+            'order' => $order,
+            'provider' => 'fawry',
+            'demo' => 1,
+        ]);
+    }
+
     protected function restoreSessionFor(Order $order): void
     {
-        if (! auth()->check()) {
+        if (!auth()->check()) {
             Auth::login($order->user);
         }
     }

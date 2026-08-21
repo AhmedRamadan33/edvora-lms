@@ -20,8 +20,10 @@
                     </li>
                 @endforeach
             </ul>
-            <div class="d-flex justify-content-between"><span>{{ __('Subtotal') }}</span><strong>{{ money($subtotal, $currency) }}</strong></div>
-            <div class="d-flex justify-content-between"><span>{{ __('Discount') }}</span><strong>- {{ money($discount, $currency) }}</strong></div>
+            <div class="d-flex justify-content-between">
+                <span>{{ __('Subtotal') }}</span><strong>{{ money($subtotal, $currency) }}</strong></div>
+            <div class="d-flex justify-content-between"><span>{{ __('Discount') }}</span><strong>-
+                    {{ money($discount, $currency) }}</strong></div>
             <div class="d-flex justify-content-between fs-4 mt-3 pt-3 border-top">
                 <span>{{ __('Total') }}</span>
                 <strong>{{ money($total, $currency) }}</strong>
@@ -43,14 +45,15 @@
             <label class="form-label">{{ __('Payment method') }}</label>
 
             @php
-                $defaultProvider = old('provider') ?: collect(['stripe', 'paymob', 'paytabs', 'paypal'])
-                    ->first(fn ($key) => $providers[$key]['enabled']);
+                $defaultProvider = old('provider') ?: collect(['stripe', 'paymob', 'paytabs', 'paypal', 'fawry'])
+                    ->first(fn($key) => $providers[$key]['enabled']);
             @endphp
 
             <div class="d-grid gap-2 mb-3">
                 @if($providers['stripe']['enabled'])
                     <label class="ed-panel p-3 mb-0 d-flex align-items-center gap-3" style="cursor:pointer;">
-                        <input type="radio" name="provider" value="stripe" class="form-check-input m-0" @checked($defaultProvider === 'stripe') required>
+                        <input type="radio" name="provider" value="stripe" class="form-check-input m-0"
+                            @checked($defaultProvider === 'stripe') required>
                         <span class="flex-grow-1">
                             <strong>Stripe</strong>
                             <div class="small text-muted">
@@ -63,7 +66,8 @@
 
                 @if($providers['paymob']['enabled'])
                     <label class="ed-panel p-3 mb-0 d-flex align-items-center gap-3" style="cursor:pointer;">
-                        <input type="radio" name="provider" value="paymob" class="form-check-input m-0" @checked($defaultProvider === 'paymob') required>
+                        <input type="radio" name="provider" value="paymob" class="form-check-input m-0"
+                            @checked($defaultProvider === 'paymob') required>
                         <span class="flex-grow-1">
                             <strong>Paymob</strong>
                             <div class="small text-muted">
@@ -76,7 +80,8 @@
 
                 @if($providers['paytabs']['enabled'])
                     <label class="ed-panel p-3 mb-0 d-flex align-items-center gap-3" style="cursor:pointer;">
-                        <input type="radio" name="provider" value="paytabs" class="form-check-input m-0" @checked($defaultProvider === 'paytabs') required>
+                        <input type="radio" name="provider" value="paytabs" class="form-check-input m-0"
+                            @checked($defaultProvider === 'paytabs') required>
                         <span class="flex-grow-1">
                             <strong>PayTabs</strong>
                             <div class="small text-muted">
@@ -89,7 +94,8 @@
 
                 @if($providers['paypal']['enabled'])
                     <label class="ed-panel p-3 mb-0 d-flex align-items-center gap-3" style="cursor:pointer;">
-                        <input type="radio" name="provider" value="paypal" class="form-check-input m-0" @checked($defaultProvider === 'paypal') required>
+                        <input type="radio" name="provider" value="paypal" class="form-check-input m-0"
+                            @checked($defaultProvider === 'paypal') required>
                         <span class="flex-grow-1">
                             <strong>{{ __('PayPal') }}</strong>
                             <div class="small text-muted">
@@ -99,19 +105,34 @@
                         <i class="bi bi-paypal fs-4 text-primary"></i>
                     </label>
                 @endif
+
+                @if($providers['fawry']['enabled'])
+                    <label class="ed-panel p-3 mb-0 d-flex align-items-center gap-3" style="cursor:pointer;">
+                        <input type="radio" name="provider" value="fawry" class="form-check-input m-0"
+                            @checked($defaultProvider === 'fawry') required>
+                        <span class="flex-grow-1">
+                            <strong>Fawry (فورى)</strong>
+                            <div class="small text-muted">
+                                {{ $providers['fawry']['configured'] ? __('Pay via Fawry (branches, app, or online)') : __('Demo mode (keys missing)') }}
+                            </div>
+                        </span>
+                        <i class="bi bi-bank fs-4 text-warning"></i>
+                    </label>
+                @endif
             </div>
 
-            @php($anyProviderEnabled = $providers['stripe']['enabled'] || $providers['paymob']['enabled'] || $providers['paytabs']['enabled'] || $providers['paypal']['enabled'])
-            @if(! $anyProviderEnabled)
+            @php($anyProviderEnabled = $providers['stripe']['enabled'] || $providers['paymob']['enabled'] || $providers['paytabs']['enabled'] || $providers['paypal']['enabled'] || $providers['fawry']['enabled'])
+            @if(!$anyProviderEnabled)
                 <div class="alert alert-danger mb-3">{{ __('No payment providers are configured.') }}</div>
             @else
-                <button class="btn btn-primary w-100" @disabled(! $anyProviderEnabled)>
+                <button class="btn btn-primary w-100" @disabled(!$anyProviderEnabled)>
                     {{ $total <= 0 ? __('Complete enrollment') : __('Pay now') }}
                 </button>
             @endif
 
             @if($demo_mode)
-                <p class="small text-muted mt-3 mb-0">{{ __('Demo payments are enabled for local testing when gateway keys are missing.') }}</p>
+                <p class="small text-muted mt-3 mb-0">
+                    {{ __('Demo payments are enabled for local testing when gateway keys are missing.') }}</p>
             @else
                 <p class="small text-muted mt-3 mb-0">{{ __('You will be redirected to a secure payment page.') }}</p>
             @endif
