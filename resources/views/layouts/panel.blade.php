@@ -69,6 +69,11 @@
 
                 <a href="{{ route('home') }}" class="btn btn-sm btn-outline-primary text-nowrap">{{ __('Storefront') }}</a>
 
+                @include('partials.notifications-bell', [
+                    'asItem' => false,
+                    'toggleClass' => 'btn btn-sm btn-outline-primary',
+                ])
+
                 <div class="dropdown" style="display:inline-flex;">
                     <button class="btn btn-sm btn-primary dropdown-toggle d-inline-flex align-items-center gap-2 text-nowrap" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <span class="ed-nav__avatar ed-nav__avatar--sm">{{ mb_substr(auth()->user()->name, 0, 1) }}</span>

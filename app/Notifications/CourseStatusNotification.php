@@ -33,6 +33,11 @@ class CourseStatusNotification extends Notification
         return [
             'course_id' => $this->course->id,
             'status' => $this->status,
+            'message' => __('Your course ":title" is now :status.', [
+                'title' => $this->course->translation('en')?->title ?? 'Course',
+                'status' => $this->status,
+            ]),
+            'url' => route('instructor.courses.edit', $this->course),
         ];
     }
 }

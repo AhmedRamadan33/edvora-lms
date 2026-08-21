@@ -7,6 +7,7 @@ use App\Models\BankQuestion;
 use App\Models\Exam;
 use App\Models\ExamAttempt;
 use App\Models\User;
+use App\Notifications\GenericNotification;
 use App\Repositories\ExamAttemptRepository;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -92,6 +93,26 @@ class StudentExamService
 
             $score = $attempt->total_points > 0 ? (int) round(($autoScore / $attempt->total_points) * 100) : 0;
             ActivityLog::record('exam_attempt.submitted', $attempt, ['exam' => $attempt->exam?->title, 'score' => $score]);
+
+            $instructor = $attempt->exam?->course?->instructor;
+
+            if ($instructor) {
+                $message = $hasPending
+                    ? __(':student submitted ":exam" and it has essay/fill-in answers waiting for your review.', [
+                        'student' => $attempt->user?->name,
+                        'exam' => $attempt->exam?->title,
+                    ])
+                    : __(':student submitted ":exam" and it was auto-graded.', [
+                        'student' => $attempt->user?->name,
+                        'exam' => $attempt->exam?->title,
+                    ]);
+
+                $instructor->notify(new GenericNotification(
+                    $message,
+                    route('instructor.exams.attempts.show', [$attempt->exam, $attempt]),
+                    __('Exam submitted')
+                ));
+            }
 
             return $attempt->fresh('answers.bankQuestion.choices', 'answers.bankQuestion.matches', 'answers.bankQuestion.subject');
         });

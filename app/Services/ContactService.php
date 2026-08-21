@@ -4,7 +4,10 @@ namespace App\Services;
 
 use App\Models\ActivityLog;
 use App\Models\ContactMessage;
+use App\Models\User;
+use App\Notifications\GenericNotification;
 use App\Repositories\ContactMessageRepository;
+use Illuminate\Support\Facades\Notification;
 
 class ContactService
 {
@@ -14,7 +17,18 @@ class ContactService
 
     public function submit(array $data): ContactMessage
     {
-        return $this->messages->create($data);
+        $message = $this->messages->create($data);
+
+        $admins = User::role('admin')->get();
+        if ($admins->isNotEmpty()) {
+            Notification::send($admins, new GenericNotification(
+                __('New contact message from :name.', ['name' => $message->name]),
+                route('admin.contacts.show', $message),
+                __('New contact message')
+            ));
+        }
+
+        return $message;
     }
 
     public function paginate(int $perPage = 20, ?string $search = null)

@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initSecretToggles();
     initReveal();
     initSelect2();
+    initNotifications();
 });
 
 function initToasts() {
@@ -628,6 +629,70 @@ function initSelect2() {
         childList: true,
         subtree: true,
     });
+}
+
+function initNotifications() {
+    const list = document.getElementById('notifList');
+    const badge = document.getElementById('notifBadge');
+    const toggle = document.getElementById('notifToggle');
+    if (!list || !badge || !toggle) {
+        return;
+    }
+
+    const recentUrl = list.dataset.recentUrl;
+    const readUrlTemplate = list.dataset.readUrlTemplate;
+    let loaded = false;
+
+    const render = (payload) => {
+        const count = payload.unread_count || 0;
+        badge.textContent = count > 9 ? '9+' : String(count);
+        badge.classList.toggle('d-none', count === 0);
+
+        list.innerHTML = '';
+
+        if (!payload.items || payload.items.length === 0) {
+            const empty = document.createElement('div');
+            empty.className = 'px-3 py-4 text-center text-muted small';
+            empty.textContent = toggle.dataset.emptyLabel || 'No notifications yet.';
+            list.appendChild(empty);
+            return;
+        }
+
+        payload.items.forEach((item) => {
+            const link = document.createElement('a');
+            link.href = readUrlTemplate.replace('__ID__', item.id);
+            link.className = 'ed-notif-item' + (item.read ? '' : ' is-unread');
+
+            const message = document.createElement('div');
+            message.className = 'ed-notif-item__message';
+            message.textContent = item.message;
+
+            const time = document.createElement('div');
+            time.className = 'ed-notif-item__time';
+            time.textContent = item.created_at;
+
+            link.appendChild(message);
+            link.appendChild(time);
+            list.appendChild(link);
+        });
+    };
+
+    const load = () => {
+        fetch(recentUrl, { headers: { Accept: 'application/json' } })
+            .then((response) => response.json())
+            .then(render)
+            .catch(() => {});
+    };
+
+    toggle.addEventListener('click', () => {
+        if (!loaded) {
+            loaded = true;
+            load();
+        }
+    });
+
+    load();
+    setInterval(load, 60000);
 }
 
 function initExamAttempt() {

@@ -39,6 +39,7 @@ use App\Http\Controllers\Instructor\ProfileController as InstructorProfileContro
 use App\Http\Controllers\Instructor\PublicProfileController;
 use App\Http\Controllers\Instructor\SubjectController;
 use App\Http\Controllers\LocaleController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Student\CertificateController;
@@ -99,6 +100,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::post('/courses/{course}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
     Route::delete('/courses/{course}/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+
+    Route::prefix('notifications')->name('notifications.')->group(function () {
+        Route::get('/', [NotificationController::class, 'index'])->name('index');
+        Route::get('/recent', [NotificationController::class, 'recent'])->name('recent');
+        Route::get('/{notification}/read', [NotificationController::class, 'read'])->name('read');
+        Route::post('/read-all', [NotificationController::class, 'readAll'])->name('read-all');
+    });
 
     Route::prefix('student')->name('student.')->group(function () {
         Route::get('/dashboard', StudentDashboardController::class)->name('dashboard');

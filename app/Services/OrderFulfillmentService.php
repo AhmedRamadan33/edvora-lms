@@ -6,6 +6,7 @@ use App\Models\ActivityLog;
 use App\Models\Enrollment;
 use App\Models\InstructorEarning;
 use App\Models\Order;
+use App\Notifications\GenericNotification;
 use App\Notifications\OrderPaidNotification;
 use App\Repositories\CartRepository;
 use App\Repositories\PaymentRepository;
@@ -100,6 +101,12 @@ class OrderFulfillmentService
             ]);
 
             ActivityLog::record('order.failed', $order, ['number' => $order->number, 'provider' => $provider, 'reference' => $reference]);
+
+            $order->user?->notify(new GenericNotification(
+                __('Your payment for order :number failed. Please try again.', ['number' => $order->number]),
+                route('student.dashboard'),
+                __('Payment failed')
+            ));
         });
     }
 

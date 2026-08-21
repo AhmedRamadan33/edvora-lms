@@ -5,8 +5,10 @@ namespace App\Services;
 use App\Models\ActivityLog;
 use App\Models\Course;
 use App\Models\User;
+use App\Notifications\GenericNotification;
 use App\Repositories\CourseRepository;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -86,6 +88,18 @@ class CourseService
         ]);
 
         ActivityLog::record('course.submitted', $course, ['title' => $course->translation()?->title]);
+
+        $admins = User::role('admin')->get();
+        if ($admins->isNotEmpty()) {
+            Notification::send($admins, new GenericNotification(
+                __(':instructor submitted ":title" for review.', [
+                    'instructor' => $course->instructor?->name,
+                    'title' => $course->translation()?->title,
+                ]),
+                route('admin.courses.show', $course),
+                __('Course submitted for review')
+            ));
+        }
 
         return ['ok' => true, 'message' => __('Course submitted for review.')];
     }

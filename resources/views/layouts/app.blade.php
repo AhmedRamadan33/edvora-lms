@@ -112,6 +112,7 @@
                                     <i class="bi bi-heart"></i>
                                 </a>
                             </li>
+                            @include('partials.notifications-bell')
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle d-inline-flex align-items-center gap-2" href="#"
                                     data-bs-toggle="dropdown">

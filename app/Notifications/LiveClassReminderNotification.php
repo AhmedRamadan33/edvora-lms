@@ -38,6 +38,7 @@ class LiveClassReminderNotification extends Notification implements ShouldQueue
             'course_id' => $this->liveClass->course_id,
             'title' => $this->liveClass->title,
             'message' => 'Live class starting soon',
+            'url' => route('learn.course', $this->liveClass->course),
         ];
     }
 }

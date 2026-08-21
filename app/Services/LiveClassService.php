@@ -6,8 +6,10 @@ use App\Models\ActivityLog;
 use App\Models\Course;
 use App\Models\LiveClass;
 use App\Models\User;
+use App\Notifications\GenericNotification;
 use App\Notifications\LiveClassScheduledNotification;
 use App\Repositories\LiveClassRepository;
+use Illuminate\Notifications\Notification as NotificationClass;
 use Illuminate\Support\Facades\Notification;
 use RuntimeException;
 
@@ -58,7 +60,7 @@ class LiveClassService
         ]);
         $liveClass->save();
 
-        $this->notifyEnrolledStudents($liveClass);
+        $this->notifyEnrolledStudents($liveClass, new LiveClassScheduledNotification($liveClass));
 
         ActivityLog::record('live_class.scheduled', $liveClass, [
             'title' => $liveClass->title,
@@ -84,6 +86,15 @@ class LiveClassService
 
         ActivityLog::record('live_class.rescheduled', $liveClass, ['title' => $liveClass->title]);
 
+        $this->notifyEnrolledStudents($liveClass, new GenericNotification(
+            __('The live class ":title" was rescheduled to :datetime.', [
+                'title' => $liveClass->title,
+                'datetime' => $liveClass->scheduledAtLocal()->format('Y-m-d H:i'),
+            ]),
+            route('learn.course', $liveClass->course),
+            __('Live class rescheduled')
+        ));
+
         return $liveClass;
     }
 
@@ -92,6 +103,13 @@ class LiveClassService
         $this->providerService($liveClass->provider)->deleteMeeting($liveClass->instructor, $liveClass);
 
         $title = $liveClass->title;
+        $course = $liveClass->course;
+
+        $this->notifyEnrolledStudents($liveClass, new GenericNotification(
+            __('The live class ":title" was cancelled.', ['title' => $title]),
+            route('learn.course', $course),
+            __('Live class cancelled')
+        ));
 
         $liveClass->delete();
 
@@ -116,7 +134,7 @@ class LiveClassService
         };
     }
 
-    protected function notifyEnrolledStudents(LiveClass $liveClass): void
+    protected function notifyEnrolledStudents(LiveClass $liveClass, NotificationClass $notification): void
     {
         $students = $liveClass->course->enrollments()->with('user')->get()->pluck('user')->filter();
 
@@ -124,6 +142,6 @@ class LiveClassService
             return;
         }
 
-        Notification::send($students, new LiveClassScheduledNotification($liveClass));
+        Notification::send($students, $notification);
     }
 }

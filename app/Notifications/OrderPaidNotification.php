@@ -32,6 +32,7 @@ class OrderPaidNotification extends Notification
             'order_id' => $this->order->id,
             'number' => $this->order->number,
             'message' => 'Order paid successfully',
+            'url' => route('student.dashboard'),
         ];
     }
 }

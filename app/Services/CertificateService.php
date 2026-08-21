@@ -7,6 +7,7 @@ use App\Models\Certificate;
 use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\User;
+use App\Notifications\GenericNotification;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class CertificateService
@@ -32,6 +33,12 @@ class CertificateService
 
         if ($certificate->wasRecentlyCreated) {
             ActivityLog::record('certificate.issued', $certificate, ['course' => $course->translation()?->title]);
+
+            $user->notify(new GenericNotification(
+                __('Your certificate for ":course" is ready.', ['course' => $course->translation()?->title]),
+                route('student.certificates.index'),
+                __('Certificate ready')
+            ));
         }
 
         return $certificate;

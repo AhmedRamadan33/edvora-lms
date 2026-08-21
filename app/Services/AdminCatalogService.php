@@ -10,9 +10,11 @@ use App\Models\InstructorProfile;
 use App\Models\PayoutRequest;
 use App\Models\User;
 use App\Notifications\CourseStatusNotification;
+use App\Notifications\GenericNotification;
 use App\Repositories\CouponRepository;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 
@@ -101,12 +103,24 @@ class AdminCatalogService
         $profile->update(['status' => 'approved', 'approved_at' => now(), 'rejection_reason' => null]);
         $profile->user->syncRoles(['instructor']);
         ActivityLog::record('instructor.approved', $profile, ['name' => $profile->user?->name]);
+
+        $profile->user?->notify(new GenericNotification(
+            __('Your instructor application was approved. You can now start creating courses.'),
+            route('instructor.dashboard'),
+            __('Instructor application approved')
+        ));
     }
 
     public function rejectInstructor(InstructorProfile $profile, string $reason): void
     {
         $profile->update(['status' => 'rejected', 'rejection_reason' => $reason]);
         ActivityLog::record('instructor.rejected', $profile, ['name' => $profile->user?->name, 'reason' => $reason]);
+
+        $profile->user?->notify(new GenericNotification(
+            __('Your instructor application was rejected. Reason: :reason', ['reason' => $reason]),
+            route('dashboard'),
+            __('Instructor application rejected')
+        ));
     }
 
     public function createInstructor(array $data): User
@@ -167,6 +181,12 @@ class AdminCatalogService
                 }, (float) $payout->amount);
 
             ActivityLog::record('payout.paid', $payout, ['amount' => $payout->amount]);
+
+            $payout->instructor?->notify(new GenericNotification(
+                __('Your payout request of :amount was paid.', ['amount' => $payout->amount]),
+                route('instructor.earnings.index'),
+                __('Payout paid')
+            ));
         });
 
         return ['ok' => true, 'message' => __('Payout marked as paid.')];
@@ -181,6 +201,12 @@ class AdminCatalogService
         ]);
 
         ActivityLog::record('payout.rejected', $payout, ['amount' => $payout->amount, 'reason' => $adminNote]);
+
+        $payout->instructor?->notify(new GenericNotification(
+            __('Your payout request of :amount was rejected. Reason: :reason', ['amount' => $payout->amount, 'reason' => $adminNote]),
+            route('instructor.earnings.index'),
+            __('Payout rejected')
+        ));
     }
 
     public function requestPayout(User $instructor, array $data): array
@@ -203,6 +229,15 @@ class AdminCatalogService
         ]);
 
         ActivityLog::record('payout.requested', $payout, ['amount' => $payout->amount]);
+
+        $admins = User::role('admin')->get();
+        if ($admins->isNotEmpty()) {
+            Notification::send($admins, new GenericNotification(
+                __(':name requested a payout of :amount.', ['name' => $instructor->name, 'amount' => $payout->amount]),
+                route('admin.payouts.index'),
+                __('New payout request')
+            ));
+        }
 
         return ['ok' => true, 'message' => __('Payout request submitted.')];
     }

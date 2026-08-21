@@ -7,10 +7,12 @@ use App\Http\Requests\Auth\RegisterUserRequest;
 use App\Models\ActivityLog;
 use App\Models\InstructorProfile;
 use App\Models\User;
+use App\Notifications\GenericNotification;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
@@ -38,6 +40,15 @@ class RegisteredUserController extends Controller
                 'user_id' => $user->id,
                 'status' => 'pending',
             ]);
+
+            $admins = User::role('admin')->get();
+            if ($admins->isNotEmpty()) {
+                Notification::send($admins, new GenericNotification(
+                    __(':name applied to become an instructor.', ['name' => $user->name]),
+                    route('admin.instructors.index'),
+                    __('New instructor application')
+                ));
+            }
         }
 
         event(new Registered($user));

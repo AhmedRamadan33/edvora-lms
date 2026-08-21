@@ -38,6 +38,7 @@ class LiveClassScheduledNotification extends Notification implements ShouldQueue
             'course_id' => $this->liveClass->course_id,
             'title' => $this->liveClass->title,
             'message' => 'New live class scheduled',
+            'url' => route('learn.course', $this->liveClass->course),
         ];
     }
 }

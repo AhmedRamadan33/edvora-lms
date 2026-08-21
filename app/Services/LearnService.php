@@ -9,6 +9,7 @@ use App\Models\CourseQuestion;
 use App\Models\Lesson;
 use App\Models\QuizAttempt;
 use App\Models\User;
+use App\Notifications\GenericNotification;
 
 class LearnService
 {
@@ -78,6 +79,16 @@ class LearnService
 
         ActivityLog::record('question.asked', $question, ['course' => $course->translation()?->title]);
 
+        $course->instructor?->notify(new GenericNotification(
+            __(':name asked a question in ":course": :title', [
+                'name' => $user->name,
+                'course' => $course->translation()?->title,
+                'title' => $question->title,
+            ]),
+            route('instructor.courses.edit', $course),
+            __('New question')
+        ));
+
         return $question;
     }
 
@@ -92,6 +103,18 @@ class LearnService
         ]);
 
         ActivityLog::record('question.answered', $answer, ['course' => $course->translation()?->title]);
+
+        if ($question->user_id !== $user->id) {
+            $question->user?->notify(new GenericNotification(
+                __(':name answered your question ":title" in ":course".', [
+                    'name' => $user->name,
+                    'title' => $question->title,
+                    'course' => $course->translation()?->title,
+                ]),
+                route('learn.course', $course),
+                __('Your question was answered')
+            ));
+        }
 
         return $answer;
     }

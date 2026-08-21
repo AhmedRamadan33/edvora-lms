@@ -6,6 +6,7 @@ use App\Models\ActivityLog;
 use App\Models\Exam;
 use App\Models\ExamAttempt;
 use App\Models\User;
+use App\Notifications\GenericNotification;
 use App\Repositories\ExamAttemptRepository;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -76,6 +77,17 @@ class ExamGradingService
                 'exam' => $attempt->exam?->title,
                 'student' => $attempt->user?->name,
             ]);
+
+            if (! $stillPending) {
+                $attempt->user?->notify(new GenericNotification(
+                    __('Your exam ":exam" was graded. You :result.', [
+                        'exam' => $attempt->exam?->title,
+                        'result' => $passed ? __('passed') : __('did not pass'),
+                    ]),
+                    route('exams.result', $attempt->exam),
+                    __('Exam graded')
+                ));
+            }
 
             return $attempt;
         });
