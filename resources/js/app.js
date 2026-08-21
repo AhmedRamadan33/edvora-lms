@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initReveal();
     initSelect2();
     initNotifications();
+    initAnnouncementForm();
 });
 
 function initToasts() {
@@ -693,6 +694,36 @@ function initNotifications() {
 
     load();
     setInterval(load, 60000);
+}
+
+function initAnnouncementForm() {
+    const form = document.querySelector('[data-announcement-form]');
+    if (!form) {
+        return;
+    }
+
+    const audienceInputs = [...form.querySelectorAll('[data-announcement-audience]')];
+    const studentPanel = form.querySelector('[data-announcement-students]');
+    if (!audienceInputs.length || !studentPanel) {
+        return;
+    }
+
+    const studentSelect = studentPanel.querySelector('select');
+
+    const sync = () => {
+        const selected = audienceInputs.find((input) => input.checked)?.value;
+        const isSelected = selected === 'selected';
+        studentPanel.classList.toggle('d-none', !isSelected);
+        if (studentSelect) {
+            studentSelect.required = isSelected;
+        }
+    };
+
+    audienceInputs.forEach((input) => {
+        input.addEventListener('change', sync);
+    });
+
+    sync();
 }
 
 function initExamAttempt() {

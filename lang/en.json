@@ -950,5 +950,20 @@
     "No notifications yet.": "No notifications yet.",
     "Everything relevant to your account, in one place.": "Everything relevant to your account, in one place.",
     "A new exam \":title\" is available in \":course\".": "A new exam \":title\" is available in \":course\".",
-    "New exam available": "New exam available"
+    "New exam available": "New exam available",
+    "Announcements": "Announcements",
+    "Send an email and in-app notification to students.": "Send an email and in-app notification to students.",
+    "Send an email and in-app notification to your students.": "Send an email and in-app notification to your students.",
+    "Send announcement": "Send announcement",
+    "Send to": "Send to",
+    "All students": "All students",
+    "Specific students": "Specific students",
+    "Send": "Send",
+    "This will send an email and a notification to every selected student. Continue?": "This will send an email and a notification to every selected student. Continue?",
+    "No announcements sent yet.": "No announcements sent yet.",
+    "Recipients": "Recipients",
+    "Sent": "Sent",
+    "Search announcements": "Search announcements",
+    "Announcement sent to :count student(s).": "Announcement sent to :count student(s).",
+    ":user sent the announcement \":subject\" to :count student(s).": ":user sent the announcement \":subject\" to :count student(s)."
 }

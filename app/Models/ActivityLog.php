@@ -140,6 +140,8 @@ class ActivityLog extends Model
             'contact_message.read' => __(':user marked the message from ":name" as read.', ['user' => $actor, 'name' => $p('name', $dash)]),
             'contact_message.deleted' => __(':user deleted the message from ":name".', ['user' => $actor, 'name' => $p('name', $dash)]),
 
+            'announcement.sent' => __(':user sent the announcement ":subject" to :count student(s).', ['user' => $actor, 'subject' => $p('subject', $dash), 'count' => $p('count', 0)]),
+
             'page.created' => __(':user created the page ":title".', ['user' => $actor, 'title' => $p('title', $dash)]),
             'page.updated' => __(':user updated the page ":title".', ['user' => $actor, 'title' => $p('title', $dash)]),
 

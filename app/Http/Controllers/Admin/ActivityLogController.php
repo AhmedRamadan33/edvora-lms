@@ -53,6 +53,7 @@ class ActivityLogController extends Controller
             'Certificate' => ['certificate.issued', 'certificate.downloaded'],
             'Catalog' => ['category.created', 'category.updated', 'category.deleted', 'coupon.created', 'coupon.deleted'],
             'Content' => ['testimonial.created', 'testimonial.updated', 'testimonial.deleted', 'contact_message.read', 'contact_message.deleted', 'page.created', 'page.updated'],
+            'Announcements' => ['announcement.sent'],
             'Users & Settings' => ['user.activated', 'user.deactivated', 'settings.updated'],
         ];
     }

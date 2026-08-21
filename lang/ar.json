@@ -955,5 +955,20 @@
     "No notifications yet.": "لا توجد إشعارات بعد.",
     "Everything relevant to your account, in one place.": "كل ما يخص حسابك، في مكان واحد.",
     "A new exam \":title\" is available in \":course\".": "في امتحان جديد \":title\" متاح في \":course\".",
-    "New exam available": "امتحان جديد متاح"
+    "New exam available": "امتحان جديد متاح",
+    "Announcements": "الإعلانات",
+    "Send an email and in-app notification to students.": "ابعت إيميل وإشعار داخل الموقع للطلاب.",
+    "Send an email and in-app notification to your students.": "ابعت إيميل وإشعار داخل الموقع لطلابك.",
+    "Send announcement": "إرسال إعلان",
+    "Send to": "إرسال إلى",
+    "All students": "كل الطلاب",
+    "Specific students": "طلاب محددين",
+    "Send": "إرسال",
+    "This will send an email and a notification to every selected student. Continue?": "ده هيبعت إيميل وإشعار لكل طالب متحدد. تكمل؟",
+    "No announcements sent yet.": "لسه معملتش أي إعلان.",
+    "Recipients": "المستلمين",
+    "Sent": "تاريخ الإرسال",
+    "Search announcements": "ابحث في الإعلانات",
+    "Announcement sent to :count student(s).": "تم إرسال الإعلان لـ :count طالب.",
+    ":user sent the announcement \":subject\" to :count student(s).": ":user بعت الإعلان \":subject\" لـ :count طالب."
 }

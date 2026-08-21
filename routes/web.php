@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\ActivityLogController;
+use App\Http\Controllers\Admin\AnnouncementController as AdminAnnouncementController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\ContactMessageController as AdminContactMessageController;
 use App\Http\Controllers\Admin\CouponController;
@@ -25,6 +26,7 @@ use App\Http\Controllers\Commerce\CheckoutController;
 use App\Http\Controllers\Commerce\WebhookController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Instructor\AnnouncementController as InstructorAnnouncementController;
 use App\Http\Controllers\Instructor\BankQuestionController;
 use App\Http\Controllers\Instructor\CourseController as InstructorCourseController;
 use App\Http\Controllers\Instructor\CurriculumController;
@@ -184,6 +186,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/earnings', [EarningController::class, 'index'])->name('earnings.index');
         Route::post('/earnings/payout', [EarningController::class, 'requestPayout'])->name('earnings.payout');
         Route::get('/orders', [InstructorOrderController::class, 'index'])->name('orders.index');
+        Route::get('/announcements', [InstructorAnnouncementController::class, 'index'])->name('announcements.index');
+        Route::post('/announcements', [InstructorAnnouncementController::class, 'store'])->name('announcements.store');
     });
 
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
@@ -226,6 +230,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/testimonials/{testimonial}', [AdminTestimonialController::class, 'update'])->name('testimonials.update');
         Route::delete('/testimonials/{testimonial}', [AdminTestimonialController::class, 'destroy'])->name('testimonials.destroy');
         Route::get('/activity', ActivityLogController::class)->name('activity.index');
+        Route::get('/announcements', [AdminAnnouncementController::class, 'index'])->name('announcements.index');
+        Route::post('/announcements', [AdminAnnouncementController::class, 'store'])->name('announcements.store');
     });
 });
 
