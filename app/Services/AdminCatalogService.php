@@ -12,6 +12,9 @@ use App\Models\User;
 use App\Notifications\CourseStatusNotification;
 use App\Repositories\CouponRepository;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 
 class AdminCatalogService
 {
@@ -104,6 +107,33 @@ class AdminCatalogService
     {
         $profile->update(['status' => 'rejected', 'rejection_reason' => $reason]);
         ActivityLog::record('instructor.rejected', $profile, ['name' => $profile->user?->name, 'reason' => $reason]);
+    }
+
+    public function createInstructor(array $data): User
+    {
+        $user = User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'phone' => $data['phone'] ?? null,
+            'password' => Hash::make(Str::random(40)),
+        ]);
+
+        $user->forceFill(['email_verified_at' => now()])->save();
+
+        $user->syncRoles(['instructor']);
+
+        InstructorProfile::create([
+            'user_id' => $user->id,
+            'headline' => $data['headline'] ?? null,
+            'status' => 'approved',
+            'approved_at' => now(),
+        ]);
+
+        Password::sendResetLink(['email' => $user->email]);
+
+        ActivityLog::record('instructor.created_by_admin', $user, ['name' => $user->name]);
+
+        return $user;
     }
 
     public function approvePayout(PayoutRequest $payout, string $transactionReference): array

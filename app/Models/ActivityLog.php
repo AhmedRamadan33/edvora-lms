@@ -96,6 +96,7 @@ class ActivityLog extends Model
 
             'instructor.approved' => __(':user approved the instructor application of :name.', ['user' => $actor, 'name' => $p('name') ?? $this->subject?->user?->name ?? $dash]),
             'instructor.rejected' => __(':user rejected the instructor application of :name. Reason: :reason', ['user' => $actor, 'name' => $p('name') ?? $this->subject?->user?->name ?? $dash, 'reason' => $p('reason', $dash)]),
+            'instructor.created_by_admin' => __(':user created an instructor account for :name.', ['user' => $actor, 'name' => $p('name') ?? $this->subject?->name ?? $dash]),
 
             'cart.item_added' => __(':user added ":course" to their cart.', ['user' => $actor, 'course' => $p('course', $dash)]),
             'cart.item_removed' => __(':user removed ":course" from their cart.', ['user' => $actor, 'course' => $p('course', $dash)]),

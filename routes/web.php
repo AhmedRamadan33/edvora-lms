@@ -195,6 +195,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/users/{user}/toggle', [AdminUserController::class, 'toggle'])->name('users.toggle');
         Route::get('/students', [StudentController::class, 'index'])->name('students.index');
         Route::get('/instructors', [InstructorApprovalController::class, 'index'])->name('instructors.index');
+        Route::get('/instructors/create', [InstructorApprovalController::class, 'create'])->name('instructors.create');
+        Route::post('/instructors', [InstructorApprovalController::class, 'store'])->name('instructors.store');
         Route::post('/instructors/{profile}/approve', [InstructorApprovalController::class, 'approve'])->name('instructors.approve');
         Route::post('/instructors/{profile}/reject', [InstructorApprovalController::class, 'reject'])->name('instructors.reject');
         Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');

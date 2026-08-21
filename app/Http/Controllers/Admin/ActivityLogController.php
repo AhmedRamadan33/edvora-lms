@@ -44,7 +44,7 @@ class ActivityLogController extends Controller
             'Subject' => ['subject.created', 'subject.deleted'],
             'Exam' => ['exam.created', 'exam.updated', 'exam.questions_added', 'exam.question_removed', 'exam.status_toggled', 'exam.deleted', 'exam_attempt.graded', 'exam_attempt.started', 'exam_attempt.submitted'],
             'Live Class' => ['live_class.scheduled', 'live_class.rescheduled', 'live_class.deleted', 'oauth.connected', 'oauth.disconnected'],
-            'Instructor' => ['instructor_profile.updated', 'instructor.approved', 'instructor.rejected'],
+            'Instructor' => ['instructor_profile.updated', 'instructor.approved', 'instructor.rejected', 'instructor.created_by_admin'],
             'Payout' => ['payout.requested', 'payout.paid', 'payout.rejected'],
             'Cart & Wishlist' => ['cart.item_added', 'cart.item_removed', 'wishlist.item_added', 'wishlist.item_removed'],
             'Order' => ['order.created', 'order.paid', 'order.failed', 'coupon.applied'],

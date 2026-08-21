@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\CreateInstructorRequest;
 use App\Http\Requests\Admin\RejectInstructorRequest;
 use App\Models\InstructorProfile;
 use App\Services\AdminCatalogService;
@@ -41,5 +42,17 @@ class InstructorApprovalController extends Controller
         $catalog->rejectInstructor($profile, $request->validated('rejection_reason'));
 
         return back()->with('success', __('Instructor rejected.'));
+    }
+
+    public function create(): View
+    {
+        return view('admin.instructors.create');
+    }
+
+    public function store(CreateInstructorRequest $request, AdminCatalogService $catalog): RedirectResponse
+    {
+        $catalog->createInstructor($request->validated());
+
+        return redirect()->route('admin.instructors.index')->with('success', __('Instructor account created. An email was sent so they can set their password.'));
     }
 }

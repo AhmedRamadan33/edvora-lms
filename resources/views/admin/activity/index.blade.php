@@ -50,7 +50,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="4" class="text-muted">{{ __('No activity found.') }}</td>
+                        <td colspan="5" class="text-muted">{{ __('No activity found.') }}</td>
                     </tr>
                 @endforelse
             </tbody>

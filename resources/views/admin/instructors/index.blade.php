@@ -7,6 +7,11 @@
         <h2>{{ __('Instructor applications') }}</h2>
         <p>{{ __('Approve sellers before they publish on the marketplace.') }}</p>
     </div>
+    <div>
+        <a href="{{ route('admin.instructors.create') }}" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-lg"></i> {{ __('Add instructor') }}
+        </a>
+    </div>
 </div>
 
 <x-table-toolbar :placeholder="__('Search instructors')" />
