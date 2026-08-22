@@ -1,6 +1,9 @@
 <a class="nav-link @if (request()->routeIs('student.dashboard')) active @endif" href="{{ route('student.dashboard') }}">
     <i class="bi bi-journal-bookmark me-2"></i>{{ __('My learning') }}
 </a>
+<a class="nav-link @if (request()->routeIs('student.chat.*')) active @endif" href="{{ route('student.chat.index') }}">
+    <i class="bi bi-chat-dots me-2"></i>{{ __('Messages') }}
+</a>
 <a class="nav-link @if (request()->routeIs('exams.*')) active @endif" href="{{ route('exams.index') }}">
     <i class="bi bi-file-earmark-text me-2"></i>{{ __('Exams') }}
 </a>

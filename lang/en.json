@@ -965,5 +965,22 @@
     "Sent": "Sent",
     "Search announcements": "Search announcements",
     "Announcement sent to :count student(s).": "Announcement sent to :count student(s).",
-    ":user sent the announcement \":subject\" to :count student(s).": ":user sent the announcement \":subject\" to :count student(s)."
+    ":user sent the announcement \":subject\" to :count student(s).": ":user sent the announcement \":subject\" to :count student(s).",
+    "Messages": "Messages",
+    "New chat": "New chat",
+    "Search conversations": "Search conversations",
+    "No conversations yet.": "No conversations yet.",
+    "Say hello!": "Say hello!",
+    "Select a conversation to start chatting": "Select a conversation to start chatting",
+    "Start a new conversation": "Start a new conversation",
+    "Choose someone to message": "Choose someone to message",
+    "Start chat": "Start chat",
+    "Instructor": "Instructor",
+    "Load older messages": "Load older messages",
+    "Type a message": "Type a message",
+    "Delete message": "Delete message",
+    "Back": "Back",
+    "Today": "Today",
+    "Yesterday": "Yesterday",
+    "Delete this message? This cannot be undone.": "Delete this message? This cannot be undone."
 }

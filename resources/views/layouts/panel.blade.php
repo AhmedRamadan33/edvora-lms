@@ -69,6 +69,10 @@
 
                 <a href="{{ route('home') }}" class="btn btn-sm btn-outline-primary text-nowrap">{{ __('Storefront') }}</a>
 
+                @if (auth()->user()?->hasRole('student') || auth()->user()?->hasRole('instructor'))
+                    @include('partials.chat-badge', ['toggleClass' => 'btn btn-sm btn-outline-primary'])
+                @endif
+
                 @include('partials.notifications-bell', [
                     'asItem' => false,
                     'toggleClass' => 'btn btn-sm btn-outline-primary',

@@ -22,6 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initSelect2();
     initNotifications();
     initAnnouncementForm();
+    initChatBadge();
+    initChat();
 });
 
 function initToasts() {
@@ -68,7 +70,22 @@ function initFormConfirmations() {
     const defaultBody = bodyElement?.textContent ?? '';
     const defaultLabel = acceptButton?.textContent ?? '';
     const genericLabel = acceptButton?.dataset.genericLabel || defaultLabel;
-    let pendingForm = null;
+    let pendingAction = null;
+
+    window.edConfirm = (message, label, isDanger, onAccept) => {
+        pendingAction = onAccept;
+
+        if (bodyElement) {
+            bodyElement.textContent = message || defaultBody;
+        }
+        if (acceptButton) {
+            acceptButton.textContent = label || genericLabel;
+            acceptButton.classList.toggle('btn-danger', isDanger);
+            acceptButton.classList.toggle('btn-primary', !isDanger);
+        }
+
+        confirmationToast.show();
+    };
 
     document.querySelectorAll('form').forEach((form) => {
         const isDeleteForm = form.matches('[data-confirm-delete]')
@@ -85,35 +102,18 @@ function initFormConfirmations() {
             }
 
             event.preventDefault();
-            pendingForm = form;
-
-            if (bodyElement) {
-                bodyElement.textContent = form.dataset.confirmMessage || defaultBody;
-            }
-            if (acceptButton) {
-                acceptButton.textContent = form.dataset.confirmLabel || (isDeleteForm ? defaultLabel : genericLabel);
-                acceptButton.classList.toggle('btn-danger', isDeleteForm);
-                acceptButton.classList.toggle('btn-primary', !isDeleteForm);
-            }
-
-            confirmationToast.show();
+            window.edConfirm(form.dataset.confirmMessage, form.dataset.confirmLabel || (isDeleteForm ? defaultLabel : genericLabel), isDeleteForm, () => {
+                form.dataset.confirmed = 'true';
+                form.requestSubmit();
+            });
         });
     });
 
     acceptButton?.addEventListener('click', () => {
-        if (!pendingForm) {
-            return;
-        }
-
-        pendingForm.dataset.confirmed = 'true';
         confirmationToast.hide();
-        pendingForm.requestSubmit();
-    });
-
-    confirmationElement.addEventListener('hidden.bs.toast', () => {
-        if (pendingForm?.dataset.confirmed !== 'true') {
-            pendingForm = null;
-        }
+        const action = pendingAction;
+        pendingAction = null;
+        action?.();
     });
 }
 
@@ -696,6 +696,30 @@ function initNotifications() {
     setInterval(load, 60000);
 }
 
+function initChatBadge() {
+    const badge = document.querySelector('[data-chat-badge]');
+    if (!badge) {
+        return;
+    }
+
+    const countEl = badge.querySelector('[data-chat-badge-count]');
+    const url = badge.dataset.unreadUrl;
+
+    const load = () => {
+        fetch(url, { headers: { Accept: 'application/json' } })
+            .then((response) => response.json())
+            .then((payload) => {
+                const count = payload.unread_count || 0;
+                countEl.textContent = count > 9 ? '9+' : String(count);
+                countEl.classList.toggle('d-none', count === 0);
+            })
+            .catch(() => {});
+    };
+
+    load();
+    setInterval(load, 15000);
+}
+
 function initAnnouncementForm() {
     const form = document.querySelector('[data-announcement-form]');
     if (!form) {
@@ -821,4 +845,376 @@ function initExamAttempt() {
         tick();
         setInterval(tick, 1000);
     }
+}
+
+function initChat() {
+    const root = document.querySelector('[data-chat-app]');
+    if (!root) {
+        return;
+    }
+
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+    const listEl = root.querySelector('[data-chat-conversations]');
+    const searchInput = root.querySelector('[data-chat-search]');
+    const threadEl = root.querySelector('[data-chat-thread]');
+    const startBtn = root.querySelector('[data-chat-start-btn]');
+    const pickerSelect = root.querySelector('[data-chat-picker]');
+    const modalEl = document.getElementById('chatNewConversationModal');
+
+    let activeId = root.dataset.activeConversation ? Number(root.dataset.activeConversation) : null;
+    let pollTimer = null;
+    let listPollTimer = null;
+
+    const escapeHtml = (value) => {
+        const div = document.createElement('div');
+        div.textContent = value ?? '';
+        return div.innerHTML;
+    };
+
+    const requestJson = (url, options = {}) => {
+        const method = (options.method || 'GET').toUpperCase();
+        const headers = { Accept: 'application/json', ...(options.headers || {}) };
+        if (method !== 'GET') {
+            headers['X-CSRF-TOKEN'] = csrfToken;
+        }
+        if (options.body) {
+            headers['Content-Type'] = 'application/json';
+        }
+
+        return fetch(url, { ...options, headers }).then((response) => response.json());
+    };
+
+    const conversationItemHtml = (conversation) => `
+        <span class="ed-chat__avatar">${escapeHtml(conversation.avatar)}</span>
+        <span class="ed-chat__conv-body">
+            <span class="ed-chat__conv-top">
+                <span class="ed-chat__conv-name">${escapeHtml(conversation.name)}</span>
+                <span class="ed-chat__conv-time" data-chat-conv-time>${escapeHtml(conversation.last_message_at)}</span>
+            </span>
+            <span class="ed-chat__conv-bottom">
+                <span class="ed-chat__conv-preview" data-chat-conv-preview>${escapeHtml(conversation.last_message || root.dataset.sayHelloLabel || '')}</span>
+                <span class="ed-chat__badge ${conversation.unread_count ? '' : 'd-none'}" data-chat-conv-badge>${conversation.unread_count || ''}</span>
+            </span>
+        </span>
+    `;
+
+    const renderConversationList = (conversations) => {
+        if (!listEl) {
+            return;
+        }
+
+        if (!conversations.length) {
+            listEl.innerHTML = `<div class="ed-chat__empty-list" data-chat-empty-list><i class="bi bi-chat-dots"></i><p>${escapeHtml(root.dataset.emptyLabel || '')}</p></div>`;
+            return;
+        }
+
+        listEl.innerHTML = conversations.map((conversation) => `
+            <button type="button" class="ed-chat__conv ${conversation.id === activeId ? 'is-active' : ''}"
+                data-chat-conversation-item data-id="${conversation.id}" data-name="${escapeHtml(conversation.name)}">
+                ${conversationItemHtml(conversation)}
+            </button>
+        `).join('');
+
+        applySearchFilter();
+    };
+
+    const applySearchFilter = () => {
+        const term = (searchInput?.value || '').trim().toLowerCase();
+        listEl?.querySelectorAll('[data-chat-conversation-item]').forEach((item) => {
+            const matches = !term || item.dataset.name.toLowerCase().includes(term);
+            item.classList.toggle('d-none', !matches);
+        });
+    };
+
+    const loadConversations = () => {
+        requestJson(root.dataset.conversationsUrl)
+            .then((payload) => renderConversationList(payload.conversations || []))
+            .catch(() => {});
+    };
+
+    const dayDividerHtml = (label) => `<div class="ed-chat__day-divider"><span>${escapeHtml(label)}</span></div>`;
+
+    const bubbleHtml = (message) => `
+        <div class="ed-chat__bubble-row ${message.is_mine ? 'is-mine' : ''}" data-chat-message-id="${message.id}">
+            <div class="ed-chat__bubble">
+                <span class="ed-chat__bubble-text">${escapeHtml(message.body)}</span>
+                <span class="ed-chat__bubble-meta">
+                    <span class="ed-chat__bubble-time">${escapeHtml(message.time)}</span>
+                    ${message.is_mine ? `<i class="bi ${message.read ? 'bi-check2-all text-primary' : 'bi-check2'}"></i>` : ''}
+                </span>
+                ${message.is_mine ? `<button type="button" class="ed-chat__bubble-delete" data-chat-delete-message aria-label="${escapeHtml(root.dataset.deleteLabel || '')}"><i class="bi bi-trash3"></i></button>` : ''}
+            </div>
+        </div>
+    `;
+
+    const scrollThreadToBottom = () => {
+        const messagesEl = threadEl.querySelector('[data-chat-messages]');
+        if (messagesEl) {
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
+    };
+
+    const lastRenderedDate = () => {
+        const dividers = threadEl.querySelectorAll('.ed-chat__day-divider span');
+        return dividers.length ? dividers[dividers.length - 1].textContent : null;
+    };
+
+    const lastRenderedMessageId = () => {
+        const rows = threadEl.querySelectorAll('[data-chat-message-id]');
+        if (!rows.length) {
+            return 0;
+        }
+        return Math.max(...[...rows].map((row) => Number(row.dataset.chatMessageId)));
+    };
+
+    const appendMessages = (messages) => {
+        const list = threadEl.querySelector('[data-chat-message-list]');
+        if (!list) {
+            return;
+        }
+
+        let lastDate = lastRenderedDate();
+        let html = '';
+        messages.forEach((message) => {
+            if (message.date_label !== lastDate) {
+                html += dayDividerHtml(message.date_label);
+                lastDate = message.date_label;
+            }
+            html += bubbleHtml(message);
+        });
+
+        list.insertAdjacentHTML('beforeend', html);
+    };
+
+    const renderThreadShell = (conversation) => {
+        threadEl.classList.add('is-open');
+        root.classList.add('is-thread-active');
+        threadEl.innerHTML = `
+            <div class="ed-chat__thread-head">
+                <button type="button" class="btn btn-sm ed-chat__back" data-chat-back aria-label="${escapeHtml(root.dataset.backLabel || '')}">
+                    <i class="bi bi-arrow-${document.documentElement.dir === 'rtl' ? 'right' : 'left'}"></i>
+                </button>
+                <span class="ed-chat__avatar">${escapeHtml(conversation.avatar)}</span>
+                <span class="ed-chat__thread-name" data-chat-thread-name>${escapeHtml(conversation.name)}</span>
+            </div>
+            <div class="ed-chat__messages" data-chat-messages data-has-more="0" data-next-page="2">
+                <div class="ed-chat__load-more d-none"><button type="button" class="btn btn-sm btn-outline-secondary" data-chat-load-more>${escapeHtml(root.dataset.loadMoreLabel || '')}</button></div>
+                <div data-chat-message-list></div>
+            </div>
+            <form class="ed-chat__composer" data-chat-composer>
+                <textarea name="body" rows="1" class="ed-chat__input" data-chat-input placeholder="${escapeHtml(root.dataset.typeLabel || '')}" maxlength="2000" required></textarea>
+                <button type="submit" class="ed-chat__send" aria-label="${escapeHtml(root.dataset.sendLabel || '')}"><i class="bi bi-send-fill"></i></button>
+            </form>
+        `;
+        bindThreadEvents();
+    };
+
+    const openConversation = (id, name, avatar) => {
+        activeId = Number(id);
+        renderThreadShell({ name, avatar: avatar || (name ? name.charAt(0) : '') });
+
+        listEl?.querySelectorAll('[data-chat-conversation-item]').forEach((item) => {
+            item.classList.toggle('is-active', Number(item.dataset.id) === activeId);
+            if (Number(item.dataset.id) === activeId) {
+                item.querySelector('[data-chat-conv-badge]')?.classList.add('d-none');
+                if (item.querySelector('[data-chat-conv-badge]')) {
+                    item.querySelector('[data-chat-conv-badge]').textContent = '';
+                }
+            }
+        });
+
+        const url = new URL(window.location.href);
+        url.searchParams.set('conversation', String(activeId));
+        window.history.pushState({}, '', url);
+
+        loadMessages({ reset: true });
+
+        clearInterval(pollTimer);
+        pollTimer = setInterval(pollActiveThread, 3000);
+    };
+
+    const loadMessages = ({ reset = false, page = null } = {}) => {
+        if (!activeId) {
+            return;
+        }
+
+        const base = root.dataset.messagesUrlBase.replace('__ID__', activeId);
+        const url = page ? `${base}?page=${page}` : base;
+
+        requestJson(url).then((payload) => {
+            const messagesEl = threadEl.querySelector('[data-chat-messages]');
+            if (!messagesEl) {
+                return;
+            }
+
+            if (reset) {
+                threadEl.querySelector('[data-chat-message-list]').innerHTML = '';
+            }
+
+            const list = threadEl.querySelector('[data-chat-message-list]');
+            const beforeHeight = list.scrollHeight;
+
+            if (page) {
+                let html = '';
+                let lastDate = null;
+                payload.messages.forEach((message) => {
+                    if (message.date_label !== lastDate) {
+                        html += dayDividerHtml(message.date_label);
+                        lastDate = message.date_label;
+                    }
+                    html += bubbleHtml(message);
+                });
+                list.insertAdjacentHTML('afterbegin', html);
+                const messagesScroll = threadEl.querySelector('[data-chat-messages]');
+                messagesScroll.scrollTop = list.scrollHeight - beforeHeight;
+            } else {
+                appendMessages(payload.messages);
+                scrollThreadToBottom();
+            }
+
+            messagesEl.dataset.hasMore = payload.has_more ? '1' : '0';
+            messagesEl.dataset.nextPage = String(payload.next_page);
+            threadEl.querySelector('[data-chat-load-more]')?.parentElement.classList.toggle('d-none', !payload.has_more);
+        }).catch(() => {});
+    };
+
+    const pollActiveThread = () => {
+        if (!activeId) {
+            return;
+        }
+
+        const base = root.dataset.messagesUrlBase.replace('__ID__', activeId);
+        requestJson(base).then((payload) => {
+            const lastId = lastRenderedMessageId();
+            const fresh = (payload.messages || []).filter((message) => message.id > lastId);
+            if (fresh.length) {
+                appendMessages(fresh);
+                scrollThreadToBottom();
+            }
+        }).catch(() => {});
+    };
+
+    const bindThreadEvents = () => {
+        threadEl.querySelector('[data-chat-back]')?.addEventListener('click', () => {
+            root.classList.remove('is-thread-active');
+        });
+
+        threadEl.querySelector('[data-chat-load-more]')?.addEventListener('click', () => {
+            const messagesEl = threadEl.querySelector('[data-chat-messages]');
+            loadMessages({ page: Number(messagesEl.dataset.nextPage) });
+        });
+
+        const input = threadEl.querySelector('[data-chat-input]');
+        input?.addEventListener('input', () => {
+            input.style.height = 'auto';
+            input.style.height = `${input.scrollHeight}px`;
+        });
+        input?.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                threadEl.querySelector('[data-chat-composer]')?.requestSubmit();
+            }
+        });
+
+        threadEl.querySelector('[data-chat-composer]')?.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const textarea = threadEl.querySelector('[data-chat-input]');
+            const body = textarea.value.trim();
+            if (!body || !activeId) {
+                return;
+            }
+
+            const sendUrl = root.dataset.sendUrlBase.replace('__ID__', activeId);
+            requestJson(sendUrl, { method: 'POST', body: JSON.stringify({ body }) })
+                .then((payload) => {
+                    if (!payload.message) {
+                        return;
+                    }
+                    appendMessages([payload.message]);
+                    scrollThreadToBottom();
+                    textarea.value = '';
+                    textarea.style.height = 'auto';
+                    loadConversations();
+                })
+                .catch(() => {});
+        });
+
+        threadEl.addEventListener('click', (event) => {
+            const deleteButton = event.target.closest('[data-chat-delete-message]');
+            if (!deleteButton) {
+                return;
+            }
+
+            const row = deleteButton.closest('[data-chat-message-id]');
+            const messageId = row?.dataset.chatMessageId;
+            if (!messageId) {
+                return;
+            }
+
+            window.edConfirm(root.dataset.deleteConfirmLabel || '', root.dataset.deleteLabel || '', true, () => {
+                const deleteUrl = root.dataset.deleteUrlBase.replace('__ID__', messageId);
+                requestJson(deleteUrl, { method: 'DELETE' }).then(() => {
+                    row.remove();
+                });
+            });
+        });
+    };
+
+    listEl?.addEventListener('click', (event) => {
+        const item = event.target.closest('[data-chat-conversation-item]');
+        if (!item) {
+            return;
+        }
+        openConversation(item.dataset.id, item.dataset.name, item.querySelector('.ed-chat__avatar')?.textContent);
+    });
+
+    searchInput?.addEventListener('input', applySearchFilter);
+
+    if (threadEl.querySelector('[data-chat-composer]')) {
+        bindThreadEvents();
+    }
+
+    startBtn?.addEventListener('click', () => {
+        const selectedId = pickerSelect?.value;
+        if (!selectedId) {
+            return;
+        }
+
+        requestJson(root.dataset.startUrl, {
+            method: 'POST',
+            body: JSON.stringify({ [root.dataset.pickerField]: selectedId }),
+        }).then((payload) => {
+            if (!payload.conversation) {
+                return;
+            }
+
+            if (window.bootstrap && modalEl) {
+                bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+            }
+
+            loadConversations();
+            openConversation(payload.conversation.id, payload.conversation.name, payload.conversation.avatar);
+        }).catch(() => {});
+    });
+
+    listPollTimer = setInterval(loadConversations, 6000);
+    if (activeId) {
+        pollTimer = setInterval(pollActiveThread, 3000);
+    }
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            clearInterval(pollTimer);
+            clearInterval(listPollTimer);
+            return;
+        }
+        loadConversations();
+        if (activeId) {
+            pollActiveThread();
+        }
+        listPollTimer = setInterval(loadConversations, 6000);
+        if (activeId) {
+            pollTimer = setInterval(pollActiveThread, 3000);
+        }
+    });
 }

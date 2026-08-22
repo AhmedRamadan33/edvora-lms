@@ -28,4 +28,13 @@ class UserRepository extends BaseRepository
             ->orderBy('name')
             ->get();
     }
+
+    public function instructorsForStudent(int $studentId): Collection
+    {
+        return $this->query()
+            ->role('instructor')
+            ->whereHas('courses.enrollments', fn ($query) => $query->where('user_id', $studentId))
+            ->orderBy('name')
+            ->get();
+    }
 }

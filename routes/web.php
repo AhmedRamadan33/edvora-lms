@@ -21,6 +21,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\TestimonialController;
 use App\Http\Controllers\Catalog\CourseCatalogController;
 use App\Http\Controllers\CertificateVerificationController;
+use App\Http\Controllers\Chat\UnreadCountController as ChatUnreadCountController;
 use App\Http\Controllers\Commerce\CartController;
 use App\Http\Controllers\Commerce\CheckoutController;
 use App\Http\Controllers\Commerce\WebhookController;
@@ -28,6 +29,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Instructor\AnnouncementController as InstructorAnnouncementController;
 use App\Http\Controllers\Instructor\BankQuestionController;
+use App\Http\Controllers\Instructor\ChatController as InstructorChatController;
 use App\Http\Controllers\Instructor\CourseController as InstructorCourseController;
 use App\Http\Controllers\Instructor\CurriculumController;
 use App\Http\Controllers\Instructor\DashboardController as InstructorDashboardController;
@@ -45,6 +47,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Student\CertificateController;
+use App\Http\Controllers\Student\ChatController as StudentChatController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
 use App\Http\Controllers\Student\ExamController as StudentExamController;
 use App\Http\Controllers\Student\LearnController;
@@ -110,10 +113,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/read-all', [NotificationController::class, 'readAll'])->name('read-all');
     });
 
+    Route::get('/chat/unread-count', ChatUnreadCountController::class)->name('chat.unread-count');
+
     Route::prefix('student')->name('student.')->group(function () {
         Route::get('/dashboard', StudentDashboardController::class)->name('dashboard');
         Route::get('/certificates', [CertificateController::class, 'index'])->name('certificates.index');
         Route::get('/certificates/{certificate}/download', [CertificateController::class, 'download'])->name('certificates.download');
+
+        Route::prefix('chat')->name('chat.')->group(function () {
+            Route::get('/', [StudentChatController::class, 'index'])->name('index');
+            Route::get('/conversations', [StudentChatController::class, 'conversations'])->name('conversations');
+            Route::post('/start', [StudentChatController::class, 'start'])->name('start');
+            Route::get('/{conversation}/messages', [StudentChatController::class, 'messages'])->name('messages');
+            Route::post('/{conversation}/messages', [StudentChatController::class, 'send'])->name('send');
+            Route::post('/{conversation}/read', [StudentChatController::class, 'read'])->name('read');
+            Route::delete('/messages/{message}', [StudentChatController::class, 'destroyMessage'])->name('messages.destroy');
+        });
     });
 
     Route::prefix('learn')->name('learn.')->group(function () {
@@ -188,6 +203,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/orders', [InstructorOrderController::class, 'index'])->name('orders.index');
         Route::get('/announcements', [InstructorAnnouncementController::class, 'index'])->name('announcements.index');
         Route::post('/announcements', [InstructorAnnouncementController::class, 'store'])->name('announcements.store');
+
+        Route::prefix('chat')->name('chat.')->group(function () {
+            Route::get('/', [InstructorChatController::class, 'index'])->name('index');
+            Route::get('/conversations', [InstructorChatController::class, 'conversations'])->name('conversations');
+            Route::post('/start', [InstructorChatController::class, 'start'])->name('start');
+            Route::get('/{conversation}/messages', [InstructorChatController::class, 'messages'])->name('messages');
+            Route::post('/{conversation}/messages', [InstructorChatController::class, 'send'])->name('send');
+            Route::post('/{conversation}/read', [InstructorChatController::class, 'read'])->name('read');
+            Route::delete('/messages/{message}', [InstructorChatController::class, 'destroyMessage'])->name('messages.destroy');
+        });
     });
 
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
