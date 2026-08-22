@@ -857,9 +857,9 @@ function initChat() {
     const listEl = root.querySelector('[data-chat-conversations]');
     const searchInput = root.querySelector('[data-chat-search]');
     const threadEl = root.querySelector('[data-chat-thread]');
-    const startBtn = root.querySelector('[data-chat-start-btn]');
-    const pickerSelect = root.querySelector('[data-chat-picker]');
     const modalEl = document.getElementById('chatNewConversationModal');
+    const startBtn = modalEl?.querySelector('[data-chat-start-btn]');
+    const pickerSelect = modalEl?.querySelector('[data-chat-picker]');
 
     let activeId = root.dataset.activeConversation ? Number(root.dataset.activeConversation) : null;
     let pollTimer = null;
