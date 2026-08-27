@@ -1,5 +1,6 @@
 @extends('layouts.app')
-@section('title', __('Certificate verification'))
+@section('title', __('Certificate verification').' - '.\App\Services\SettingService::platformName())
+@section('robots', 'noindex, follow')
 @section('content')
 <div class="row justify-content-center">
     <div class="col-lg-7">

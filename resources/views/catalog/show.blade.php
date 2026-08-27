@@ -1,6 +1,11 @@
 @extends('layouts.app')
 @php($t = $course->translation())
-@section('title', $t?->title)
+@section('title', $t?->title.' - '.\App\Services\SettingService::platformName())
+@section('description', \Illuminate\Support\Str::limit(strip_tags($t?->subtitle ?: $t?->description ?: ''), 160))
+@section('image', $cover)
+@push('structured_data')
+    <script type="application/ld+json">{!! $courseSchemaJson !!}</script>
+@endpush
 @section('content')
 <section class="course-hero">
     <div class="course-hero__bg" style="background-image:url('{{ $cover }}')"></div>

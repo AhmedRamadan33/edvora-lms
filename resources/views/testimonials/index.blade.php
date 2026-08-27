@@ -1,5 +1,6 @@
 @extends('layouts.app')
-@section('title', __('Testimonials'))
+@section('title', __('Testimonials').' - '.\App\Services\SettingService::platformName())
+@section('description', __('Real feedback from students and professionals on Edvora.'))
 @section('content')
 <div class="ed-page-head mb-4">
     <div>

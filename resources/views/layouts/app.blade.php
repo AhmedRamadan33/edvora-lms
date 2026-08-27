@@ -6,6 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', \App\Services\SettingService::platformName())</title>
+    <meta name="description" content="@yield('description', __('edvora-description'))">
+    <meta name="robots" content="@yield('robots', 'index, follow')">
+    <link rel="canonical" href="@yield('canonical', url()->current())">
+    <meta property="og:type" content="@yield('og_type', 'website')">
+    <meta property="og:site_name" content="{{ \App\Services\SettingService::platformName() }}">
+    <meta property="og:title" content="@yield('title', \App\Services\SettingService::platformName())">
+    <meta property="og:description" content="@yield('description', __('edvora-description'))">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:image" content="@yield('image', asset('edvora-logo.svg'))">
+    <meta property="og:locale" content="{{ app()->getLocale() === 'ar' ? 'ar_AR' : 'en_US' }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="@yield('title', \App\Services\SettingService::platformName())">
+    <meta name="twitter:description" content="@yield('description', __('edvora-description'))">
+    <meta name="twitter:image" content="@yield('image', asset('edvora-logo.svg'))">
     <link rel="icon" type="image/svg+xml" href="{{ asset('edvora-logo.svg') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -51,6 +65,18 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css">
     @endif
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @php
+        $organizationSchema = [
+            '@context' => 'https://schema.org',
+            '@type' => 'Organization',
+            'name' => \App\Services\SettingService::platformName(),
+            'url' => url('/'),
+            'logo' => asset('edvora-logo.svg'),
+            'email' => \App\Services\SettingService::platformEmail(),
+        ];
+    @endphp
+    <script type="application/ld+json">{!! json_encode($organizationSchema, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!}</script>
+    @stack('structured_data')
 </head>
 
 <body>

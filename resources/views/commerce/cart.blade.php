@@ -1,5 +1,6 @@
 @extends('layouts.app')
-@section('title', __('Cart'))
+@section('title', __('Cart').' - '.\App\Services\SettingService::platformName())
+@section('robots', 'noindex, nofollow')
 @section('content')
 <div class="ed-section__head mb-4">
     <div>

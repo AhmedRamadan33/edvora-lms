@@ -1,5 +1,6 @@
 @extends('layouts.app')
-@section('title', __('Payment success'))
+@section('title', __('Payment success').' - '.\App\Services\SettingService::platformName())
+@section('robots', 'noindex, nofollow')
 @section('content')
 <div class="auth-shell">
     <div class="auth-card text-center">

@@ -1,5 +1,6 @@
 @extends('layouts.app')
-@section('title', __('Register'))
+@section('title', __('Register').' - '.\App\Services\SettingService::platformName())
+@section('robots', 'noindex, follow')
 @section('content')
 <div class="auth-shell">
     <div class="auth-card">

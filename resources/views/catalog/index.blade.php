@@ -1,5 +1,6 @@
 @extends('layouts.app')
-@section('title', __('Courses'))
+@section('title', __('Courses').' - '.\App\Services\SettingService::platformName())
+@section('description', __('Explore expert-led courses across the marketplace.'))
 @section('content')
 <div class="ed-section__head mb-4">
     <div>

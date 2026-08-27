@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', \App\Services\SettingService::platformName())
+@section('title', \App\Services\SettingService::platformName().' - '.__('Master skills with world-class instructors'))
 @section('main_class', 'is-flush')
 
 @section('fullwidth')

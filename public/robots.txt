@@ -1,2 +1,17 @@
 User-agent: *
-Disallow:
+Disallow: /admin/
+Disallow: /instructor/
+Disallow: /student/
+Disallow: /learn/
+Disallow: /exams/
+Disallow: /notifications/
+Disallow: /dashboard
+Disallow: /cart
+Disallow: /checkout
+Disallow: /profile
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+
+Sitemap: https://edvora.codeversetechno.com/sitemap.xml

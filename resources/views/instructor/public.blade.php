@@ -1,5 +1,6 @@
 @extends('layouts.app')
-@section('title', $user->name)
+@section('title', $user->name.' - '.\App\Services\SettingService::platformName())
+@section('description', \Illuminate\Support\Str::limit(strip_tags($user->instructorProfile?->about ?: $user->instructorProfile?->headline ?: ''), 160))
 @section('content')
 <section class="ed-panel p-4 p-lg-5 mb-4">
     <div class="row align-items-center g-3">

@@ -51,6 +51,19 @@ class CourseCatalogController extends Controller
             ? asset('storage/'.$course->thumbnail)
             : asset('images/course_thumbnail.png');
 
-        return view('catalog.show', compact('course', 'enrolled', 'cover', 'ownReview'));
+        $translation = $course->translation();
+        $courseSchemaJson = json_encode([
+            '@context' => 'https://schema.org',
+            '@type' => 'Course',
+            'name' => $translation?->title,
+            'description' => \Illuminate\Support\Str::limit(strip_tags($translation?->description ?: $translation?->subtitle ?: ''), 300),
+            'provider' => [
+                '@type' => 'Organization',
+                'name' => \App\Services\SettingService::platformName(),
+                'sameAs' => url('/'),
+            ],
+        ], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+
+        return view('catalog.show', compact('course', 'enrolled', 'cover', 'ownReview', 'courseSchemaJson'));
     }
 }
