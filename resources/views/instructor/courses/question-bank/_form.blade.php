@@ -142,15 +142,15 @@
                     <div data-matches-list>
                         @foreach ($matches as $match)
                             <div class="row g-2 mb-2" data-match-row>
-                                <div class="col-5">
+                                <div class="col-12 col-sm-5">
                                     <input class="form-control" data-match-prompt value="{{ $match->prompt_text }}"
                                         placeholder="{{ __('Key') }}">
                                 </div>
-                                <div class="col-5">
+                                <div class="col-12 col-sm-5">
                                     <input class="form-control" data-match-answer value="{{ $match->match_text }}"
                                         placeholder="{{ __('Value') }}">
                                 </div>
-                                <div class="col-2">
+                                <div class="col-12 col-sm-2">
                                     <button type="button" class="btn btn-outline-danger w-100" data-remove-match>&times;</button>
                                 </div>
                             </div>

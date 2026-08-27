@@ -60,8 +60,7 @@
                 </div>
             </div>
 
-            <div class="app-topbar__actions d-flex flex-row flex-nowrap align-items-center gap-2"
-                style="display:flex;flex-direction:row;flex-wrap:nowrap;align-items:center;gap:.5rem;">
+            <div class="app-topbar__actions d-flex align-items-center gap-2">
                 @include('partials.locale-dropdown', [
                     'asItem' => false,
                     'toggleClass' => 'btn btn-sm btn-outline-primary ed-locale-toggle dropdown-toggle',

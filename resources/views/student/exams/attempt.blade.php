@@ -64,8 +64,8 @@
                             @php $options = $question->matches->pluck('match_text')->shuffle()->values(); @endphp
                             @foreach ($question->matches as $match)
                                 <div class="row g-2 align-items-center mb-2">
-                                    <div class="col-5">{{ $match->prompt_text }}</div>
-                                    <div class="col-7">
+                                    <div class="col-12 col-sm-5">{{ $match->prompt_text }}</div>
+                                    <div class="col-12 col-sm-7">
                                         <select class="form-select" name="answers[{{ $question->id }}][{{ $match->id }}]"
                                             data-answer-input data-question-index="{{ $index }}">
                                             <option value="">{{ __('Select a match') }}</option>

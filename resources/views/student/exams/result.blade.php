@@ -66,19 +66,21 @@
                         </ul>
                     @elseif ($question->type === 'matching')
                         @php $submittedPairs = $answer->answer_data['pairs'] ?? []; @endphp
-                        <table class="table table-bordered mb-0">
-                            <thead><tr><th>{{ __('Key') }}</th><th>{{ __('Your answer') }}</th><th>{{ __('Correct value') }}</th></tr></thead>
-                            <tbody>
-                                @foreach ($question->matches as $match)
-                                    @php $selected = $submittedPairs[$match->id] ?? null; @endphp
-                                    <tr>
-                                        <td>{{ $match->prompt_text }}</td>
-                                        <td class="{{ $selected === $match->match_text ? 'text-success' : 'text-danger' }}">{{ $selected ?: '—' }}</td>
-                                        <td>{{ $match->match_text }}</td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                        <div class="table-responsive">
+                            <table class="table table-bordered mb-0">
+                                <thead><tr><th>{{ __('Key') }}</th><th>{{ __('Your answer') }}</th><th>{{ __('Correct value') }}</th></tr></thead>
+                                <tbody>
+                                    @foreach ($question->matches as $match)
+                                        @php $selected = $submittedPairs[$match->id] ?? null; @endphp
+                                        <tr>
+                                            <td>{{ $match->prompt_text }}</td>
+                                            <td class="{{ $selected === $match->match_text ? 'text-success' : 'text-danger' }}">{{ $selected ?: '—' }}</td>
+                                            <td>{{ $match->match_text }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     @else
                         <div class="border rounded-3 p-3 bg-light">
                             {{ $answer->answer_data['text'] ?? __('No answer submitted.') }}

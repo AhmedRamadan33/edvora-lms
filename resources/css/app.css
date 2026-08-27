@@ -1020,6 +1020,7 @@ body.ed-panel-body {
 
 .ed-page-head {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: end;
     gap: 1rem;
@@ -1241,6 +1242,45 @@ body.ed-panel-body {
 
     .buy-box {
         position: static;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .app-page {
+        padding: 1.1rem;
+    }
+
+    .app-topbar {
+        padding: 0.9rem 1.1rem;
+        row-gap: 0.65rem;
+    }
+
+    .app-topbar__title {
+        font-size: 1.15rem;
+    }
+
+    .course-hero__content {
+        padding: 1.25rem;
+    }
+
+    .ed-section {
+        padding: 2.75rem 0;
+    }
+
+    .auth-card {
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .app-topbar {
+        flex-wrap: wrap;
+    }
+
+    .app-topbar__actions {
+        flex-wrap: wrap !important;
+        width: 100%;
+        justify-content: flex-start !important;
     }
 }
 

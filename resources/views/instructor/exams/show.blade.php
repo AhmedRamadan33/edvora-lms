@@ -163,14 +163,16 @@
                             @endforeach
                         </ul>
                     @elseif ($question->type === 'matching')
-                        <table class="table table-bordered mb-0">
-                            <thead><tr><th>{{ __('Key') }}</th><th>{{ __('Value') }}</th></tr></thead>
-                            <tbody>
-                                @foreach ($question->matches as $match)
-                                    <tr><td>{{ $match->prompt_text }}</td><td>{{ $match->match_text }}</td></tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                        <div class="table-responsive">
+                            <table class="table table-bordered mb-0">
+                                <thead><tr><th>{{ __('Key') }}</th><th>{{ __('Value') }}</th></tr></thead>
+                                <tbody>
+                                    @foreach ($question->matches as $match)
+                                        <tr><td>{{ $match->prompt_text }}</td><td>{{ $match->match_text }}</td></tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     @else
                         <div class="text-muted small">{{ __('Graded manually by the instructor.') }}</div>
                     @endif

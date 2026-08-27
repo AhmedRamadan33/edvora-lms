@@ -168,13 +168,13 @@
 
     <template id="bank-match-row-template">
         <div class="row g-2 mb-2" data-match-row>
-            <div class="col-5">
+            <div class="col-12 col-sm-5">
                 <input class="form-control" data-match-prompt placeholder="{{ __('Key') }}">
             </div>
-            <div class="col-5">
+            <div class="col-12 col-sm-5">
                 <input class="form-control" data-match-answer placeholder="{{ __('Value') }}">
             </div>
-            <div class="col-2">
+            <div class="col-12 col-sm-2">
                 <button type="button" class="btn btn-outline-danger w-100" data-remove-match>&times;</button>
             </div>
         </div>
