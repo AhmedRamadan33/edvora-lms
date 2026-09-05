@@ -574,6 +574,8 @@
     "You will be redirected to a secure payment page.": "سيتم تحويلك إلى صفحة دفع آمنة.",
     "Stripe is not configured.": "Stripe غير مُعدّ.",
     "Unable to start Stripe payment. Please try again.": "تعذر بدء الدفع عبر Stripe. حاول مرة أخرى.",
+    "This order total is too small for Stripe to process. Please add another course or choose a different payment method.": "إجمالي هذا الطلب صغير جدًا بحيث لا يمكن لـ Stripe معالجته. من فضلك أضف كورس آخر أو اختر وسيلة دفع مختلفة.",
+    "This order total is too large for Stripe to process. Please choose a different payment method.": "إجمالي هذا الطلب كبير جدًا بحيث لا يمكن لـ Stripe معالجته. من فضلك اختر وسيلة دفع مختلفة.",
     "Unable to start Paymob payment. Please try again.": "تعذر بدء الدفع عبر Paymob. حاول مرة أخرى.",
     "Unable to start payment.": "تعذر بدء عملية الدفع.",
     "Payment is still pending. If you were charged, your enrollment will unlock shortly.": "الدفع ما زال قيد المعالجة. إذا تم الخصم، سيتم فتح الكورسات قريبًا.",

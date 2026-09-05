@@ -10,6 +10,7 @@ use App\Repositories\CartRepository;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Stripe\Exception\ApiErrorException;
 
 class CheckoutService
 {
@@ -191,9 +192,17 @@ class CheckoutService
                 'error' => $e->getMessage(),
             ]);
 
+            $stripeCode = $e instanceof ApiErrorException ? $e->getStripeCode() : null;
+
+            $message = match ($stripeCode) {
+                'amount_too_small' => __('This order total is too small for Stripe to process. Please add another course or choose a different payment method.'),
+                'amount_too_large' => __('This order total is too large for Stripe to process. Please choose a different payment method.'),
+                default => __('Unable to start Stripe payment. Please try again.'),
+            };
+
             return [
                 'ok' => false,
-                'message' => __('Unable to start Stripe payment. Please try again.'),
+                'message' => $message,
                 'redirect' => route('checkout.show'),
             ];
         }

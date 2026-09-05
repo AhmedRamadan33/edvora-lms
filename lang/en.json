@@ -567,6 +567,8 @@
     "You will be redirected to a secure payment page.": "You will be redirected to a secure payment page.",
     "Stripe is not configured.": "Stripe is not configured.",
     "Unable to start Stripe payment. Please try again.": "Unable to start Stripe payment. Please try again.",
+    "This order total is too small for Stripe to process. Please add another course or choose a different payment method.": "This order total is too small for Stripe to process. Please add another course or choose a different payment method.",
+    "This order total is too large for Stripe to process. Please choose a different payment method.": "This order total is too large for Stripe to process. Please choose a different payment method.",
     "Unable to start Paymob payment. Please try again.": "Unable to start Paymob payment. Please try again.",
     "Unable to start payment.": "Unable to start payment.",
     "Payment is still pending. If you were charged, your enrollment will unlock shortly.": "Payment is still pending. If you were charged, your enrollment will unlock shortly.",
