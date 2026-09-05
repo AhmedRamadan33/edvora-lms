@@ -2,7 +2,10 @@
 
 namespace App\Models;
 
+use App\Services\OtpService;
 use Database\Factories\UserFactory;
+use Illuminate\Auth\MustVerifyEmail as MustVerifyEmailTrait;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -10,10 +13,10 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, HasRoles, Notifiable;
+    use HasFactory, HasRoles, MustVerifyEmailTrait, Notifiable;
 
     protected $fillable = [
         'name',
@@ -24,6 +27,8 @@ class User extends Authenticatable
         'avatar',
         'bio',
         'is_active',
+        'provider',
+        'provider_id',
     ];
 
     protected $hidden = [
@@ -88,5 +93,10 @@ class User extends Authenticatable
     public function isEnrolledIn(int $courseId): bool
     {
         return $this->enrollments()->where('course_id', $courseId)->exists();
+    }
+
+    public function sendEmailVerificationNotification(): void
+    {
+        app(OtpService::class)->generateAndSend($this, OtpCode::PURPOSE_EMAIL_VERIFICATION);
     }
 }

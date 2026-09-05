@@ -3,24 +3,35 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\VerifyOtpRequest;
+use App\Models\ActivityLog;
+use App\Models\OtpCode;
+use App\Services\OtpService;
 use Illuminate\Auth\Events\Verified;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\RedirectResponse;
 
 class VerifyEmailController extends Controller
 {
-    /**
-     * Mark the authenticated user's email address as verified.
-     */
-    public function __invoke(EmailVerificationRequest $request): RedirectResponse
+    public function __construct(private OtpService $otp)
     {
-        if ($request->user()->hasVerifiedEmail()) {
-            return redirect()->intended(route('dashboard', absolute: false).'?verified=1');
+    }
+
+    public function store(VerifyOtpRequest $request): RedirectResponse
+    {
+        $user = $request->user();
+
+        if ($user->hasVerifiedEmail()) {
+            return redirect()->intended(route('dashboard', absolute: false));
         }
 
-        if ($request->user()->markEmailAsVerified()) {
-            event(new Verified($request->user()));
+        if (! $this->otp->verify($user, $request->string('code'), OtpCode::PURPOSE_EMAIL_VERIFICATION)) {
+            return back()->withErrors(['code' => __('This code is invalid or has expired. Please request a new one.')]);
         }
+
+        $user->markEmailAsVerified();
+        event(new Verified($user));
+
+        ActivityLog::record('auth.email_verified', $user);
 
         return redirect()->intended(route('dashboard', absolute: false).'?verified=1');
     }

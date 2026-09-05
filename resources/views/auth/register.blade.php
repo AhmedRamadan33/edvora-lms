@@ -36,6 +36,7 @@
             </div>
             <button class="btn btn-primary w-100 mb-3">{{ __('Create account') }}</button>
         </form>
+        @include('partials.social-auth-buttons')
         <div class="small text-center">
             <a href="{{ route('login') }}">{{ __('Already have an account? Log in') }}</a>
         </div>

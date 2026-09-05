@@ -25,6 +25,7 @@
             </div>
             <button class="btn btn-primary w-100 mb-3">{{ __('Log in') }}</button>
         </form>
+        @include('partials.social-auth-buttons')
         <div class="d-flex justify-content-between small">
             <a href="{{ route('password.request') }}">{{ __('Forgot password?') }}</a>
             <a href="{{ route('register') }}">{{ __('Create account') }}</a>
