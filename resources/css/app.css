@@ -1037,16 +1037,6 @@ body.ed-panel-body {
     color: var(--ed-muted);
 }
 
-.ed-about-badge {
-    display: inline-block;
-    background: var(--ed-accent-soft);
-    color: var(--ed-accent-dark);
-    font-weight: 600;
-    font-size: 0.85rem;
-    padding: 0.4rem 0.9rem;
-    border-radius: 999px;
-}
-
 .ed-about-media {
     border-radius: var(--ed-radius);
     overflow: hidden;

@@ -220,9 +220,8 @@
                     <p>{{ \App\Services\SettingService::platformEmail() }}</p>
                 </div>
             </div>
-            <div class="d-flex flex-wrap justify-content-between gap-2 pt-4 mt-4 ed-footer__meta">
-                <div>&copy; {{ date('Y') }} {{ $platform }}</div>
-                <div>{{ __('Crafted for serious learning') }}</div>
+            <div class="text-center pt-4 mt-4 ed-footer__meta">
+                <div>{{ __('footer-copyright', ['year' => date('Y'), 'platform' => $platform]) }}</div>
             </div>
         </div>
     </footer>

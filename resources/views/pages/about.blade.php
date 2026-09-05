@@ -6,7 +6,6 @@
 <div class="ed-panel p-4 p-lg-5">
     <div class="row align-items-center g-4 g-lg-5">
         <div class="col-lg-6">
-            <span class="ed-about-badge mb-3">{{ $t?->title }}</span>
             <h1 class="mb-3" style="font-size:clamp(2rem,4vw,2.8rem)">{{ $t?->title }}</h1>
             @foreach (preg_split('/\n+/', trim($t?->body ?? ''), -1, PREG_SPLIT_NO_EMPTY) as $paragraph)
                 <p class="text-secondary" style="font-size:1.05rem;line-height:1.8">{{ $paragraph }}</p>
