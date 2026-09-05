@@ -19,6 +19,14 @@
             'text' => !$isEnabled ? __('Disabled') : ($isConfigured ? __('Live') : __('Demo')),
         ];
     }
+    foreach (['google', 'facebook'] as $provider) {
+        $isEnabled = (bool) ($settings["{$provider}_login_enabled"] ?? true);
+        $isConfigured = $socialProviders[$provider]['configured'];
+        $badges[$provider] = [
+            'class' => !$isEnabled ? 'secondary' : ($isConfigured ? 'success' : 'warning'),
+            'text' => !$isEnabled ? __('Disabled') : ($isConfigured ? __('Live') : __('Not configured')),
+        ];
+    }
 @endphp
 
 <form method="POST" action="{{ route('admin.settings.update') }}" class="ed-panel p-4">
@@ -76,6 +84,18 @@
             <button class="nav-link" id="tab-live-classes-btn" data-bs-toggle="tab" data-bs-target="#tab-live-classes"
                 type="button" role="tab">
                 {{ __('Live Classes') }}
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-social-login-btn" data-bs-toggle="tab" data-bs-target="#tab-social-login"
+                type="button" role="tab">
+                {{ __('Social Login') }}
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-mail-btn" data-bs-toggle="tab" data-bs-target="#tab-mail" type="button"
+                role="tab">
+                {{ __('Email (SMTP)') }}
             </button>
         </li>
     </ul>
@@ -354,6 +374,110 @@
                     <code>{{ rtrim(config('app.url'), '/') }}/instructor/integrations/zoom/callback</code></div>
                 <div class="small text-muted">{{ __('Google OAuth redirect URL') }}:
                     <code>{{ rtrim(config('app.url'), '/') }}/instructor/integrations/google/callback</code></div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="tab-social-login" role="tabpanel">
+            <p class="text-muted small">
+                {{ __('Let students and instructors sign up or log in using their Google or Facebook account.') }}
+            </p>
+
+            <h3 class="h6 mt-4 d-flex align-items-center gap-2">
+                Google
+                <span class="badge text-bg-{{ $badges['google']['class'] }}">{{ $badges['google']['text'] }}</span>
+            </h3>
+            <div class="form-check form-switch mb-3">
+                <input type="hidden" name="google_login_enabled" value="0">
+                <input class="form-check-input" type="checkbox" role="switch" id="google_login_enabled"
+                    name="google_login_enabled" value="1" @checked($settings['google_login_enabled'] ?? true)>
+                <label class="form-check-label" for="google_login_enabled">{{ __('Show this sign-in option') }}</label>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">{{ __('Google client ID') }}</label>
+                    <input class="form-control" name="google_client_id"
+                        value="{{ old('google_client_id', $settings['google_client_id'] ?? '') }}">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">{{ __('Google client secret') }}</label>
+                    <x-secret-input name="google_client_secret" :value="old('google_client_secret', $settings['google_client_secret'] ?? '')" />
+                </div>
+            </div>
+            <div class="ed-panel p-3 bg-light border-0 mt-3 mb-4">
+                <div class="small text-muted">{{ __('Authorized redirect URI') }}:
+                    <code>{{ rtrim(config('app.url'), '/') }}/auth/google/callback</code></div>
+            </div>
+
+            <h3 class="h6 mt-4 d-flex align-items-center gap-2">
+                Facebook
+                <span class="badge text-bg-{{ $badges['facebook']['class'] }}">{{ $badges['facebook']['text'] }}</span>
+            </h3>
+            <div class="form-check form-switch mb-3">
+                <input type="hidden" name="facebook_login_enabled" value="0">
+                <input class="form-check-input" type="checkbox" role="switch" id="facebook_login_enabled"
+                    name="facebook_login_enabled" value="1" @checked($settings['facebook_login_enabled'] ?? true)>
+                <label class="form-check-label" for="facebook_login_enabled">{{ __('Show this sign-in option') }}</label>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">{{ __('Facebook app ID') }}</label>
+                    <input class="form-control" name="facebook_client_id"
+                        value="{{ old('facebook_client_id', $settings['facebook_client_id'] ?? '') }}">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">{{ __('Facebook app secret') }}</label>
+                    <x-secret-input name="facebook_client_secret" :value="old('facebook_client_secret', $settings['facebook_client_secret'] ?? '')" />
+                </div>
+            </div>
+            <div class="ed-panel p-3 bg-light border-0 mt-3">
+                <div class="small text-muted">{{ __('Valid OAuth redirect URI') }}:
+                    <code>{{ rtrim(config('app.url'), '/') }}/auth/facebook/callback</code></div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="tab-mail" role="tabpanel">
+            <p class="text-muted small">
+                {{ __('Configure the SMTP server used to send verification codes and platform emails. Leave the host empty to keep the server default.') }}
+            </p>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">{{ __('SMTP host') }}</label>
+                    <input class="form-control" name="mail_host"
+                        value="{{ old('mail_host', $settings['mail_host'] ?? '') }}">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">{{ __('SMTP port') }}</label>
+                    <input type="number" class="form-control" name="mail_port"
+                        value="{{ old('mail_port', $settings['mail_port'] ?? '') }}">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">{{ __('SMTP username') }}</label>
+                    <input class="form-control" name="mail_username"
+                        value="{{ old('mail_username', $settings['mail_username'] ?? '') }}">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">{{ __('SMTP password') }}</label>
+                    <x-secret-input name="mail_password" :value="old('mail_password', $settings['mail_password'] ?? '')" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">{{ __('Encryption') }}</label>
+                    @php($currentEncryption = old('mail_encryption', $settings['mail_encryption'] ?? 'tls'))
+                    <select class="form-select" name="mail_encryption">
+                        <option value="tls" @selected($currentEncryption === 'tls')>TLS</option>
+                        <option value="ssl" @selected($currentEncryption === 'ssl')>SSL</option>
+                        <option value="none" @selected($currentEncryption === 'none')>{{ __('None') }}</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">{{ __('From address') }}</label>
+                    <input type="email" class="form-control" name="mail_from_address"
+                        value="{{ old('mail_from_address', $settings['mail_from_address'] ?? '') }}">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">{{ __('From name') }}</label>
+                    <input class="form-control" name="mail_from_name"
+                        value="{{ old('mail_from_name', $settings['mail_from_name'] ?? '') }}">
+                </div>
             </div>
         </div>
     </div>

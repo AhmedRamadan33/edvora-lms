@@ -59,6 +59,19 @@ class UpdateSettingsRequest extends FormRequest
             'fawry_security_key' => ['nullable', 'string'],
             'fawry_mode' => ['nullable', Rule::in(['sandbox', 'live'])],
             'fawry_enabled' => ['nullable', 'in:0,1'],
+            'google_client_id' => ['nullable', 'string'],
+            'google_client_secret' => ['nullable', 'string'],
+            'google_login_enabled' => ['nullable', 'in:0,1'],
+            'facebook_client_id' => ['nullable', 'string'],
+            'facebook_client_secret' => ['nullable', 'string'],
+            'facebook_login_enabled' => ['nullable', 'in:0,1'],
+            'mail_host' => ['nullable', 'string', 'max:255'],
+            'mail_port' => ['nullable', 'integer', 'min:1', 'max:65535'],
+            'mail_username' => ['nullable', 'string', 'max:255'],
+            'mail_password' => ['nullable', 'string', 'max:255'],
+            'mail_encryption' => ['nullable', Rule::in(['tls', 'ssl', 'none'])],
+            'mail_from_address' => ['nullable', 'email', 'max:255'],
+            'mail_from_name' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

@@ -10,13 +10,14 @@ use App\Services\PaymobService;
 use App\Services\PayPalService;
 use App\Services\PayTabsService;
 use App\Services\SettingService;
+use App\Services\SocialAuthService;
 use App\Services\StripeService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class SettingController extends Controller
 {
-    public function edit(StripeService $stripe, PaymobService $paymob, PayTabsService $paytabs, PayPalService $paypal, FawryService $fawry): View
+    public function edit(StripeService $stripe, PaymobService $paymob, PayTabsService $paytabs, PayPalService $paypal, FawryService $fawry, SocialAuthService $social): View
     {
         $gateways = [
             'stripe' => ['configured' => $stripe->isConfigured()],
@@ -24,6 +25,11 @@ class SettingController extends Controller
             'paytabs' => ['configured' => $paytabs->isConfigured()],
             'paypal' => ['configured' => $paypal->isConfigured()],
             'fawry' => ['configured' => $fawry->isConfigured()],
+        ];
+
+        $socialProviders = [
+            'google' => ['configured' => $social->isConfigured('google')],
+            'facebook' => ['configured' => $social->isConfigured('facebook')],
         ];
 
         $settings = SettingService::many([
@@ -61,11 +67,24 @@ class SettingController extends Controller
             'fawry_security_key' => '',
             'fawry_mode' => 'sandbox',
             'fawry_enabled' => true,
+            'google_client_id' => '',
+            'google_client_secret' => '',
+            'google_login_enabled' => true,
+            'facebook_client_id' => '',
+            'facebook_client_secret' => '',
+            'facebook_login_enabled' => true,
+            'mail_host' => '',
+            'mail_port' => '',
+            'mail_username' => '',
+            'mail_password' => '',
+            'mail_encryption' => 'tls',
+            'mail_from_address' => '',
+            'mail_from_name' => '',
         ]);
 
         $paypalCurrencies = PayPalService::supportedCurrencies();
 
-        return view('admin.settings.edit', compact('settings', 'gateways', 'paypalCurrencies'));
+        return view('admin.settings.edit', compact('settings', 'gateways', 'socialProviders', 'paypalCurrencies'));
     }
 
     public function update(UpdateSettingsRequest $request, AdminCatalogService $catalog): RedirectResponse

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\User;
+use App\Services\SocialAuthService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -18,9 +19,19 @@ class SocialAuthController extends Controller
 {
     private const PROVIDERS = ['google', 'facebook'];
 
+    public function __construct(private SocialAuthService $social)
+    {
+    }
+
     public function redirect(string $provider): RedirectResponse
     {
         $this->ensureProviderSupported($provider);
+
+        if (! $this->social->isEnabled($provider)) {
+            return redirect()->route('login')->with('error', __(':provider sign-in is not available right now.', ['provider' => ucfirst($provider)]));
+        }
+
+        $this->social->applyRuntimeConfig($provider);
 
         $driver = Socialite::driver($provider);
 
@@ -34,6 +45,12 @@ class SocialAuthController extends Controller
     public function callback(string $provider): RedirectResponse
     {
         $this->ensureProviderSupported($provider);
+
+        if (! $this->social->isEnabled($provider)) {
+            return redirect()->route('login')->with('error', __(':provider sign-in is not available right now.', ['provider' => ucfirst($provider)]));
+        }
+
+        $this->social->applyRuntimeConfig($provider);
 
         try {
             $socialUser = Socialite::driver($provider)->user();
