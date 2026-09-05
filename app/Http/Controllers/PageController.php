@@ -15,6 +15,8 @@ class PageController extends Controller
             ->with('translations')
             ->firstOrFail();
 
-        return view('pages.show', compact('page'));
+        $view = $slug === 'about' ? 'pages.about' : 'pages.show';
+
+        return view($view, compact('page'));
     }
 }
