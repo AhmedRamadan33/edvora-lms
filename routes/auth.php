@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\ChooseAccountTypeController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
@@ -45,6 +46,11 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
+    Route::get('auth/choose-account-type', [ChooseAccountTypeController::class, 'show'])
+        ->name('social.choose-type');
+
+    Route::post('auth/choose-account-type', [ChooseAccountTypeController::class, 'store']);
+
     Route::get('verify-email', EmailVerificationPromptController::class)
         ->name('verification.notice');
 

@@ -655,6 +655,43 @@ img {
     margin-bottom: 0.35rem;
 }
 
+.ed-choice-option {
+    display: block;
+    cursor: pointer;
+    margin: 0;
+}
+
+.ed-choice-option input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.ed-choice-option__body {
+    display: block;
+    border: 1.5px solid var(--ed-line);
+    border-radius: var(--ed-radius-sm);
+    padding: 1.25rem 1rem;
+    text-align: center;
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.ed-choice-option input:checked + .ed-choice-option__body {
+    border-color: var(--ed-accent);
+    background: var(--ed-accent-soft);
+}
+
+.ed-choice-option input:focus-visible + .ed-choice-option__body {
+    outline: 2px solid var(--ed-accent);
+    outline-offset: 2px;
+}
+
+.ed-choice-option__icon {
+    font-size: 1.75rem;
+    color: var(--ed-accent-dark);
+    margin-bottom: 0.5rem;
+}
+
 /* Footer */
 .ed-footer {
     margin-top: 4rem;

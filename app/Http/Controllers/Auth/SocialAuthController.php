@@ -5,9 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\User;
-use App\Services\InstructorApplicationService;
 use App\Services\SocialAuthService;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -21,24 +19,17 @@ class SocialAuthController extends Controller
 {
     private const PROVIDERS = ['google', 'facebook'];
 
-    private const SESSION_ACCOUNT_TYPE_KEY = 'social_account_type';
-
-    public function __construct(
-        private SocialAuthService $social,
-        private InstructorApplicationService $instructorApplication,
-    ) {
+    public function __construct(private SocialAuthService $social)
+    {
     }
 
-    public function redirect(Request $request, string $provider): RedirectResponse
+    public function redirect(string $provider): RedirectResponse
     {
         $this->ensureProviderSupported($provider);
 
         if (! $this->social->isEnabled($provider)) {
             return redirect()->route('login')->with('error', __(':provider sign-in is not available right now.', ['provider' => ucfirst($provider)]));
         }
-
-        $accountType = $request->query('account_type') === 'instructor' ? 'instructor' : 'student';
-        session([self::SESSION_ACCOUNT_TYPE_KEY => $accountType]);
 
         $this->social->applyRuntimeConfig($provider);
 
@@ -77,6 +68,10 @@ class SocialAuthController extends Controller
 
         ActivityLog::record($user->wasRecentlyCreated ? 'auth.registered' : 'auth.login', $user);
 
+        if ($user->wasRecentlyCreated) {
+            return redirect()->route('social.choose-type');
+        }
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 
@@ -112,12 +107,10 @@ class SocialAuthController extends Controller
             'avatar' => $socialUser->getAvatar(),
             'provider' => $provider,
             'provider_id' => $socialUser->getId(),
-            'email_verified_at' => now(),
             'locale' => session('locale', config('app.locale', 'en')),
         ]);
 
-        $accountType = session()->pull(self::SESSION_ACCOUNT_TYPE_KEY, 'student');
-        $this->instructorApplication->applyAccountType($user, $accountType);
+        $user->forceFill(['email_verified_at' => now()])->save();
 
         return $user;
     }

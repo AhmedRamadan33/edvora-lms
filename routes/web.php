@@ -80,7 +80,7 @@ Route::post('/checkout/paytabs/return', [CheckoutController::class, 'paytabsRetu
 Route::get('/checkout/paypal/return', [CheckoutController::class, 'paypalReturn'])->name('checkout.paypal.return');
 Route::get('/checkout/fawry/return', [CheckoutController::class, 'fawryReturn'])->name('checkout.fawry.return');
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'account_type_selected'])->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureAccountTypeSelected;
 use App\Http\Middleware\EnsureRole;
 use App\Http\Middleware\EnsureStudentOnly;
 use App\Http\Middleware\SetLocale;
@@ -24,6 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
             'student_only' => EnsureStudentOnly::class,
+            'account_type_selected' => EnsureAccountTypeSelected::class,
         ]);
 
         $middleware->validateCsrfTokens(except: [
