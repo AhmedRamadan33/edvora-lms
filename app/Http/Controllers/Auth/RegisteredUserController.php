@@ -5,18 +5,20 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\RegisterUserRequest;
 use App\Models\ActivityLog;
-use App\Models\InstructorProfile;
 use App\Models\User;
-use App\Notifications\GenericNotification;
+use App\Services\InstructorApplicationService;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Notification;
 use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
+    public function __construct(private InstructorApplicationService $instructorApplication)
+    {
+    }
+
     public function create(): View
     {
         return view('auth.register');
@@ -33,23 +35,7 @@ class RegisteredUserController extends Controller
             'locale' => session('locale', config('app.locale', 'en')),
         ]);
 
-        $user->syncRoles([$data['account_type']]);
-
-        if ($data['account_type'] === 'instructor') {
-            InstructorProfile::query()->create([
-                'user_id' => $user->id,
-                'status' => 'pending',
-            ]);
-
-            $admins = User::role('admin')->get();
-            if ($admins->isNotEmpty()) {
-                Notification::send($admins, new GenericNotification(
-                    __(':name applied to become an instructor.', ['name' => $user->name]),
-                    route('admin.instructors.index'),
-                    __('New instructor application')
-                ));
-            }
-        }
+        $this->instructorApplication->applyAccountType($user, $data['account_type']);
 
         event(new Registered($user));
         Auth::login($user);

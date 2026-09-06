@@ -29,7 +29,7 @@
             </div>
             <div class="mb-4">
                 <label class="form-label">{{ __('Account type') }}</label>
-                <select name="account_type" class="form-select">
+                <select name="account_type" id="ed-account-type" class="form-select">
                     <option value="student">{{ __('Student') }}</option>
                     <option value="instructor">{{ __('Instructor') }}</option>
                 </select>
@@ -42,4 +42,24 @@
         </div>
     </div>
 </div>
+
+<script>
+(function () {
+    var accountType = document.getElementById('ed-account-type');
+    var socialLinks = document.querySelectorAll('[data-social-link]');
+
+    if (!accountType || !socialLinks.length) return;
+
+    function syncSocialLinks() {
+        socialLinks.forEach(function (link) {
+            var url = new URL(link.href, window.location.origin);
+            url.searchParams.set('account_type', accountType.value);
+            link.href = url.toString();
+        });
+    }
+
+    accountType.addEventListener('change', syncSocialLinks);
+    syncSocialLinks();
+})();
+</script>
 @endsection

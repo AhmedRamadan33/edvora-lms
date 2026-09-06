@@ -11,12 +11,12 @@
     </div>
     <div class="d-flex gap-2 mb-4">
         @if ($googleEnabled)
-            <a href="{{ route('social.redirect', 'google') }}" class="btn btn-outline-secondary w-100 d-inline-flex align-items-center justify-content-center gap-2">
+            <a href="{{ route('social.redirect', 'google') }}" data-social-link="google" class="btn btn-outline-secondary w-100 d-inline-flex align-items-center justify-content-center gap-2">
                 <i class="bi bi-google"></i> {{ __('Google') }}
             </a>
         @endif
         @if ($facebookEnabled)
-            <a href="{{ route('social.redirect', 'facebook') }}" class="btn btn-outline-secondary w-100 d-inline-flex align-items-center justify-content-center gap-2">
+            <a href="{{ route('social.redirect', 'facebook') }}" data-social-link="facebook" class="btn btn-outline-secondary w-100 d-inline-flex align-items-center justify-content-center gap-2">
                 <i class="bi bi-facebook"></i> {{ __('Facebook') }}
             </a>
         @endif

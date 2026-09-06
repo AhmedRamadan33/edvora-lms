@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\User;
+use App\Services\InstructorApplicationService;
 use App\Services\SocialAuthService;
+use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -19,17 +21,24 @@ class SocialAuthController extends Controller
 {
     private const PROVIDERS = ['google', 'facebook'];
 
-    public function __construct(private SocialAuthService $social)
-    {
+    private const SESSION_ACCOUNT_TYPE_KEY = 'social_account_type';
+
+    public function __construct(
+        private SocialAuthService $social,
+        private InstructorApplicationService $instructorApplication,
+    ) {
     }
 
-    public function redirect(string $provider): RedirectResponse
+    public function redirect(Request $request, string $provider): RedirectResponse
     {
         $this->ensureProviderSupported($provider);
 
         if (! $this->social->isEnabled($provider)) {
             return redirect()->route('login')->with('error', __(':provider sign-in is not available right now.', ['provider' => ucfirst($provider)]));
         }
+
+        $accountType = $request->query('account_type') === 'instructor' ? 'instructor' : 'student';
+        session([self::SESSION_ACCOUNT_TYPE_KEY => $accountType]);
 
         $this->social->applyRuntimeConfig($provider);
 
@@ -107,7 +116,8 @@ class SocialAuthController extends Controller
             'locale' => session('locale', config('app.locale', 'en')),
         ]);
 
-        $user->syncRoles(['student']);
+        $accountType = session()->pull(self::SESSION_ACCOUNT_TYPE_KEY, 'student');
+        $this->instructorApplication->applyAccountType($user, $accountType);
 
         return $user;
     }
