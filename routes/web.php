@@ -39,6 +39,7 @@ use App\Http\Controllers\Instructor\ExamController;
 use App\Http\Controllers\Instructor\IntegrationController;
 use App\Http\Controllers\Instructor\LiveClassController;
 use App\Http\Controllers\Instructor\OrderController as InstructorOrderController;
+use App\Http\Controllers\Instructor\PendingController as InstructorPendingController;
 use App\Http\Controllers\Instructor\ProfileController as InstructorProfileController;
 use App\Http\Controllers\Instructor\PublicProfileController;
 use App\Http\Controllers\Instructor\SubjectController;
@@ -151,7 +152,8 @@ Route::middleware(['auth', 'verified', 'account_type_selected'])->group(function
         Route::get('/{exam}/result', [StudentExamController::class, 'result'])->name('result');
     });
 
-    Route::middleware('role:instructor,admin')->prefix('instructor')->name('instructor.')->group(function () {
+    Route::middleware(['role:instructor,admin', 'instructor_approved'])->prefix('instructor')->name('instructor.')->group(function () {
+        Route::get('/pending', [InstructorPendingController::class, 'show'])->name('pending');
         Route::get('/dashboard', InstructorDashboardController::class)->name('dashboard');
         Route::get('/profile', [InstructorProfileController::class, 'edit'])->name('profile.edit');
         Route::put('/profile', [InstructorProfileController::class, 'update'])->name('profile.update');

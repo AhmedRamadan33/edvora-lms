@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\User;
 use App\Services\SocialAuthService;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -69,7 +70,7 @@ class SocialAuthController extends Controller
         ActivityLog::record($user->wasRecentlyCreated ? 'auth.registered' : 'auth.login', $user);
 
         if ($user->wasRecentlyCreated) {
-            return redirect()->route('social.choose-type');
+            event(new Registered($user));
         }
 
         return redirect()->intended(route('dashboard', absolute: false));
@@ -94,13 +95,12 @@ class SocialAuthController extends Controller
             $byEmail->forceFill([
                 'provider' => $provider,
                 'provider_id' => $socialUser->getId(),
-                'email_verified_at' => $byEmail->email_verified_at ?? now(),
             ])->save();
 
             return $byEmail;
         }
 
-        $user = User::create([
+        return User::create([
             'name' => $socialUser->getName() ?: $socialUser->getNickname() ?: 'User',
             'email' => $socialUser->getEmail(),
             'password' => Hash::make(Str::random(40)),
@@ -109,10 +109,6 @@ class SocialAuthController extends Controller
             'provider_id' => $socialUser->getId(),
             'locale' => session('locale', config('app.locale', 'en')),
         ]);
-
-        $user->forceFill(['email_verified_at' => now()])->save();
-
-        return $user;
     }
 
     private function ensureProviderSupported(string $provider): void
